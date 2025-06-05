@@ -19,7 +19,7 @@ class G4VPhysicalVolume;
 #include <G4UnionSolid.hh>
 #include <G4UImanager.hh>
 #include <G4VUserDetectorConstruction.hh>
-#include "HTPCSensitiveDetector.hh"
+//#include "PurdueEljenSensitiveDetector.hh" ->To be updated still
 
 class HTPCDetectorConstruction: public G4VUserDetectorConstruction
 {
@@ -33,7 +33,6 @@ public:
     void DefineMaterials();
     void ConstructLab();
     void ConstructCryostats();
-    void ConstructDetector();
 
     G4double GetGeometryParameter(const char *szParameter);
 
@@ -65,11 +64,5 @@ private:
     //CryostatVacuum
     G4LogicalVolume   *m_piCryostatLogicalVolume;
     G4VPhysicalVolume *m_piCryostatPhysicalVolume;
-
-    //LXe Volume
-    G4LogicalVolume   *m_pLXeLogicalVolume;
-    G4VPhysicalVolume *m_pLXePhysicalVolume;
-
-    HTPCSensitiveDetector *pHTPC_SD;
 };
 #endif

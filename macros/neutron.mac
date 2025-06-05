@@ -1,0 +1,11 @@
+#For Mono-energetic Neutrons
+/xe/gun/particle neutron
+/xe/gun/energy 2500 keV
+/xe/gun/angtype iso
+
+/xe/gun/type   Volume
+/xe/gun/shape  Cylinder
+/xe/gun/center 0 0 0 mm
+/xe/gun/radius 8.144  mm
+/xe/gun/halfz  2.2 mm
+

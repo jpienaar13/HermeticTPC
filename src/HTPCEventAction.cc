@@ -27,3 +27,4 @@ void HTPCEventAction::EndOfEventAction(const G4Event *pEvent)
   //G4cout <<"pEvent at End " << pEvent ->GetEventID()<< G4endl;
     if(m_pAnalysisManager)
     m_pAnalysisManager->EndOfEvent(pEvent);
+}

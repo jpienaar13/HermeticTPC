@@ -44,7 +44,7 @@ HTPCDetectorHit::operator=(const HTPCDetectorHit &hHTPCDetectorHit)
 	m_pParentType = hHTPCDetectorHit.m_pParentType ;
 	m_pCreatorProcess = hHTPCDetectorHit.m_pCreatorProcess ;
 	m_pDepositingProcess = hHTPCDetectorHit.m_pDepositingProcess ;
-	m_hPosition = hPHTPCDetectorHit.m_hPosition;
+	m_hPosition = hHTPCDetectorHit.m_hPosition;
 	m_dEnergyDeposited = hHTPCDetectorHit.m_dEnergyDeposited;
 	m_dKineticEnergy = hHTPCDetectorHit.m_dKineticEnergy ;
 	m_dPreStepEnergy = hHTPCDetectorHit.m_dPreStepEnergy ;
@@ -77,7 +77,7 @@ void HTPCDetectorHit::Draw()
 	}
 }
 
-void HTPCnDetectorHit::Print()
+void HTPCDetectorHit::Print()
 {
 	G4cout << "-------------------- HTPCDetectorHit --------------------"
 		<< "Id: " << m_iTrackId

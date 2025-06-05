@@ -5,7 +5,7 @@ HTPCEventData::HTPCEventData()
 	m_iEventId = 0;
 
 	//Vind uit wat nodig is, verwys na Analysis Manager
-	m_iNbPMTDetectorHits = 0;
+	m_iNbPMTHits = 0;
 	m_pPMTHits = new vector<int>;
 
 	m_fTotalEnergyDeposited = 0.;
@@ -41,7 +41,7 @@ HTPCEventData::HTPCEventData()
 
 }
 
-HTPCEventData::HTPCEventData()
+HTPCEventData::~HTPCEventData()
 {
 	delete m_pPMTHits;
 	delete m_pTrackId;

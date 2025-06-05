@@ -29,21 +29,21 @@ using std::max;
 #include "TParameter.h"
 
 //#include "PurdueDetectorMessenger.hh"-> To be updated still
-//#include "PurdueEljenSensitiveDetector.hh"-> To be updated still
+#include "HTPCSensitiveDetector.hh"
 #include "HTPCDetectorConstruction.hh"
 #include "G4PhysicalVolumeStore.hh"
 
-map<G4String, G4double> PurdueDetectorConstruction::m_hGeometryParameters;
+map<G4String, G4double> HTPCDetectorConstruction::m_hGeometryParameters;
 
 HTPCDetectorConstruction::HTPCDetectorConstruction(G4String fName)
 {
   detRootFile = fName;
-  m_pDetectorMessenger = new PurdueDetectorMessenger(this);
+  //m_pDetectorMessenger = new PurdueDetectorMessenger(this);
 }
 
 HTPCDetectorConstruction::~HTPCDetectorConstruction()
 {
-  delete m_pDetectorMessenger;
+  //delete m_pDetectorMessenger;
 }
 
 void HTPCDetectorConstruction::DefineGeometryParameters()
@@ -68,19 +68,23 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
   //===============================TPC===================================
   m_hGeometryParameters["TPC_oD"] = 3600. *mm;
   m_hGeometryParameters["TPC_H"] = 4000. *mm;
+
 }
 
-void HTPCDetectorConstruction:DefineMaterials()
+void HTPCDetectorConstruction::DefineMaterials()
 {
     G4NistManager* pNistManager = G4NistManager::Instance();
 
     //========== Elements ==========
+    G4Element *Xe = new G4Element("Xenon", "Xe", 54., 131.293 * g / mole);
     G4Element *C = new G4Element("Carbon", "C", 6., 12.011 * g / mole);
     G4Element *Fe = new G4Element("Iron", "Fe", 26., 55.85 * g / mole);
+    G4Element *N = new G4Element("Nitrogen", "N", 7., 14.007 * g / mole);
+    G4Element *O = new G4Element("Oxygen", "O", 8., 15.999 * g / mole);
     G4Element *Co = pNistManager->FindOrBuildElement("Co");
 
     //==== Water ====
-    G4Material* water = pNistManager->FindOrBuildMaterial("G4_WATER")
+    G4Material* Water = pNistManager->FindOrBuildMaterial("G4_WATER");
 
     //==== Steel ====
     G4Material *Steel = new G4Material("Steel", 7.7 * g / cm3, 3);
@@ -93,19 +97,47 @@ void HTPCDetectorConstruction:DefineMaterials()
     Vacuum->AddElement(N, 0.755);
     Vacuum->AddElement(O, 0.245);
 
+    //==== Liquid Xenon ====
+    G4Material *LXe = new G4Material("LXe", 2.862 * g / cm3, 1, kStateLiquid,
+                                   177.05 * kelvin, 1.5 * atmosphere);
+    LXe->AddElement(Xe, 1);
+
+    // Optical properties LXe
+    const G4int iNbEntries = 3;
+    G4double pdLXePhotonMomentum[iNbEntries] = {6.91 * eV, 6.98 * eV, 7.05 * eV};
+    G4double pdLXeScintillation[iNbEntries] = {0.1, 1.0, 0.1};
+    G4double pdLXeRefractiveIndex[iNbEntries] = {1.63, 1.61, 1.58};
+    G4double pdLXeAbsorbtionLength[iNbEntries] = {100. * cm, 100. * cm,
+                                                100. * cm};
+    G4double pdLXeScatteringLength[iNbEntries] = {30. * cm, 30. * cm, 30. * cm};
+    G4MaterialPropertiesTable *pLXePropertiesTable = new G4MaterialPropertiesTable();
+    pLXePropertiesTable->AddProperty("FASTCOMPONENT", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
+    pLXePropertiesTable->AddProperty("SLOWCOMPONENT", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
+    pLXePropertiesTable->AddProperty("RINDEX", pdLXePhotonMomentum, pdLXeRefractiveIndex, iNbEntries);
+    pLXePropertiesTable->AddProperty("ABSLENGTH", pdLXePhotonMomentum, pdLXeAbsorbtionLength, iNbEntries);
+    pLXePropertiesTable->AddProperty("RAYLEIGH", pdLXePhotonMomentum, pdLXeScatteringLength, iNbEntries);
+    pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / keV);
+    pLXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
+    pLXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
+    pLXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27. * ns);
+    pLXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
+    pLXePropertiesTable->AddConstProperty("TOTALNUM_INT_SITES", -1);
+    // initialize the number of interaction sites
+    LXe->SetMaterialPropertiesTable(pLXePropertiesTable);
 }
 
 G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
 {
+    DefineMaterials();
     DefineGeometryParameters();
     ConstructLab();
     ConstructCryostats();
-    //ConstructDetector();
+    ConstructDetector();
 
-    return m_pLabPhysicalVolume
+    return m_pLabPhysicalVolume;
 }
 
-void HTPCDetectorConstruction:ConstructLab()
+void HTPCDetectorConstruction::ConstructLab()
 {
     G4Material *Water = G4Material::GetMaterial("G4_WATER");
 
@@ -122,10 +154,10 @@ void HTPCDetectorConstruction:ConstructLab()
      m_pLabPhysicalVolume =  new G4PVPlacement(0, G4ThreeVector(),
                                  m_pLabLogicalVolume, "Lab_phys", 0, false, 0);
 
-     m_pLabLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);}
+     m_pLabLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
 }
 
-void HTPCDetectorConstruction:ConstructCryostats()
+void HTPCDetectorConstruction::ConstructCryostats()
 {
     G4Material *Steel = G4Material::GetMaterial("Steel");
     G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
@@ -159,7 +191,7 @@ void HTPCDetectorConstruction:ConstructCryostats()
 
     m_pCryoVacuumPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_pCryoVacuumLogicalVolume, "CryoVacuum_phys",
-		      m_poCryostatPhysicalVolume, false, 0);
+		      m_poCryostatLogicalVolume, false, 0);
 
     //----- Inner Cryostat-----
     //Dimensions
@@ -174,8 +206,56 @@ void HTPCDetectorConstruction:ConstructCryostats()
 
     m_piCryostatPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_piCryostatLogicalVolume, "iCryostat_phys",
-		      m_pCryoVacuumPhysicalVolume, false, 0);
+		      m_pCryoVacuumLogicalVolume, false, 0);
 
+	//Vis Attributes
+    G4VisAttributes* iCryostatVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // Green
+    m_piCryostatLogicalVolume->SetVisAttributes(iCryostatVis);
+
+}
+
+void HTPCDetectorConstruction::ConstructDetector()
+{
+    G4Material *LXe = G4Material::GetMaterial("LXe");
+
+    //----- Outer Cryostat-----
+    //Dimensions
+    G4double opendeg = 0.0 *deg;
+    G4double closedeg = 360.0 *deg;
+
+    G4double TPC_oD = GetGeometryParameter("TPC_oD");
+    G4double TPC_H = GetGeometryParameter("TPC_H");
+
+        //Container
+    G4Tubs *LXeTub = new G4Tubs
+        ("LXe", 0., TPC_oD/2, TPC_H/2, opendeg, closedeg);
+
+    m_pLXeLogicalVolume = new G4LogicalVolume(LXeTub, LXe, "LXe_log");
+
+    G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
+      pHTPC_SD = new HTPCSensitiveDetector("HTPC_SD");
+      pSDManager->AddNewDetector(pHTPC_SD);
+      m_pLXeLogicalVolume->SetSensitiveDetector(pHTPC_SD);
+
+    m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
+		      m_pLXeLogicalVolume, "LXe_phys",
+		      m_piCryostatLogicalVolume, false, 0);
+
+	//Vis Attributes
+    G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); //Red
+    m_pLXeLogicalVolume->SetVisAttributes(LXeVis);
+
+}
+
+G4double HTPCDetectorConstruction::GetGeometryParameter(const char *szParameter)
+{
+  if (m_hGeometryParameters.find(szParameter) != m_hGeometryParameters.end()){
+    return m_hGeometryParameters[szParameter];
+  }
+  else {
+    G4cout<< "Parameter: " << szParameter << " is not defined!!!!!" << G4endl;
+    return 0;
+  }
 }
 
 
