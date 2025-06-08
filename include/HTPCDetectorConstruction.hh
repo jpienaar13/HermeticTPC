@@ -70,6 +70,28 @@ private:
     G4LogicalVolume   *m_pLXeLogicalVolume;
     G4VPhysicalVolume *m_pLXePhysicalVolume;
 
+    //PTFECyl Volume
+    G4LogicalVolume   *m_pPTFECylLogicalVolume;
+    G4VPhysicalVolume *m_pPTFECylPhysicalVolume;
+
+    //ALXe Volume
+    G4LogicalVolume   *m_pALXeLogicalVolume;
+    G4VPhysicalVolume *m_pALXePhysicalVolume;
+
+    //GXe Volume
+    G4LogicalVolume   *m_pGXeLogicalVolume;
+    G4VPhysicalVolume *m_pGXePhysicalVolume;
+
+    //Sapphire Volumes
+    G4LogicalVolume   *m_pSapphireLXeLogicalVolume;
+    G4VPhysicalVolume *m_pSapphireLXePhysicalVolume;
+
+    G4LogicalVolume   *m_pSapphireGXeLogicalVolume;
+    G4VPhysicalVolume *m_pSapphireGXePhysicalVolume;
+
+    G4LogicalVolume   *m_pSapphireAnodeLogicalVolume;
+    G4VPhysicalVolume *m_pSapphireAnodePhysicalVolume;
+
     HTPCSensitiveDetector *pHTPC_SD;
 };
 #endif
