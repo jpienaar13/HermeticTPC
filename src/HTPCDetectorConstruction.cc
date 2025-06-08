@@ -67,16 +67,17 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
   m_hGeometryParameters["iCryostatWall_thickness"] = 10. *mm;
 
   //===============================TPC===================================
-  m_hGeometryParameters["TPC_oD"] = 3600. *mm;
-  m_hGeometryParameters["TPC_H"] = 4300. *mm;
+  m_hGeometryParameters["TPC_oD"] = 3000. *mm;
+  m_hGeometryParameters["TPC_H"] = 3150. *mm;
   m_hGeometryParameters["PTFE_thickness"] = 3. *mm;
 
-  m_hGeometryParameters["GXe_H"] = 300. *mm;
+  m_hGeometryParameters["GXe_H"] = 100. *mm;
 
-  m_hGeometryParameters["Sapphire_oD"] = 1000. *mm;
-  m_hGeometryParameters["SapphireThickness"] = 5. *mm;
+  m_hGeometryParameters["Sapphire_oD"] = 950. *mm;
+  m_hGeometryParameters["SapphireThickness"] = 3. *mm;
 
   m_hGeometryParameters["GasGap_H"] = 5. *mm;
+  m_hGeometryParameters["CathodeGap"] = 50. *mm;
 }
 
 void HTPCDetectorConstruction::DefineMaterials()
@@ -323,6 +324,7 @@ void HTPCDetectorConstruction::ConstructDetector()
     //Dimensions
 
     G4double d_GXe_H = GetGeometryParameter("GXe_H");
+    G4double d_ALXe_H = (d_TPC_H-d_GXe_H)/2-d_PTFEThickness;
 
    //Container
     G4Tubs *ALXeTubs = new G4Tubs
@@ -401,11 +403,26 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pSapphireAnodeLogicalVolume, "SapphireAnode_phys",
 		      m_pGXeLogicalVolume, false, 0);
 
+    //----- Sapphire Cylinder Bottom----
+    //Solid plane within LXe
+    G4double d_CathodeGap = GetGeometryParameter("CathodeGap");
+
+    G4Tubs *SapphireBot = new G4Tubs
+        ("SapphireBot", 0, d_Sapphire_oD/2-d_SapphireThickness, d_SapphireThickness/2, opendeg, closedeg);
+
+    m_pSapphireBotLogicalVolume = new G4LogicalVolume(SapphireBot, Sapphire, "SapphireBot_log");
+
+    m_pSapphireBotPhysicalVolume = new G4PVPlacement(0,
+              G4ThreeVector(0, 0, -d_ALXe_H+d_CathodeGap+d_SapphireThickness/2),
+		      m_pSapphireBotLogicalVolume, "SapphireBot_phys",
+		      m_pALXeLogicalVolume, false, 0);
+
     //Vis Attributes
     G4VisAttributes* SapphireVis = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0)); //Yellow
     m_pSapphireLXeLogicalVolume->SetVisAttributes(SapphireVis);
     m_pSapphireGXeLogicalVolume->SetVisAttributes(SapphireVis);
     m_pSapphireAnodeLogicalVolume->SetVisAttributes(SapphireVis);
+    m_pSapphireBotLogicalVolume->SetVisAttributes(SapphireVis);
 
 }
 

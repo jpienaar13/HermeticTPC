@@ -92,6 +92,9 @@ private:
     G4LogicalVolume   *m_pSapphireAnodeLogicalVolume;
     G4VPhysicalVolume *m_pSapphireAnodePhysicalVolume;
 
+    G4LogicalVolume   *m_pSapphireBotLogicalVolume;
+    G4VPhysicalVolume *m_pSapphireBotPhysicalVolume;
+
     HTPCSensitiveDetector *pHTPC_SD;
 };
 #endif
