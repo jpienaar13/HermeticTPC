@@ -7,6 +7,7 @@
 #include <G4UserStackingAction.hh>
 
 class HTPCAnalysisManager;
+class HTPCStackingActionMessenger;
 
 class HTPCStackingAction : public G4UserStackingAction {
  public:
@@ -16,6 +17,7 @@ class HTPCStackingAction : public G4UserStackingAction {
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *aTrack);
   virtual void NewStage();
   virtual void PrepareNewEvent();
+  HTPCStackingActionMessenger *theMessenger;
 
  private:
   HTPCAnalysisManager *m_pAnalysisManager;

@@ -31,17 +31,9 @@
 
 
 # postpone decay
-#/xe/Postponedecay true
+/xe/Postponedecay 1
 
 
 ##################
-# MC acceleration techniques for gammas. AP playground: if false it is not used
-/run/forced/setVarianceReduction false
-#
-# Scintillation processes in the LXe
-#
-/Xe/detector/setLXeScintillation false
-
-
 # Tree Filling options
-/run/writeEmpty false
+#/run/writeEmpty false

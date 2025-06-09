@@ -1,5 +1,6 @@
 #include "HTPCAnalysisManager.hh"
 #include "HTPCStackingAction.hh"
+#include "HTPCStackingActionMessenger.hh"
 
 // G4 Header Files
 #include <G4Event.hh>
@@ -13,14 +14,14 @@
 #include <G4VProcess.hh>
 #include <G4ios.hh>
 
-HTPCStackingAction::HTPCStackingAction(
-    HTPCAnalysisManager *pAnalysisManager) {
+HTPCStackingAction::HTPCStackingAction(HTPCAnalysisManager *pAnalysisManager) {
   m_pAnalysisManager = pAnalysisManager;
+  theMessenger = new HTPCStackingActionMessenger(this);
   PostponeFlag = false;
   MaxLifeTime = 1 * ns;
 }
 
-HTPCStackingAction::~HTPCStackingAction() {}
+HTPCStackingAction::~HTPCStackingAction() {delete theMessenger;}
 
 G4ClassificationOfNewTrack HTPCStackingAction::ClassifyNewTrack(
     const G4Track *pTrack) {
