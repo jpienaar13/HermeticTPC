@@ -18,6 +18,7 @@ class G4VPhysicalVolume;
 
 #include <G4UnionSolid.hh>
 #include <G4UImanager.hh>
+#include <G4Polycone.hh>
 #include <G4VUserDetectorConstruction.hh>
 #include "HTPCSensitiveDetector.hh"
 
@@ -35,7 +36,10 @@ public:
     void ConstructCryostats();
     void ConstructDetector();
 
+    G4LogicalVolume *ConstructPMT();
+
     G4double GetGeometryParameter(const char *szParameter);
+    G4ThreeVector GetPMTPosition(G4int iPMTnB);
 
 
 private:
@@ -82,6 +86,10 @@ private:
     G4LogicalVolume   *m_pGXeLogicalVolume;
     G4VPhysicalVolume *m_pGXePhysicalVolume;
 
+    //PMTGXe Volume
+    G4LogicalVolume   *m_pPMTGXeLogicalVolume;
+    G4VPhysicalVolume *m_pPMTGXePhysicalVolume;
+
     //Sapphire Volumes
     G4LogicalVolume   *m_pSapphireLXeLogicalVolume;
     G4VPhysicalVolume *m_pSapphireLXePhysicalVolume;
@@ -94,6 +102,24 @@ private:
 
     G4LogicalVolume   *m_pSapphireBotLogicalVolume;
     G4VPhysicalVolume *m_pSapphireBotPhysicalVolume;
+
+    //PMT VOlumes
+    G4LogicalVolume *m_pPMTLogicalVolume;
+
+    G4LogicalVolume *m_pPMTInnerVacuumLogicalVolume;
+    G4LogicalVolume *m_pPMTWindowLogicalVolume;
+    G4LogicalVolume *m_pPMTPhotocathodeLogicalVolume;
+    G4LogicalVolume *m_PMTCeramicLogicalVolume;
+
+    G4VPhysicalVolume *m_pPMTInnerVacuumPhysicalVolume;
+    G4VPhysicalVolume *m_pPMTWindowPhysicalVolume;
+    G4VPhysicalVolume *m_pPMTPhotocathodePhysicalVolume;
+    G4VPhysicalVolume *m_PMTCeramicPhysicalVolume;
+
+    G4LogicalVolume *m_pPmtR11410LogicalVolume;
+    //G4LogicalVolume *m_pPmtBasesLogicalVolume;
+    //vector<G4VPhysicalVolume *> m_pPmtBasesPhysicalVolumes;
+    vector<G4VPhysicalVolume *> m_pPMTPhysicalVolumes;
 
     HTPCSensitiveDetector *pHTPC_SD;
 };
