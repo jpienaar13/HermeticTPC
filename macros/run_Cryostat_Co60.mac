@@ -18,13 +18,8 @@
 /xe/gun/halfz  250 cm
 
 ##################
-# Select the volume to confine the source. For cryostat studies choose:
-# InnerCryostat - for the inner vessel
-# OuterCryostat - for the outer vessel
-# HexapodPlatformPhysical  HexapodLegPhysical_1 HexapodLegPhysical_2 - for the Hexapod (platform and legs)
-
-#/gps/pos/confine HexapodPlatformPhysical
-/xe/gun/confine iCryostat_phys
+# Select the volume to confine the source.
+/xe/gun/confine iCryostat_phys oCryostat_phys
 
 ##################
 # particle type + energy spectrum
@@ -36,17 +31,9 @@
 
 
 # postpone decay
-#/xe/Postponedecay true
+#/xe/Postponedecay 1
 
 
 ##################
-# MC acceleration techniques for gammas. AP playground: if false it is not used
-/run/forced/setVarianceReduction false
-#
-# Scintillation processes in the LXe
-#
-/Xe/detector/setLXeScintillation false
-
-
 # Tree Filling options
-/run/writeEmpty false
+#/run/writeEmpty false

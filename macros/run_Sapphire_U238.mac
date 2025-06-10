@@ -30,8 +30,8 @@
 /xe/gun/ion 92 238 0 0
 
 # postpone decay
-/xe/Postponedecay false
-/xe/MaxLifeTime
+#/xe/Postponedecay false
+#/xe/MaxLifeTime 1000000 ns
 
 
 ##################

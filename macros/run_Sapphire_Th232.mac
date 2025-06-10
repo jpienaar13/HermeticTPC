@@ -31,7 +31,7 @@
 
 
 # postpone decay
-/xe/Postponedecay true
+#/xe/Postponedecay true
 
 
 ##################

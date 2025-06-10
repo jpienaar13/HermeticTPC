@@ -18,20 +18,20 @@
 /xe/gun/halfz  250 cm
 
 ##################
-# Select the volume to confine the source. 
-/xe/gun/confine SapphireAnode_phys SapphireLXe_phys SapphireGXe_phys SapphireBot_phys
+# Select the volume to confine the source.
+/xe/gun/confine PmtTpcTop*
 
 ##################
 # particle type + energy spectrum
 /xe/gun/energy 0 keV
 /xe/gun/particle ion
 
-# Co60
-/xe/gun/ion 27 60 0 0
+# Th232
+/xe/gun/ion 90 232 0 0
 
 
 # postpone decay
-#/xe/Postponedecay 1
+#/xe/Postponedecay true
 
 
 ##################
