@@ -2,6 +2,7 @@
 #include <sstream>
 #include <unistd.h>
 
+#include <G4GDMLParser.hh>
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
 #include <G4UItcsh.hh>
@@ -31,7 +32,9 @@ main(int argc, char **argv)
   std::stringstream hStream;
 
   bool bInteractive = false;
+  bool bVisualize = false;
   bool bPreInitFromFile = false;
+  bool bExportGDML = false;
 
   bool bMacroFile = false;
   std::string hMacroFilename, hDataFilename, hPreInitFilename;
@@ -39,7 +42,7 @@ main(int argc, char **argv)
   int iNbEventsToSimulate = 0;
 
   // parse switches
-  while((c = getopt(argc,argv,"f:o:p:n:i")) != -1)
+  while((c = getopt(argc,argv,"f:o:p:n:ivg")) != -1)
   {
     switch(c)	{
 
@@ -65,6 +68,14 @@ main(int argc, char **argv)
 
       case 'i':
         bInteractive = true;
+        break;
+
+      case 'v':
+        bVisualize = true;
+        break;
+
+      case 'g':
+        bExportGDML = true;
         break;
 
       default:
@@ -122,6 +133,23 @@ main(int argc, char **argv)
 
   G4UIExecutive *pUI = 0;
   G4UIsession * pUIsession = 0;
+
+if (bExportGDML) {
+    G4GDMLParser parser;
+    parser.Write("geometry_export.gdml", detCon->Construct());
+}
+
+if (bVisualize){
+    // Optional: also initialize VRML if desired
+    pUImanager->ApplyCommand("/vis/open VRML2FILE");
+    pUImanager->ApplyCommand("/vis/scene/create");
+    pUImanager->ApplyCommand("/vis/drawVolume");
+    pUImanager->ApplyCommand("/vis/viewer/set/viewpointThetaPhi 90 0 deg");
+    pUImanager->ApplyCommand("/vis/viewer/set/upVector 0 0 1");
+    pUImanager->ApplyCommand("/vis/viewer/zoom 1.0");
+    pUImanager->ApplyCommand("/vis/sceneHandler/attach");
+    pUImanager->ApplyCommand("/vis/viewer/flush");
+}
 
   if (bInteractive) {  // Interactive mode
         pUI = new G4UIExecutive(argc, argv);

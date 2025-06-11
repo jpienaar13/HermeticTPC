@@ -191,11 +191,6 @@ void HTPCDetectorConstruction::DefineMaterials()
     pGXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
     GXe->SetMaterialPropertiesTable(pGXePropertiesTable);
 
-    //==== Teflon ====
-    G4Material *Teflon = new G4Material("Teflon", 2.2 * g / cm3, 2, kStateSolid);
-    Teflon->AddElement(C, 0.240183);
-    Teflon->AddElement(F, 0.759817);
-
     G4double pdTeflonPhotonMomentum[iNbEntries] = {6.91 * eV, 6.98 * eV, 7.05 * eV};
     G4double pdTeflonRefractiveIndex[iNbEntries] = {1.63, 1.61, 1.58};
     G4double pdTeflonReflectivity[iNbEntries] = {0.99, 0.99, 0.99};
@@ -295,8 +290,8 @@ void HTPCDetectorConstruction::ConstructCryostats()
 		      m_pCryoVacuumLogicalVolume, false, 0);
 
 	//Vis Attributes
-    G4VisAttributes* iCryostatVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // Green
-    m_piCryostatLogicalVolume->SetVisAttributes(iCryostatVis);
+    //G4VisAttributes* iCryostatVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // Green
+    //m_piCryostatLogicalVolume->SetVisAttributes(iCryostatVis);
 
 }
 
@@ -327,8 +322,8 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_piCryostatLogicalVolume, false, 0);
 
     //Vis Attributes
-    G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); //Red
-    m_pLXeLogicalVolume->SetVisAttributes(LXeVis);
+    //G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); //Red
+    //m_pLXeLogicalVolume->SetVisAttributes(LXeVis);
 
     //----- PTFE Cylinder----
     //Dimensions
@@ -373,8 +368,8 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pPTFECylLogicalVolume, false, 0);
 
     //Vis Attributes
-    G4VisAttributes* ALXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0)); //Magenta
-    m_pALXeLogicalVolume->SetVisAttributes(ALXeVis);
+    //G4VisAttributes* ALXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0)); //Magenta
+    //m_pALXeLogicalVolume->SetVisAttributes(ALXeVis);
 
     //----- GXe ----
     //----- Inside PTFE Container -----
@@ -400,9 +395,9 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pLXeLogicalVolume, false, 0);
 
     //Vis Attributes
-    G4VisAttributes* GXeVis = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0)); //Cyan
-    m_pGXeLogicalVolume->SetVisAttributes(GXeVis);
-    m_pPMTGXeLogicalVolume->SetVisAttributes(GXeVis);
+    //G4VisAttributes* GXeVis = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0)); //Cyan
+    //m_pGXeLogicalVolume->SetVisAttributes(GXeVis);
+    //m_pPMTGXeLogicalVolume->SetVisAttributes(GXeVis);
 
     //----- Sapphire----
     //Consists of cylinder in gas and liquid.	
@@ -685,26 +680,26 @@ G4LogicalVolume *HTPCDetectorConstruction::ConstructPMT() {
 
   // m_pPMTInnerVacuumLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
 
-  G4Colour hPMTWindowColor(1., 0.757, 0.024);
-  G4VisAttributes *pPMTWindowVisAtt = new G4VisAttributes(hPMTWindowColor);
-  pPMTWindowVisAtt->SetVisibility(true);
-  m_pPMTWindowLogicalVolume->SetVisAttributes(pPMTWindowVisAtt);
+  //G4Colour hPMTWindowColor(1., 0.757, 0.024);
+  //G4VisAttributes *pPMTWindowVisAtt = new G4VisAttributes(hPMTWindowColor);
+  //pPMTWindowVisAtt->SetVisibility(true);
+  //m_pPMTWindowLogicalVolume->SetVisAttributes(pPMTWindowVisAtt);
 
-  G4Colour hPMTPhotocathodeColor(1., 0.082, 0.011);
-  G4VisAttributes *pPMTPhotocathodeVisAtt =
-      new G4VisAttributes(hPMTPhotocathodeColor);
-  pPMTPhotocathodeVisAtt->SetVisibility(true);
-  m_pPMTPhotocathodeLogicalVolume->SetVisAttributes(pPMTPhotocathodeVisAtt);
+  //G4Colour hPMTPhotocathodeColor(1., 0.082, 0.011);
+  //G4VisAttributes *pPMTPhotocathodeVisAtt =
+  //    new G4VisAttributes(hPMTPhotocathodeColor);
+  //pPMTPhotocathodeVisAtt->SetVisibility(true);
+  //m_pPMTPhotocathodeLogicalVolume->SetVisAttributes(pPMTPhotocathodeVisAtt);
 
   G4Colour hPMTColor(1., 0.486, 0.027);
   G4VisAttributes *pPMTVisAtt = new G4VisAttributes(hPMTColor);
   pPMTVisAtt->SetVisibility(true);
   m_pPMTLogicalVolume->SetVisAttributes(pPMTVisAtt);
 
-  G4Colour hVacuumColor(1., 1., 1.);
-  G4VisAttributes *pVacuumVisAtt = new G4VisAttributes(hVacuumColor);
-  pVacuumVisAtt->SetVisibility(true);
-  m_pPMTInnerVacuumLogicalVolume->SetVisAttributes(pVacuumVisAtt);
+  //G4Colour hVacuumColor(1., 1., 1.);
+  //G4VisAttributes *pVacuumVisAtt = new G4VisAttributes(hVacuumColor);
+  //pVacuumVisAtt->SetVisibility(true);
+  //m_pPMTInnerVacuumLogicalVolume->SetVisAttributes(pVacuumVisAtt);
 
   return m_pPMTLogicalVolume;
 }
