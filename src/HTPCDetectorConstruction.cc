@@ -98,6 +98,11 @@ void HTPCDetectorConstruction::DefineMaterials()
     G4Element *Mn = new G4Element("Manganese", "Mn", 25., 54.938 * g / mole);
     G4Element *Co = pNistManager->FindOrBuildElement("Co");
 
+    //==== Teflon ====
+    G4Material *Teflon = new G4Material("Teflon", 2.2 * g / cm3, 2, kStateSolid);
+    Teflon->AddElement(C, 0.240183);
+    Teflon->AddElement(F, 0.759817);
+
      //==== Photocathode Aluminium ====
     G4Material *PhotoCathodeAluminium =
         new G4Material("PhotoCathodeAluminium", 8.00 * g / cm3, 1, kStateSolid);
@@ -200,7 +205,7 @@ void HTPCDetectorConstruction::DefineMaterials()
     G4double pdTeflonEfficiency[iNbEntries] = {1.0, 1.0, 1.0};
     G4double pdTeflonAbsorbtionLength[iNbEntries] = {0.1 * cm, 0.1 * cm, 0.1 * cm};
 
-    //==== Quartz ====
+    //==== Sapphire ====
     G4Material *Sapphire = new G4Material("Sapphire", 3.98 * g / cm3, 2, kStateSolid);
     Sapphire->AddElement(Al, 2);
     Sapphire->AddElement(O, 3);

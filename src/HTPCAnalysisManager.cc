@@ -58,7 +58,7 @@ HTPCAnalysisManager::BeginOfRun(const G4Run *)
   _events = m_pTreeFile->mkdir("events");
   _events->cd();
 
-  G4cout <<"HTPCeAnalysisManager:: Init data tree ..."<<G4endl;
+  G4cout <<"HTPCAnalysisManager:: Init data tree ..."<<G4endl;
   m_pTree = new TTree("events", "Tree containing event data for HTPC Detector");
 
   gROOT->ProcessLine("#include <vector>");
