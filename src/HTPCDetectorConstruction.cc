@@ -2,6 +2,7 @@
 #include <G4NistManager.hh>
 #include <G4Box.hh>
 #include <G4Tubs.hh>
+#include <G4Sphere.hh>
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
 #include <G4SDManager.hh>
@@ -52,19 +53,21 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
 
   //============================Laboratory=====================================
 
-  m_hGeometryParameters["Lab_height"] = 20000. *mm;
-  m_hGeometryParameters["Lab_width"] = 20000. *mm;
-  m_hGeometryParameters["Lab_depth"] = 20000. *mm;
+  m_hGeometryParameters["Lab_height"] = 19000. *mm;
+  m_hGeometryParameters["Lab_width"] = 19000. *mm;
+  m_hGeometryParameters["Lab_depth"] = 19000. *mm;
 
   //===============================Cryostats===================================
-  m_hGeometryParameters["oCryostat_oD"] = 3800. *mm;
-  m_hGeometryParameters["oCryostat_H"] = 4500. *mm;
+  m_hGeometryParameters["oCryostat_oD"] = 4000. *mm;
+  m_hGeometryParameters["oCryostat_H"] = 4000. *mm; 
 
-  m_hGeometryParameters["iCryostat_oD"] = 3700. *mm;
-  m_hGeometryParameters["iCryostat_H"] = 4400. *mm;
+  m_hGeometryParameters["iCryostat_oD"] = 3900. *mm;
+  m_hGeometryParameters["iCryostat_H"] = 3900. *mm;
 
   m_hGeometryParameters["oCryostatWall_thickness"] = 10. *mm;
   m_hGeometryParameters["iCryostatWall_thickness"] = 10. *mm;
+
+  //m_hGemoetryParameters["oCryostat_dome"]
 
   //===============================TPC===================================
   m_hGeometryParameters["TPC_oD"] = 3000. *mm;
@@ -79,6 +82,10 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
 
   m_hGeometryParameters["GasGap_H"] = 5. *mm;
   m_hGeometryParameters["CathodeGap"] = 50. *mm;
+
+  //===============================Hargy===================================
+  m_hGeometryParameters["curvature"] = 0.4;
+    
 }
 
 void HTPCDetectorConstruction::DefineMaterials()
@@ -212,6 +219,177 @@ void HTPCDetectorConstruction::DefineMaterials()
 
 }
 
+
+// ---- GEOMETRY FUNCTIONS --- //
+namespace {
+    // Put it in an unnamed namespace so it's local to this translation unit
+    G4VSolid* BuildCapsule(G4double Rmax, G4double Rmin, G4double Dz, G4double DomeCurve) {
+
+        // -- Globals --
+        G4double zOffset   = DomeCurve * Dz;
+        G4RotationMatrix* RotFlip = new G4RotationMatrix;
+        RotFlip->rotateX(180*degree);
+        G4ThreeVector Trans(0, 0, zOffset);
+        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Build oCylinder
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        G4double oCylSPhi = 0.  *deg;
+        G4double oCylDPhi = 360.*deg;
+    
+        G4Tubs* oSolidCyl = new G4Tubs("oSolidCyl",
+                                    0.,
+                                    Rmax,
+                                    Dz,
+                                    oCylSPhi,
+                                    oCylDPhi);
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Build oSphere
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        G4double oSphRmin   = 0.*m;
+        G4double oSphRmax   = sqrt(pow(Rmax,2) + pow(Dz - zOffset,2));
+        G4double oSphSPhi   = 0.   *deg;
+        G4double oSphDPhi   = 360. *deg;
+        G4double oSphSTheta = 0.   *deg;
+        G4double oSphDTheta = atan(Rmax / (Dz - zOffset)) * (180/M_PI) *deg;
+        
+        
+        G4Sphere* oSolidSph = new G4Sphere("oSolidSph",
+                                       oSphRmin,
+                                       oSphRmax,
+                                       oSphSPhi,
+                                       oSphDPhi,
+                                       oSphSTheta,
+                                       oSphDTheta
+                                       );
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Build oCapsule
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        G4UnionSolid* oSolidUnion1 = new G4UnionSolid("oSolidCyl+oSolidSph1", 
+                                      oSolidCyl, 
+                                      oSolidSph,
+                                      0,
+                                      Trans
+                                      );
+    
+        G4UnionSolid* oSolidUnion2 = new G4UnionSolid("oSolidUnion1+oSolidSph2", 
+                                      oSolidUnion1, 
+                                      oSolidSph,
+                                      RotFlip,
+                                      -Trans
+                                      );
+
+        if (Rmin <= 0) {
+            return oSolidUnion2;
+                }
+        else {
+
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            // Build iCylinder
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            G4double iCylSPhi = 0.  *deg;
+            G4double iCylDPhi = 360.*deg;
+        
+            G4Tubs* iSolidCyl = new G4Tubs("iSolidCyl",
+                                        0.,
+                                        Rmin,
+                                        Dz,
+                                        iCylSPhi,
+                                        iCylDPhi);
+    
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            // Build iSphere
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            G4double iSphRmin   = 0.*m;
+            G4double iSphRmax   = sqrt(pow(Rmin,2) + pow(Dz - zOffset,2));
+            G4double iSphSPhi   = 0.   *deg;
+            G4double iSphDPhi   = 360. *deg;
+            G4double iSphSTheta = 0.   *deg;
+            G4double iSphDTheta = atan(Rmin / (Dz - zOffset)) * (180/M_PI) *deg;
+            
+            
+            G4Sphere* iSolidSph = new G4Sphere("iSolidSph",
+                                           iSphRmin,
+                                           iSphRmax,
+                                           iSphSPhi,
+                                           iSphDPhi,
+                                           iSphSTheta,
+                                           iSphDTheta
+                                           );
+    
+    
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            // Build iCapsule
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            G4UnionSolid* iSolidUnion1 = new G4UnionSolid("iSolidCyl+iSolidSph1", 
+                                          iSolidCyl, 
+                                          iSolidSph,
+                                          0,
+                                          Trans
+                                          );
+        
+            G4UnionSolid* iSolidUnion2 = new G4UnionSolid("iSolidUnion1+iSolidSph2", 
+                                          iSolidUnion1, 
+                                          iSolidSph,
+                                          RotFlip,
+                                          -Trans
+                                          );
+                
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            // Build Capsule
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            G4SubtractionSolid* solidCapsule = new G4SubtractionSolid("solidCapsule", 
+                                                                            oSolidUnion2, 
+                                                                            iSolidUnion2
+                                                                        );
+    
+    
+    
+            return solidCapsule;
+            
+        }
+
+    
+    }
+}
+
+
+namespace {
+    // Put it in an unnamed namespace so it's local to this translation unit
+    G4VSolid* AddFlange(G4VSolid* baseSolid, G4double Rmax, G4double Rmin, G4double thickness, G4double zpos) {
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Build Flange
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        G4double FlangeSPhi = 0.  *deg;
+        G4double FlangeDPhi = 360.*deg;
+    
+        G4Tubs* SolidFlange = new G4Tubs("SolidFlange",
+                                    Rmin,
+                                    Rmax,
+                                    thickness,
+                                    FlangeSPhi,
+                                    FlangeDPhi);
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Join with Flange
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~ 
+        G4ThreeVector flangeTrans(0, 0, zpos);
+        G4UnionSolid* solidCapsulewFlange = new G4UnionSolid("solidCapsulewFlange",
+                                      baseSolid, 
+                                      SolidFlange,
+                                      0,
+                                      flangeTrans
+                                      );
+        
+        return solidCapsulewFlange;
+    }
+}
+// ---- --------------- --- //
+
+
 G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
 {
     DefineMaterials();
@@ -219,6 +397,7 @@ G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
     ConstructLab();
     ConstructCryostats();
     ConstructDetector();
+
 
     return m_pLabPhysicalVolume;
 }
@@ -248,16 +427,42 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4Material *Steel = G4Material::GetMaterial("Steel");
     G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
 
+
+
     //----- Outer Cryostat-----
     //Dimensions
     G4double opendeg = 0.0 *deg;
     G4double closedeg = 360.0 *deg;
-
+    
     G4double oCryostat_oD = GetGeometryParameter("oCryostat_oD");
     G4double oCryostat_H = GetGeometryParameter("oCryostat_H");
     G4double oCryostatWall_thickness = GetGeometryParameter("oCryostatWall_thickness");
 
+    //Container -> Hargy's code
+    G4double curvature = GetGeometryParameter("curvature");
+    //G4double curvature   = 0.4;
+    G4double flangeHeight = 0.9*oCryostat_H/2;
+    auto solidCapsule1 = BuildCapsule(oCryostat_oD/2, oCryostat_oD/2 - oCryostatWall_thickness, oCryostat_H/2, curvature);
+    auto oCryostat = AddFlange(solidCapsule1, (oCryostat_oD/2) + 0.3*m, oCryostat_oD/2, 0.1*m, flangeHeight);
+    logicCapsule1wFlange = new G4LogicalVolume(oCryostat,
+                                              Steel,
+                                              "oCryostat_log"
+                                              );
+
+    auto posCapsule1wFlange  = G4ThreeVector(0., 0., 0.);
+    physCapsule1wFlange = new G4PVPlacement(0,
+                                            posCapsule1wFlange,
+                                            logicCapsule1wFlange,
+                                            "physCapsule1wFlange",
+                                            m_pLabLogicalVolume,
+                                            false,
+                                            0,
+                                            true
+                                            );
+
+    
     //Container
+    /*
     G4Tubs *oCryostat = new G4Tubs
         ("oCryostat", 0., oCryostat_oD/2, oCryostat_H/2, opendeg, closedeg);
 
@@ -265,10 +470,48 @@ void HTPCDetectorConstruction::ConstructCryostats()
 
     m_poCryostatPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_poCryostatLogicalVolume, "oCryostat_phys",
-		      m_pLabLogicalVolume, false, 0);
+		      m_pLabLogicalVolume, false, 0); */
 
+
+    // +++ HARGY
+    G4VisAttributes* visAttributesoCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.3));
+    visAttributesoCryostat->SetVisibility(true);
+    //visAttributesoCryostat->SetForceSolid(true);
+    visAttributesoCryostat->SetForceWireframe(true);
+    visAttributesoCryostat->SetForceAuxEdgeVisible(true);
+    logicCapsule1wFlange->SetVisAttributes(visAttributesoCryostat);
+    // --- HARGY
+
+    
     //----- CryostatVacuum-----
+    //Container -> Hargy's code
+    auto CryoVacuum = BuildCapsule(oCryostat_oD/2 - oCryostatWall_thickness, 0.*m, oCryostat_H/2 , curvature);
+    logicCryoVacuum = new G4LogicalVolume(CryoVacuum,
+                                              Vacuum,
+                                              "CryoVacuum_log"
+                                              );
+
+    auto posCryoVacuum  = G4ThreeVector(0., 0., 0.);
+    physCryoVacuum = new G4PVPlacement(0,
+                                            posCryoVacuum,
+                                            logicCryoVacuum,
+                                            "physCryoVacuum",
+                                            logicCapsule1wFlange,
+                                            false,
+                                            0,
+                                            true
+                                            );
+
+
+    G4VisAttributes* visCryoVacuum = new G4VisAttributes(G4Colour(1., 1., 1., 0.1));
+    visCryoVacuum->SetVisibility(true);
+    visCryoVacuum->SetForceSolid(true);
+    //visCryoVacuum->SetForceWireframe(true);
+    //visCryoVacuum->SetForceAuxEdgeVisible(true);
+    logicCryoVacuum->SetVisAttributes(visCryoVacuum);
+    
     //Container
+    /*
     G4Tubs *CryoVacuum = new G4Tubs
         ("oCryoVacuum",0, oCryostat_oD/2-oCryostatWall_thickness,
         oCryostat_H/2-oCryostatWall_thickness, opendeg, closedeg);
@@ -277,14 +520,39 @@ void HTPCDetectorConstruction::ConstructCryostats()
 
     m_pCryoVacuumPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_pCryoVacuumLogicalVolume, "CryoVacuum_phys",
-		      m_poCryostatLogicalVolume, false, 0);
+		      m_poCryostatLogicalVolume, false, 0); */
+    
 
     //----- Inner Cryostat-----
     //Dimensions
     G4double iCryostat_oD = GetGeometryParameter("iCryostat_oD");
     G4double iCryostat_H = GetGeometryParameter("iCryostat_H");
+    G4double iCryostatWall_thickness = GetGeometryParameter("iCryostatWall_thickness");
+
+    //Container -> Hargy's code
+    G4double iFlangerRad  = 0.9* ((oCryostat_oD/2 - iCryostatWall_thickness)  - iCryostat_oD/2);
+    G4double iFlangeThick = 0.12*m; 
+    
+    auto solidCapsule2 = BuildCapsule(iCryostat_oD/2, iCryostat_oD/2 - iCryostatWall_thickness, iCryostat_H/2, curvature);
+    auto iCryostat = AddFlange(solidCapsule2, (iCryostat_oD/2) + iFlangerRad, iCryostat_oD/2, iFlangeThick, flangeHeight);
+    logicCapsule2wFlange = new G4LogicalVolume(iCryostat,
+                                              Steel,
+                                              "iCryostat_log"
+                                              );
+
+    auto posCapsule2wFlange  = G4ThreeVector(0., 0., 0.);
+    physCapsule2wFlange = new G4PVPlacement(0,
+                                            posCapsule2wFlange,
+                                            logicCapsule2wFlange,
+                                            "physCapsule2wFlange",
+                                            logicCryoVacuum,
+                                            false,
+                                            0,
+                                            true
+                                            );
 
     //Container
+    /*
     G4Tubs *iCryostat = new G4Tubs
         ("iCryostat", 0., iCryostat_oD/2, iCryostat_H/2, opendeg, closedeg);
 
@@ -292,7 +560,16 @@ void HTPCDetectorConstruction::ConstructCryostats()
 
     m_piCryostatPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_piCryostatLogicalVolume, "iCryostat_phys",
-		      m_pCryoVacuumLogicalVolume, false, 0);
+		      m_pCryoVacuumLogicalVolume, false, 0); */
+
+    // +++ HARGY
+    G4VisAttributes* visAttributesiCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.4));
+    visAttributesiCryostat->SetVisibility(true);
+    //visAttributesiCryostat->SetForceSolid(true);
+    visAttributesiCryostat->SetForceWireframe(true);
+    visAttributesiCryostat->SetForceAuxEdgeVisible(true);
+    logicCapsule2wFlange->SetVisAttributes(visAttributesiCryostat);
+    // --- HARGY
 
 	//Vis Attributes
     //G4VisAttributes* iCryostatVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // Green
@@ -315,8 +592,29 @@ void HTPCDetectorConstruction::ConstructDetector()
     G4double d_XeRes_oD = GetGeometryParameter("iCryostat_oD");
     G4double d_XeRes_H = GetGeometryParameter("iCryostat_H");
     G4double d_iCryoThick = GetGeometryParameter("iCryostatWall_thickness");
+    G4double curvature = GetGeometryParameter("curvature");
 
+    // Container -> Hargy's code
+    auto LXeTub = BuildCapsule(d_XeRes_oD/2 - d_iCryoThick, 0.*m, d_XeRes_H/2 , curvature);
+    logicLXeTub = new G4LogicalVolume(LXeTub,
+                                              LXe,
+                                              "LXe_log"
+                                              );
+
+    auto posLXeTub  = G4ThreeVector(0., 0., 0.);
+    physLXeTub = new G4PVPlacement(0,
+                                            posLXeTub,
+                                            logicLXeTub,
+                                            "physLXeTub",
+                                            logicCapsule2wFlange,
+                                            false,
+                                            0,
+                                            true
+                                            );
+    
+    
     //Container
+    /*
     G4Tubs *LXeTub = new G4Tubs
         ("LXe", 0., d_XeRes_oD/2-d_iCryoThick, d_XeRes_H/2-d_iCryoThick, opendeg, closedeg);
 
@@ -324,11 +622,19 @@ void HTPCDetectorConstruction::ConstructDetector()
 
     m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_pLXeLogicalVolume, "LXe_phys",
-		      m_piCryostatLogicalVolume, false, 0);
+		      logicCryoVacuum, false, 0); */
 
     //Vis Attributes
     //G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); //Red
     //m_pLXeLogicalVolume->SetVisAttributes(LXeVis);
+
+    //Vis Attributes
+    G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.2));
+    LXeVis->SetVisibility(true);
+    LXeVis->SetForceSolid(true);
+    //LXeVis->SetForceWireframe(true);
+    //LXeVis->SetForceAuxEdgeVisible(true);
+    logicLXeTub->SetVisAttributes(LXeVis);
 
     //----- PTFE Cylinder----
     //Dimensions
@@ -345,12 +651,16 @@ void HTPCDetectorConstruction::ConstructDetector()
 
     m_pPTFECylPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
 		      m_pPTFECylLogicalVolume, "PTFE_phys",
-		      m_pLXeLogicalVolume, false, 0);
+		      logicLXeTub, false, 0);
 
     //Vis Attributes
-    G4VisAttributes* PTFEVis = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0)); 
+    G4VisAttributes* PTFEVis = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 1.0));
+    PTFEVis->SetVisibility(true);
+    PTFEVis->SetForceWireframe(true);
+    PTFEVis->SetForceAuxEdgeVisible(true);
     m_pPTFECylLogicalVolume->SetVisAttributes(PTFEVis);
 
+    
     //----- Active LXe----
     //Dimensions
 
@@ -373,8 +683,10 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pPTFECylLogicalVolume, false, 0);
 
     //Vis Attributes
-    //G4VisAttributes* ALXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0)); //Magenta
-    //m_pALXeLogicalVolume->SetVisAttributes(ALXeVis);
+    G4VisAttributes* ALXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.95, 0.5)); //Magenta
+    ALXeVis->SetVisibility(true);
+    ALXeVis->SetForceSolid(true);
+    m_pALXeLogicalVolume->SetVisAttributes(ALXeVis);
 
     //----- GXe ----
     //----- Inside PTFE Container -----
@@ -389,6 +701,12 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pGXeLogicalVolume, "GXe_phys",
 		      m_pPTFECylLogicalVolume, false, 0);
 
+    //Vis Attributes
+    G4VisAttributes* GXeVis = new G4VisAttributes(G4Colour(0., 0.9, 0., 0.5)); //Purple
+    GXeVis->SetVisibility(true);
+    GXeVis->SetForceSolid(true);
+    m_pGXeLogicalVolume->SetVisAttributes(GXeVis);
+
     //-----Above PTFE for Top PMTs-----
     G4Tubs *PMTGXeTubs = new G4Tubs
         ("PMTGXeTubs", 0., d_TPC_oD/2-d_PTFEThickness, d_PMTGXe_H/2, opendeg, closedeg);
@@ -397,7 +715,15 @@ void HTPCDetectorConstruction::ConstructDetector()
 
     m_pGXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,d_TPC_H/2 + d_PMTGXe_H/2),
 		      m_pPMTGXeLogicalVolume, "PMTGXe_phys",
-		      m_pLXeLogicalVolume, false, 0);
+		      logicLXeTub, false, 0);
+
+    //Vis Attributes
+    G4VisAttributes* PMTGXeVis = new G4VisAttributes(G4Colour(0., 1.0, 1.0, 1.)); //Cyan
+    PMTGXeVis->SetVisibility(true);
+    //PMTGXeVis->SetForceSolid(true);
+    PMTGXeVis->SetForceWireframe(true);
+    PMTGXeVis->SetForceAuxEdgeVisible(true);
+    m_pPMTGXeLogicalVolume->SetVisAttributes(PMTGXeVis);
 
     //Vis Attributes
     //G4VisAttributes* GXeVis = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0)); //Cyan
@@ -423,6 +749,14 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pSapphireLXeLogicalVolume, "SapphireLXe_phys",
 		      m_pALXeLogicalVolume, false, 0);
 
+    //Vis Attributes
+    G4VisAttributes* SapLXeContVis = new G4VisAttributes(G4Colour(1.0, 1.0, 0., 0.7));
+    SapLXeContVis->SetVisibility(true);
+    SapLXeContVis->SetForceSolid(true);
+    //SapLXeContVis->SetForceWireframe(true);
+    //SapLXeContVis->SetForceAuxEdgeVisible(true);
+    m_pSapphireLXeLogicalVolume->SetVisAttributes(SapLXeContVis);
+
     //GXe Container
     G4Tubs *SapphireGXeTubs = new G4Tubs
         ("SapphireGXeTubs", d_Sapphire_oD/2-d_SapphireThickness, d_Sapphire_oD/2, d_GasGap_H/2, opendeg, closedeg);
@@ -433,6 +767,14 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pSapphireGXeLogicalVolume, "SapphireGXe_phys",
 		      m_pGXeLogicalVolume, false, 0);
 
+    //Vis Attributes
+    G4VisAttributes* SapGXeContVis = new G4VisAttributes(G4Colour(1., 1., 1., 1.));
+    SapGXeContVis->SetVisibility(true);
+    //SapGXeContVis->SetForceSolid(true);
+    SapGXeContVis->SetForceWireframe(true);
+    SapGXeContVis->SetForceAuxEdgeVisible(true);
+    m_pSapphireGXeLogicalVolume->SetVisAttributes(SapGXeContVis);
+    
     //----- Sapphire Anode----
     //Solid plane within GXe
 
@@ -445,6 +787,14 @@ void HTPCDetectorConstruction::ConstructDetector()
     m_pSapphireAnodePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, -d_GXe_H/2+d_GasGap_H+d_SapphireThickness/2),
 		      m_pSapphireAnodeLogicalVolume, "SapphireAnode_phys",
 		      m_pGXeLogicalVolume, false, 0);
+
+    //Vis Attributes
+    G4VisAttributes* SapAnodeVis = new G4VisAttributes(G4Colour(1., 1., 1., 1.));
+    SapAnodeVis->SetVisibility(true);
+    SapAnodeVis->SetForceSolid(true);
+    //SapAnodeVis->SetForceWireframe(true);
+    //SapAnodeVis->SetForceAuxEdgeVisible(true);
+    m_pSapphireAnodeLogicalVolume->SetVisAttributes(SapAnodeVis);
 
     //----- Sapphire Cylinder Bottom----
     //Solid plane within LXe
@@ -461,11 +811,19 @@ void HTPCDetectorConstruction::ConstructDetector()
 		      m_pALXeLogicalVolume, false, 0);
 
     //Vis Attributes
-    G4VisAttributes* SapphireVis = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0)); //Yellow
-    m_pSapphireLXeLogicalVolume->SetVisAttributes(SapphireVis);
-    m_pSapphireGXeLogicalVolume->SetVisAttributes(SapphireVis);
-    m_pSapphireAnodeLogicalVolume->SetVisAttributes(SapphireVis);
-    m_pSapphireBotLogicalVolume->SetVisAttributes(SapphireVis);
+    G4VisAttributes* SapPlaneVis = new G4VisAttributes(G4Colour(1., 1., 1., 1.));
+    SapPlaneVis->SetVisibility(true);
+    SapPlaneVis->SetForceSolid(true);
+    //SapPlaneVis->SetForceWireframe(true);
+    //SapPlaneVis->SetForceAuxEdgeVisible(true);
+    m_pSapphireBotLogicalVolume->SetVisAttributes(SapPlaneVis);
+
+    //Vis Attributes
+    //G4VisAttributes* SapphireVis = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0)); //Yellow
+    //m_pSapphireLXeLogicalVolume->SetVisAttributes(SapphireVis);
+    //m_pSapphireGXeLogicalVolume->SetVisAttributes(SapphireVis);
+    //m_pSapphireAnodeLogicalVolume->SetVisAttributes(SapphireVis);
+    //m_pSapphireBotLogicalVolume->SetVisAttributes(SapphireVis);
 
     G4double dPMTHeight = 114. * mm;
     stringstream hVolumeName;
@@ -498,7 +856,7 @@ void HTPCDetectorConstruction::ConstructDetector()
         m_pPMTPhysicalVolumes.push_back(new G4PVPlacement(pRotX180,
                               PmtPosition+G4ThreeVector(0., 0., dPMTOffsetZBot),
                               m_pPmtR11410LogicalVolume, hVolumeName.str(),
-                              m_pLXeLogicalVolume, false, iPMT_label));
+                              logicLXeTub, false, iPMT_label));
     }
 
 }
@@ -699,6 +1057,7 @@ G4LogicalVolume *HTPCDetectorConstruction::ConstructPMT() {
   G4Colour hPMTColor(1., 0.486, 0.027);
   G4VisAttributes *pPMTVisAtt = new G4VisAttributes(hPMTColor);
   pPMTVisAtt->SetVisibility(true);
+  pPMTVisAtt->SetForceSolid(true);
   m_pPMTLogicalVolume->SetVisAttributes(pPMTVisAtt);
 
   //G4Colour hVacuumColor(1., 1., 1.);

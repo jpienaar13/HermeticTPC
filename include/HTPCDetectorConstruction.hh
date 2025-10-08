@@ -54,6 +54,21 @@ private:
     // Messenger Setup
     //PurdueDetectorMessenger *m_pDetectorMessenger;
 
+    // -- Hargy's declarations
+    G4LogicalVolume*   logicCapsule1wFlange;
+    G4VPhysicalVolume* physCapsule1wFlange;
+
+    G4LogicalVolume*   logicCryoVacuum;
+    G4VPhysicalVolume* physCryoVacuum;
+
+    G4LogicalVolume*   logicCapsule2wFlange;
+    G4VPhysicalVolume* physCapsule2wFlange;
+
+    G4LogicalVolume*   logicLXeTub;
+    G4VPhysicalVolume* physLXeTub;
+
+    // -----------------------
+
     //Laboratory
     G4LogicalVolume   *m_pLabLogicalVolume;
     G4VPhysicalVolume *m_pLabPhysicalVolume;
