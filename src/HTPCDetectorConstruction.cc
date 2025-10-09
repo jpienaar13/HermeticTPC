@@ -829,7 +829,7 @@ void HTPCDetectorConstruction::ConstructDetector()
     stringstream hVolumeName;
 
     //Construct Top PMT array
-    G4int iNbPMTs = 1182;
+    G4int iNbPMTs = 1332;
     G4double dPMTOffsetZTop = -d_PMTGXe_H/2+dPMTHeight/2;
 
     m_pPmtR11410LogicalVolume = ConstructPMT();
@@ -1080,11 +1080,13 @@ G4double HTPCDetectorConstruction::GetGeometryParameter(const char *szParameter)
 }
 
 G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index) {
-    if (index < 0 || index >= 1182) {
+    if (index < 0 || index >= 1332) {
         throw std::out_of_range("Index must be between 0 and 1181");
     }
 
-    const G4double outer_radius = 1.5 * m;         // Container radius
+    G4double outer_radius = GetGeometryParameter("TPC_oD") / 2; // Container radius
+    
+    //const G4double outer_radius = 1.5 * m;         // Container radius
     const G4double circle_diameter = 0.0762 * m;   // 3 inches in meters
     const G4double circle_radius = circle_diameter / 2.0;
     const G4double dy = circle_radius * std::sqrt(3.0); // Vertical spacing
@@ -1104,7 +1106,7 @@ G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index) {
                     return G4ThreeVector(x, y, 0.0);
                 }
                 current_index++;
-                if (current_index >= 1182) {
+                if (current_index >= 1332) {
                     break;
                 }
             }
