@@ -19,3 +19,7 @@ cmake -S .. -B . \
 # 3) Build + install
 cmake --build . -j --target install
 
+# 4) Then go back to repo root dir and run
+cd ..
+QT_QPA_PLATFORM=xcb ./build/bin/hermeticTPC -f macros/run_Sapphire_U238.mac -i
+
