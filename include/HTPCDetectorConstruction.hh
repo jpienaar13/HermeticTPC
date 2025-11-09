@@ -39,7 +39,7 @@ public:
     G4LogicalVolume *ConstructPMT();
 
     G4double GetGeometryParameter(const char *szParameter);
-    G4ThreeVector GetPMTPosition(G4int iPMTnB);
+    G4ThreeVector GetPMTPosition(G4int iPMTnB, G4int i_nmbPMTS);
 
 
 private:

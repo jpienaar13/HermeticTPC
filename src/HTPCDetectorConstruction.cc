@@ -460,18 +460,6 @@ void HTPCDetectorConstruction::ConstructCryostats()
                                             true
                                             );
 
-    
-    //Container
-    /*
-    G4Tubs *oCryostat = new G4Tubs
-        ("oCryostat", 0., oCryostat_oD/2, oCryostat_H/2, opendeg, closedeg);
-
-    m_poCryostatLogicalVolume = new G4LogicalVolume(oCryostat, Steel, "oCryostat_log");
-
-    m_poCryostatPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
-		      m_poCryostatLogicalVolume, "oCryostat_phys",
-		      m_pLabLogicalVolume, false, 0); */
-
 
     // +++ HARGY
     G4VisAttributes* visAttributesoCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.3));
@@ -551,17 +539,6 @@ void HTPCDetectorConstruction::ConstructCryostats()
                                             true
                                             );
 
-    //Container
-    /*
-    G4Tubs *iCryostat = new G4Tubs
-        ("iCryostat", 0., iCryostat_oD/2, iCryostat_H/2, opendeg, closedeg);
-
-    m_piCryostatLogicalVolume = new G4LogicalVolume(iCryostat, Steel, "iCryostat_log");
-
-    m_piCryostatPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
-		      m_piCryostatLogicalVolume, "iCryostat_phys",
-		      m_pCryoVacuumLogicalVolume, false, 0); */
-
     // +++ HARGY
     G4VisAttributes* visAttributesiCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.4));
     visAttributesiCryostat->SetVisibility(true);
@@ -611,22 +588,7 @@ void HTPCDetectorConstruction::ConstructDetector()
                                             0,
                                             true
                                             );
-    
-    
-    //Container
-    /*
-    G4Tubs *LXeTub = new G4Tubs
-        ("LXe", 0., d_XeRes_oD/2-d_iCryoThick, d_XeRes_H/2-d_iCryoThick, opendeg, closedeg);
 
-    m_pLXeLogicalVolume = new G4LogicalVolume(LXeTub, LXe, "LXe_log");
-
-    m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
-		      m_pLXeLogicalVolume, "LXe_phys",
-		      logicCryoVacuum, false, 0); */
-
-    //Vis Attributes
-    //G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); //Red
-    //m_pLXeLogicalVolume->SetVisAttributes(LXeVis);
 
     //Vis Attributes
     G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.2));
@@ -818,25 +780,18 @@ void HTPCDetectorConstruction::ConstructDetector()
     //SapPlaneVis->SetForceAuxEdgeVisible(true);
     m_pSapphireBotLogicalVolume->SetVisAttributes(SapPlaneVis);
 
-    //Vis Attributes
-    //G4VisAttributes* SapphireVis = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0)); //Yellow
-    //m_pSapphireLXeLogicalVolume->SetVisAttributes(SapphireVis);
-    //m_pSapphireGXeLogicalVolume->SetVisAttributes(SapphireVis);
-    //m_pSapphireAnodeLogicalVolume->SetVisAttributes(SapphireVis);
-    //m_pSapphireBotLogicalVolume->SetVisAttributes(SapphireVis);
-
     G4double dPMTHeight = 114. * mm;
     stringstream hVolumeName;
 
     //Construct Top PMT array
-    G4int iNbPMTs = 1332;
+    G4int iNbPMTs = 1120;
     G4double dPMTOffsetZTop = -d_PMTGXe_H/2+dPMTHeight/2;
 
     m_pPmtR11410LogicalVolume = ConstructPMT();
     for (G4int iPMT = 0; iPMT < iNbPMTs; ++iPMT) {
         hVolumeName.str("");
         hVolumeName << "PmtTpcTop_" << iPMT;
-        G4ThreeVector PmtPosition = GetPMTPosition(iPMT);
+        G4ThreeVector PmtPosition = GetPMTPosition(iPMT, iNbPMTs);
         m_pPMTPhysicalVolumes.push_back(new G4PVPlacement(0,
                               PmtPosition+G4ThreeVector(0., 0., dPMTOffsetZTop),
                              m_pPmtR11410LogicalVolume, hVolumeName.str(),
@@ -849,7 +804,7 @@ void HTPCDetectorConstruction::ConstructDetector()
     pRotX180->rotateX(180. * deg);
 
     for (G4int iPMT = 0; iPMT < iNbPMTs; ++iPMT) {
-        G4ThreeVector PmtPosition = GetPMTPosition(iPMT);
+        G4ThreeVector PmtPosition = GetPMTPosition(iPMT, iNbPMTs);
         G4int iPMT_label = iPMT + iNbPMTs;
         hVolumeName.str("");
         hVolumeName << "PmtTpcTop_" << iPMT_label;
@@ -1079,16 +1034,15 @@ G4double HTPCDetectorConstruction::GetGeometryParameter(const char *szParameter)
   }
 }
 
-G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index) {
-    if (index < 0 || index >= 1332) {
+G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index, G4int i_nmbPMTS) {
+
+    if (index < 0 || index >= i_nmbPMTS) {
         throw std::out_of_range("Index must be between 0 and 1181");
     }
 
     G4double outer_radius = GetGeometryParameter("TPC_oD") / 2; // Container radius
-    
-    //const G4double outer_radius = 1.5 * m;         // Container radius
-    const G4double circle_diameter = 0.0762 * m;   // 3 inches in meters
-    const G4double circle_radius = circle_diameter / 2.0;
+    const G4double circle_diameter = 0.0762 * m;
+    const G4double circle_radius =  0.081/2 *m; //circle_diameter / 2.0;
     const G4double dy = circle_radius * std::sqrt(3.0); // Vertical spacing
 
     G4double y = -outer_radius;
@@ -1101,16 +1055,16 @@ G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index) {
 
         while (x <= outer_radius) {
             G4double dist_to_center = std::sqrt(x * x + y * y);
-            if (dist_to_center + circle_radius <= outer_radius) {
+            if (dist_to_center + circle_diameter <= outer_radius) {
                 if (current_index == index) {
                     return G4ThreeVector(x, y, 0.0);
                 }
                 current_index++;
-                if (current_index >= 1332) {
+                if (current_index >= i_nmbPMTS) {
                     break;
                 }
             }
-            x += circle_diameter;
+            x += 2*circle_radius;
         }
 
         y += dy;
@@ -1118,7 +1072,7 @@ G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index) {
     }
 
     // Should never reach here if index is valid
-    throw std::runtime_error("Could not find packing center for given index");
+    throw std::runtime_error("Could not find packing center for given index : " + std::to_string(index));
 }
 
 
