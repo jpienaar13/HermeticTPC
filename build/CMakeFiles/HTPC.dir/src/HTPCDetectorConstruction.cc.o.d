@@ -473,6 +473,7 @@ CMakeFiles/HTPC.dir/src/HTPCDetectorConstruction.cc.o: \
  /home/hargy/Science/GEANT4/HermeticTPC/include/HTPCDetectorConstruction.hh \
  /home/hargy/Science/ROOT/root-install/include/TDirectory.h \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4UnionSolid.hh \
+ /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4IntersectionSolid.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4UImanager.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/icomsdefs.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4VStateDependent.hh \

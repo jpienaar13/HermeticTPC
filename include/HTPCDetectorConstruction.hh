@@ -17,6 +17,8 @@ class G4VPhysicalVolume;
 //class PurdueDetectorMessenger; ->To be updated still
 
 #include <G4UnionSolid.hh>
+#include <G4IntersectionSolid.hh>
+#include <G4SubtractionSolid.hh>
 #include <G4UImanager.hh>
 #include <G4Polycone.hh>
 #include <G4VUserDetectorConstruction.hh>
@@ -34,6 +36,8 @@ public:
     void DefineMaterials();
     void ConstructLab();
     void ConstructCryostats();
+    void ConstructMedia();
+
     void ConstructDetector();
 
     G4LogicalVolume *ConstructPMT();

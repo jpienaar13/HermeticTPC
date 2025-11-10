@@ -683,6 +683,8 @@ CMakeFiles/HTPC.dir/src/HTPCAnalysisManager.cc.o: \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4VSolid.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4VSolid.icc \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4BooleanSolid.icc \
+ /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4IntersectionSolid.hh \
+ /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4SubtractionSolid.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4UImanager.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/icomsdefs.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4VStateDependent.hh \

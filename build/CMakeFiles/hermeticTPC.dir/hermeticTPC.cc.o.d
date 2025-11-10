@@ -859,6 +859,8 @@ CMakeFiles/hermeticTPC.dir/hermeticTPC.cc.o: \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4BooleanSolid.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4DisplacedSolid.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4BooleanSolid.icc \
+ /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4IntersectionSolid.hh \
+ /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4SubtractionSolid.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4Polycone.hh \
  /home/hargy/Science/G4V2/geant4-v10.7.4-install/include/Geant4/G4VUserDetectorConstruction.hh \
  /home/hargy/Science/GEANT4/HermeticTPC/include/HTPCSensitiveDetector.hh \
