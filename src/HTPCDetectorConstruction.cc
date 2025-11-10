@@ -58,18 +58,31 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
   m_hGeometryParameters["Lab_depth"] = 19000. *mm;
 
   //===============================Cryostats===================================
-  m_hGeometryParameters["oCryostat_oD"] = 4000. *mm;
+  m_hGeometryParameters["oCryostat_oD"] = 3400. *mm;
   m_hGeometryParameters["oCryostat_H"] = 4000. *mm; 
 
-  m_hGeometryParameters["iCryostat_oD"] = 3900. *mm;
+  m_hGeometryParameters["iCryostat_oD"] = 3100. *mm;
   m_hGeometryParameters["iCryostat_H"] = 3900. *mm;
 
   m_hGeometryParameters["oCryostatWall_thickness"] = 10. *mm;
   m_hGeometryParameters["iCryostatWall_thickness"] = 10. *mm;
 
-  //m_hGemoetryParameters["oCryostat_dome"]
+  m_hGeometryParameters["curvature"] = 0.2;
 
-  //===============================TPC===================================
+  //===============================Flanges=====================================
+  m_hGeometryParameters["oFlangeRelativeHeight"] = 0.9;
+  m_hGeometryParameters["oFlangeExtension"]      = 100 *mm;
+  m_hGeometryParameters["oFlangeThickness"]      = 100 *mm;
+
+  m_hGeometryParameters["iFlangeRelativeHeight"] = 0.9;
+  m_hGeometryParameters["iFlangeExtension"]      = 100 *mm;
+  m_hGeometryParameters["iFlangeThickness"]      = 100 *mm;
+
+  //==========================Support-Rings====================================
+  m_hGeometryParameters["sRingExtension"] = 100 *mm;
+  m_hGeometryParameters["sRingThickness"] = 10 *mm;
+
+  //===============================TPC=========================================
   m_hGeometryParameters["TPC_oD"] = 3000. *mm;
   m_hGeometryParameters["TPC_H"] = 3150. *mm;
   m_hGeometryParameters["PTFE_thickness"] = 3. *mm;
@@ -83,9 +96,6 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
   m_hGeometryParameters["GasGap_H"] = 5. *mm;
   m_hGeometryParameters["CathodeGap"] = 50. *mm;
 
-  //===============================Hargy===================================
-  m_hGeometryParameters["curvature"] = 0.4;
-    
 }
 
 void HTPCDetectorConstruction::DefineMaterials()
@@ -218,7 +228,6 @@ void HTPCDetectorConstruction::DefineMaterials()
     Sapphire->AddElement(O, 3);
 
 }
-
 
 // ---- GEOMETRY FUNCTIONS --- //
 namespace {
@@ -387,8 +396,6 @@ namespace {
         return solidCapsulewFlange;
     }
 }
-// ---- --------------- --- //
-
 
 G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
 {
@@ -438,12 +445,54 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4double oCryostat_H = GetGeometryParameter("oCryostat_H");
     G4double oCryostatWall_thickness = GetGeometryParameter("oCryostatWall_thickness");
 
-    //Container -> Hargy's code
     G4double curvature = GetGeometryParameter("curvature");
-    //G4double curvature   = 0.4;
-    G4double flangeHeight = 0.9*oCryostat_H/2;
-    auto solidCapsule1 = BuildCapsule(oCryostat_oD/2, oCryostat_oD/2 - oCryostatWall_thickness, oCryostat_H/2, curvature);
-    auto oCryostat = AddFlange(solidCapsule1, (oCryostat_oD/2) + 0.3*m, oCryostat_oD/2, 0.1*m, flangeHeight);
+
+    /*Adding the new parameters*/
+    G4double oFlangeRelativeHeight = GetGeometryParameter("oFlangeRelativeHeight");
+    G4double oFlangeThickness = GetGeometryParameter("oFlangeThickness");
+    G4double oFlangeExtension = GetGeometryParameter("oFlangeExtension");
+
+    G4double oFlangeHeight = oFlangeRelativeHeight*oCryostat_H/2;
+    
+    G4double sRingExtension = GetGeometryParameter("sRingExtension");
+    G4double sRingThickness = GetGeometryParameter("sRingThickness");
+    
+    auto solidCapsule1 = BuildCapsule(oCryostat_oD/2, 
+                                      oCryostat_oD/2 - oCryostatWall_thickness, 
+                                      oCryostat_H/2, curvature
+                                    );
+
+    auto oCryostat_Temp1 = AddFlange(solidCapsule1, 
+                               (oCryostat_oD/2) + oFlangeExtension, 
+                               oCryostat_oD/2, 
+                               oFlangeThickness,
+                               oFlangeHeight
+                            );
+
+    // Add bottom support ring
+    auto oCryostat_Temp2 = AddFlange(oCryostat_Temp1, 
+                               (oCryostat_oD/2) + sRingExtension, 
+                               oCryostat_oD/2, 
+                               sRingThickness,
+                               -0.5*oCryostat_H/2
+                            );
+
+    // Add middle support ring
+    auto oCryostat_Temp3 = AddFlange(oCryostat_Temp2, 
+                               (oCryostat_oD/2) + sRingExtension, 
+                               oCryostat_oD/2, 
+                               sRingThickness,
+                               0
+                            );
+
+    // Add top support ring
+    auto oCryostat = AddFlange(oCryostat_Temp3, 
+                               (oCryostat_oD/2) + sRingExtension, 
+                               oCryostat_oD/2, 
+                               sRingThickness,
+                               0.5*oCryostat_H/2
+                            );
+
     logicCapsule1wFlange = new G4LogicalVolume(oCryostat,
                                               Steel,
                                               "oCryostat_log"
@@ -460,17 +509,14 @@ void HTPCDetectorConstruction::ConstructCryostats()
                                             true
                                             );
 
-
-    // +++ HARGY
     G4VisAttributes* visAttributesoCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.3));
     visAttributesoCryostat->SetVisibility(true);
     //visAttributesoCryostat->SetForceSolid(true);
     visAttributesoCryostat->SetForceWireframe(true);
     visAttributesoCryostat->SetForceAuxEdgeVisible(true);
     logicCapsule1wFlange->SetVisAttributes(visAttributesoCryostat);
-    // --- HARGY
 
-    
+
     //----- CryostatVacuum-----
     //Container -> Hargy's code
     auto CryoVacuum = BuildCapsule(oCryostat_oD/2 - oCryostatWall_thickness, 0.*m, oCryostat_H/2 , curvature);
@@ -517,12 +563,51 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4double iCryostat_H = GetGeometryParameter("iCryostat_H");
     G4double iCryostatWall_thickness = GetGeometryParameter("iCryostatWall_thickness");
 
-    //Container -> Hargy's code
-    G4double iFlangerRad  = 0.9* ((oCryostat_oD/2 - iCryostatWall_thickness)  - iCryostat_oD/2);
-    G4double iFlangeThick = 0.12*m; 
+    //G4double curvature = GetGeometryParameter("curvature");
+
+    G4double iFlangeRelativeHeight = GetGeometryParameter("iFlangeRelativeHeight");
+    G4double iFlangeThickness = GetGeometryParameter("iFlangeThickness");
+    G4double iFlangeExtension = GetGeometryParameter("iFlangeExtension");
+
+    G4double iFlangeHeight = iFlangeRelativeHeight*iCryostat_H/2;
     
-    auto solidCapsule2 = BuildCapsule(iCryostat_oD/2, iCryostat_oD/2 - iCryostatWall_thickness, iCryostat_H/2, curvature);
-    auto iCryostat = AddFlange(solidCapsule2, (iCryostat_oD/2) + iFlangerRad, iCryostat_oD/2, iFlangeThick, flangeHeight);
+    auto solidCapsule2 = BuildCapsule(iCryostat_oD/2, 
+                                      iCryostat_oD/2 - iCryostatWall_thickness, 
+                                      iCryostat_H/2, 
+                                      curvature
+                                    );
+
+    auto iCryostat_Temp1 = AddFlange(solidCapsule2, 
+                               (iCryostat_oD/2) + iFlangeExtension, 
+                               iCryostat_oD/2, 
+                               iFlangeThickness, 
+                               iFlangeHeight
+                            );
+
+    // Add bottom support ring
+    auto iCryostat_Temp2 = AddFlange(iCryostat_Temp1, 
+                               (iCryostat_oD/2) + sRingExtension, 
+                               iCryostat_oD/2, 
+                               sRingThickness,
+                               -0.5*iCryostat_H/2
+                            );
+
+    // Add middle support ring
+    auto iCryostat_Temp3 = AddFlange(iCryostat_Temp2, 
+                               (iCryostat_oD/2) + sRingExtension, 
+                               iCryostat_oD/2, 
+                               sRingThickness,
+                               0
+                            );
+
+    // Add top support ring
+    auto iCryostat = AddFlange(iCryostat_Temp3, 
+                               (iCryostat_oD/2) + sRingExtension, 
+                               iCryostat_oD/2, 
+                               sRingThickness,
+                               0.5*iCryostat_H/2
+                            );
+
     logicCapsule2wFlange = new G4LogicalVolume(iCryostat,
                                               Steel,
                                               "iCryostat_log"
@@ -539,14 +624,12 @@ void HTPCDetectorConstruction::ConstructCryostats()
                                             true
                                             );
 
-    // +++ HARGY
     G4VisAttributes* visAttributesiCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.4));
     visAttributesiCryostat->SetVisibility(true);
     //visAttributesiCryostat->SetForceSolid(true);
     visAttributesiCryostat->SetForceWireframe(true);
     visAttributesiCryostat->SetForceAuxEdgeVisible(true);
     logicCapsule2wFlange->SetVisAttributes(visAttributesiCryostat);
-    // --- HARGY
 
 	//Vis Attributes
     //G4VisAttributes* iCryostatVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // Green
@@ -571,7 +654,6 @@ void HTPCDetectorConstruction::ConstructDetector()
     G4double d_iCryoThick = GetGeometryParameter("iCryostatWall_thickness");
     G4double curvature = GetGeometryParameter("curvature");
 
-    // Container -> Hargy's code
     auto LXeTub = BuildCapsule(d_XeRes_oD/2 - d_iCryoThick, 0.*m, d_XeRes_H/2 , curvature);
     logicLXeTub = new G4LogicalVolume(LXeTub,
                                               LXe,
@@ -1076,4 +1158,4 @@ G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index, G4int i_nmbP
 }
 
 
-
+/* ----------------------------------------------------------------------- */

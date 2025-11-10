@@ -248,14 +248,8 @@ Fontconfig_INCLUDE_DIR:PATH=/usr/include
 //Path to a library.
 Fontconfig_LIBRARY:FILEPATH=/usr/lib64/libfontconfig.so
 
-//No help, variable specified on the command line.
-GEANT4_USE_OPENGL_X11:UNINITIALIZED=ON
-
-//No help, variable specified on the command line.
-GEANT4_USE_QT:UNINITIALIZED=ON
-
 //The directory containing a CMake configuration file for Geant4.
-Geant4_DIR:PATH=/home/hargy/Science/G4/geant4-v10.7.4-install/lib64/Geant4-10.7.4
+Geant4_DIR:PATH=/home/hargy/Science/G4V2/geant4-v10.7.4-install/lib64/Geant4-10.7.4
 
 //Dependencies for the target
 HTPC_LIB_DEPENDS:STATIC=general;ROOT::MathCore;general;ROOT::Hist;general;ROOT::Tree;general;Geant4::G4Tree;general;Geant4::G4FR;general;Geant4::G4GMocren;general;Geant4::G4visHepRep;general;Geant4::G4RayTracer;general;Geant4::G4VRML;general;Geant4::G4OpenGL;general;Geant4::G4gl2ps;general;Geant4::G4vis_management;general;Geant4::G4modeling;general;Geant4::G4interfaces;general;Geant4::G4persistency;general;Geant4::G4analysis;general;Geant4::G4error_propagation;general;Geant4::G4readout;general;Geant4::G4physicslists;general;Geant4::G4run;general;Geant4::G4event;general;Geant4::G4tasking;general;Geant4::G4tracking;general;Geant4::G4parmodels;general;Geant4::G4processes;general;Geant4::G4digits_hits;general;Geant4::G4track;general;Geant4::G4particles;general;Geant4::G4geometry;general;Geant4::G4materials;general;Geant4::G4graphics_reps;general;Geant4::G4intercoms;general;Geant4::G4global;general;Geant4::G4clhep;general;Geant4::G4zlib;
@@ -312,7 +306,7 @@ PKG_CONFIG_ARGN:STRING=
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
 //The directory containing a CMake configuration file for PTL.
-PTL_DIR:PATH=/home/hargy/Science/G4/geant4-v10.7.4-install/lib64/Geant4-10.7.4/PTL
+PTL_DIR:PATH=/home/hargy/Science/G4V2/geant4-v10.7.4-install/lib64/Geant4-10.7.4/PTL
 
 //The directory containing a CMake configuration file for Qt5Core.
 Qt5Core_DIR:PATH=/usr/lib64/cmake/Qt5Core
@@ -883,9 +877,9 @@ CMAKE_CACHEFILE_DIR:INTERNAL=/home/hargy/Science/GEANT4/HermeticTPC/build
 //Major version of cmake used to create the current loaded cache
 CMAKE_CACHE_MAJOR_VERSION:INTERNAL=3
 //Minor version of cmake used to create the current loaded cache
-CMAKE_CACHE_MINOR_VERSION:INTERNAL=30
+CMAKE_CACHE_MINOR_VERSION:INTERNAL=31
 //Patch version of cmake used to create the current loaded cache
-CMAKE_CACHE_PATCH_VERSION:INTERNAL=8
+CMAKE_CACHE_PATCH_VERSION:INTERNAL=6
 //ADVANCED property for variable: CMAKE_COLOR_MAKEFILE
 CMAKE_COLOR_MAKEFILE-ADVANCED:INTERNAL=1
 //Path to CMake executable.
@@ -1040,7 +1034,7 @@ EXPAT_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: EXPAT_LIBRARY_RELEASE
 EXPAT_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //Details about finding EXPAT
-FIND_PACKAGE_MESSAGE_DETAILS_EXPAT:INTERNAL=[/usr/lib64/libexpat.so][/usr/include][v2.7.1(2.7.1)]
+FIND_PACKAGE_MESSAGE_DETAILS_EXPAT:INTERNAL=[/usr/lib64/libexpat.so][/usr/include][v2.7.2(2.7.2)]
 //Details about finding OpenGL
 FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[/usr/lib64/libOpenGL.so][/usr/lib64/libGLX.so][/usr/include][c ][v()]
 //Details about finding Threads
@@ -1050,7 +1044,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_Vdt:INTERNAL=[/home/hargy/Science/ROOT/root-install
 //Details about finding X11
 FIND_PACKAGE_MESSAGE_DETAILS_X11:INTERNAL=[/usr/include][/usr/lib64/libX11.so][c ][v()]
 //Details about finding XercesC
-FIND_PACKAGE_MESSAGE_DETAILS_XercesC:INTERNAL=[/usr/lib64/libxerces-c.so][/usr/include][3.2.5][v3.2.5(3.2.5)]
+FIND_PACKAGE_MESSAGE_DETAILS_XercesC:INTERNAL=[/usr/lib64/libxerces-c.so][/usr/include][3.3.0][v3.3.0(3.3.0)]
 //Details about finding nlohmann_json
 FIND_PACKAGE_MESSAGE_DETAILS_nlohmann_json:INTERNAL=[/usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake][v3.11.3(3.11.3)]
 //ADVANCED property for variable: FREETYPE_INCLUDE_DIR_freetype2
@@ -1123,7 +1117,7 @@ PC_EXPAT_STATIC_LIBS:INTERNAL=
 PC_EXPAT_STATIC_LIBS_L:INTERNAL=
 PC_EXPAT_STATIC_LIBS_OTHER:INTERNAL=
 PC_EXPAT_STATIC_LIBS_PATHS:INTERNAL=
-PC_EXPAT_VERSION:INTERNAL=2.7.1
+PC_EXPAT_VERSION:INTERNAL=2.7.2
 PC_EXPAT_expat_INCLUDEDIR:INTERNAL=
 PC_EXPAT_expat_LIBDIR:INTERNAL=
 PC_EXPAT_expat_PREFIX:INTERNAL=
@@ -1153,16 +1147,16 @@ PKG_FONTCONFIG_STATIC_CFLAGS:INTERNAL=-I/usr/include;-I/usr/include/freetype2;-I
 PKG_FONTCONFIG_STATIC_CFLAGS_I:INTERNAL=
 PKG_FONTCONFIG_STATIC_CFLAGS_OTHER:INTERNAL=-pthread;-DWITH_GZFILEOP;-DLZMA_API_STATIC
 PKG_FONTCONFIG_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz;/usr/include/glib-2.0;/usr/lib64/glib-2.0/include;/usr/include/sysprof-6;/usr/include/libxml2
-PKG_FONTCONFIG_STATIC_LDFLAGS:INTERNAL=-L/usr/lib64;-lfontconfig;-lfreetype;-lbz2;-lpng16;-lm;-lm;-lharfbuzz;-pthread;-lm;-lglib-2.0;-lm;-lsysprof-capture-4;-pthread;-lpcre2-8;-lgraphite2;-lbrotlidec;-lbrotlicommon;-lxml2;-lm;-lz;-llzma;-pthread;-lpthread
-PKG_FONTCONFIG_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread;-pthread;-pthread
+PKG_FONTCONFIG_STATIC_LDFLAGS:INTERNAL=-L/usr/lib64;-lfontconfig;-pthread;-lm;-lfreetype;-lbz2;-lpng16;-lm;-lm;-lharfbuzz;-pthread;-lm;-lglib-2.0;-lm;-lsysprof-capture-4;-pthread;-lpcre2-8;-lgraphite2;-lbrotlidec;-lbrotlicommon;-lxml2;-lm;-lz;-llzma;-pthread;-lpthread
+PKG_FONTCONFIG_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread;-pthread;-pthread;-pthread
 PKG_FONTCONFIG_STATIC_LIBDIR:INTERNAL=
-PKG_FONTCONFIG_STATIC_LIBRARIES:INTERNAL=fontconfig;freetype;bz2;png16;m;m;harfbuzz;m;glib-2.0;m;sysprof-capture-4;pcre2-8;graphite2;brotlidec;brotlicommon;xml2;m;z;lzma;pthread
+PKG_FONTCONFIG_STATIC_LIBRARIES:INTERNAL=fontconfig;m;freetype;bz2;png16;m;m;harfbuzz;m;glib-2.0;m;sysprof-capture-4;pcre2-8;graphite2;brotlidec;brotlicommon;xml2;m;z;lzma;pthread
 PKG_FONTCONFIG_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib64
 PKG_FONTCONFIG_STATIC_LIBS:INTERNAL=
 PKG_FONTCONFIG_STATIC_LIBS_L:INTERNAL=
 PKG_FONTCONFIG_STATIC_LIBS_OTHER:INTERNAL=
 PKG_FONTCONFIG_STATIC_LIBS_PATHS:INTERNAL=
-PKG_FONTCONFIG_VERSION:INTERNAL=2.15.0
+PKG_FONTCONFIG_VERSION:INTERNAL=2.16.0
 PKG_FONTCONFIG_fontconfig_INCLUDEDIR:INTERNAL=
 PKG_FONTCONFIG_fontconfig_LIBDIR:INTERNAL=
 PKG_FONTCONFIG_fontconfig_PREFIX:INTERNAL=
@@ -1509,6 +1503,10 @@ XercesC_INCLUDE_DIR-ADVANCED:INTERNAL=1
 XercesC_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: XercesC_LIBRARY_RELEASE
 XercesC_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//linker supports push/pop state
+_CMAKE_CXX_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
+//linker supports push/pop state
+_CMAKE_C_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
 //linker supports push/pop state
 _CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
 __pkg_config_arguments_PC_EXPAT:INTERNAL=QUIET;expat
