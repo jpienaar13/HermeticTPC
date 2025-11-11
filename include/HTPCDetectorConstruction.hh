@@ -23,6 +23,7 @@ class G4VPhysicalVolume;
 #include <G4Polycone.hh>
 #include <G4VUserDetectorConstruction.hh>
 #include "HTPCSensitiveDetector.hh"
+#include "G4ios.hh"
 
 class HTPCDetectorConstruction: public G4VUserDetectorConstruction
 {
@@ -37,6 +38,7 @@ public:
     void ConstructLab();
     void ConstructCryostats();
     void ConstructMedia();
+    void ConstructTPC();
 
     void ConstructDetector();
 
@@ -58,6 +60,61 @@ private:
     // Messenger Setup
     //PurdueDetectorMessenger *m_pDetectorMessenger;
 
+    // -- Hargy's newer declarations ------------------------------------------
+
+    // Laboratory
+    G4LogicalVolume*   logic_Lab;
+    G4VPhysicalVolume* phys_Lab;
+
+    // Cryostats
+    G4LogicalVolume*   logic_oCryostat;
+    G4VPhysicalVolume* phys_oCryostat;
+
+    G4LogicalVolume*   logic_CryostatVacuum;
+    G4VPhysicalVolume* phys_CryostatVacuum;
+
+    G4LogicalVolume*   logic_iCryostat;
+    G4VPhysicalVolume* phys_iCryostat;
+
+    // TeflonTub
+    G4LogicalVolume*   logic_GXeTeflonTub;
+    G4VPhysicalVolume* phys_GXeTeflonTub;
+
+    G4LogicalVolume*   logic_LXeTeflonTub;
+    G4VPhysicalVolume* phys_LXeTeflonTub;
+
+    G4LogicalVolume*   logic_TeflonCap;
+    G4VPhysicalVolume* phys_GXeTeflonCap;
+    G4VPhysicalVolume* phys_LXeTeflonCap;
+
+    // Media
+    G4LogicalVolume* logic_GXeMedium;
+    G4VPhysicalVolume* phys_GXeMedium;
+
+    G4LogicalVolume* logic_LXeMedium;
+    G4VPhysicalVolume* phys_LXeMedium;
+
+    G4LogicalVolume* logic_GXeActive;
+    G4VPhysicalVolume* phys_GXeActive;
+
+    G4LogicalVolume* logic_LXeActive;
+    G4VPhysicalVolume* phys_LXeActive;
+
+    // Sapphire
+    G4LogicalVolume*   logic_GXeSapphireTub;
+    G4VPhysicalVolume* phys_GXeSapphireTub;
+
+    G4LogicalVolume*   logic_GXeSapphireCap;
+    G4VPhysicalVolume* phys_GXeSapphireCap;
+
+    G4LogicalVolume*   logic_LXeSapphireTub;
+    G4VPhysicalVolume* phys_LXeSapphireTub;
+
+   G4LogicalVolume*    logic_LXeSapphireCap;
+    G4VPhysicalVolume* phys_LXeSapphireCap;
+
+    // ------------------------------------------------------------------------
+
     // -- Hargy's declarations
     G4LogicalVolume*   logicCapsule1wFlange;
     G4VPhysicalVolume* physCapsule1wFlange;
@@ -67,6 +124,12 @@ private:
 
     G4LogicalVolume*   logicCapsule2wFlange;
     G4VPhysicalVolume* physCapsule2wFlange;
+
+    G4LogicalVolume* logicGXeMedium;
+    G4VPhysicalVolume* physGXeMedium;
+
+    G4LogicalVolume* logicLXeMedium;
+    G4VPhysicalVolume* physLXeMedium;
 
     G4LogicalVolume*   logicLXeTub;
     G4VPhysicalVolume* physLXeTub;

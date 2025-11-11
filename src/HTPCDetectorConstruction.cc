@@ -49,54 +49,56 @@ HTPCDetectorConstruction::~HTPCDetectorConstruction()
 
 void HTPCDetectorConstruction::DefineGeometryParameters()
 {
-  m_hGeometryParameters["tolerance"] = 10. *mm;
+    m_hGeometryParameters["tolerance"] = 10. *mm;
 
-  //============================Laboratory=====================================
-  m_hGeometryParameters["Lab_height"] = 19000. *mm;
-  m_hGeometryParameters["Lab_width"] = 19000. *mm;
-  m_hGeometryParameters["Lab_depth"] = 19000. *mm;
+    //============================Laboratory===================================
+    m_hGeometryParameters["Lab_height"] = 19000. *mm;
+    m_hGeometryParameters["Lab_width"] = 19000. *mm;
+    m_hGeometryParameters["Lab_depth"] = 19000. *mm;
 
-  //===============================Cryostats===================================
-  m_hGeometryParameters["oCryostat_oD"] = 3400. *mm;
-  m_hGeometryParameters["oCryostat_H"] = 4000. *mm; 
+    //===============================Cryostats=================================
+    m_hGeometryParameters["oCryostat_oD"] = 3400. *mm;
+    m_hGeometryParameters["oCryostat_H"] = 4000. *mm; 
 
-  m_hGeometryParameters["iCryostat_oD"] = 3100. *mm;
-  m_hGeometryParameters["iCryostat_H"] = 3900. *mm;
+    m_hGeometryParameters["iCryostat_oD"] = 3100. *mm;
+    m_hGeometryParameters["iCryostat_H"] = 3900. *mm;
 
-  m_hGeometryParameters["oCryostatWall_thickness"] = 10. *mm;
-  m_hGeometryParameters["iCryostatWall_thickness"] = 10. *mm;
+    m_hGeometryParameters["oCryostatWall_thickness"] = 10. *mm;
+    m_hGeometryParameters["iCryostatWall_thickness"] = 10. *mm;
 
-  m_hGeometryParameters["curvature"] = 1200 *mm;
+    m_hGeometryParameters["curveLength"] = 1600 *mm;
 
-  //===============================Flanges=====================================
-  m_hGeometryParameters["oFlangeRelativeHeight"] = 0.9;
-  m_hGeometryParameters["oFlangeExtension"]      = 100 *mm;
-  m_hGeometryParameters["oFlangeThickness"]      = 100 *mm;
+    //===============================Flanges===================================
+    m_hGeometryParameters["oFlangeRelativeHeight"] = 0.9;
+    m_hGeometryParameters["oFlangeExtension"]      = 100 *mm;
+    m_hGeometryParameters["oFlangeThickness"]      = 100 *mm;
 
-  m_hGeometryParameters["iFlangeRelativeHeight"] = 0.9;
-  m_hGeometryParameters["iFlangeExtension"]      = 100 *mm;
-  m_hGeometryParameters["iFlangeThickness"]      = 100 *mm;
+    m_hGeometryParameters["iFlangeRelativeHeight"] = 0.9;
+    m_hGeometryParameters["iFlangeExtension"]      = 100 *mm;
+    m_hGeometryParameters["iFlangeThickness"]      = 100 *mm;
 
-  //==========================Support-Rings====================================
-  m_hGeometryParameters["sRingExtension"] = 100 *mm;
-  m_hGeometryParameters["sRingThickness"] = 10 *mm;
+    //==========================Support-Rings==================================
+    m_hGeometryParameters["sRingExtension"] = 100 *mm;
+    m_hGeometryParameters["sRingThickness"] = 10 *mm;
 
-  // =============================Media========================================
-  m_hGeometryParameters["LiquidGasRatio"] = 0.85;
+    // =============================Media======================================
+    m_hGeometryParameters["LiquidGasRatio"] = 0.85;
 
-  //===============================TPC=========================================
-  m_hGeometryParameters["TPC_oD"] = 3000. *mm;
-  m_hGeometryParameters["TPC_H"] = 3150. *mm;
-  m_hGeometryParameters["PTFE_thickness"] = 3. *mm;
+    //===============================TPC=======================================
+    m_hGeometryParameters["TPC_oD"] = 3000. *mm;
+    m_hGeometryParameters["TPC_H"] = 3150. *mm;
+    m_hGeometryParameters["PTFE_thickness"] = 3. *mm;
 
-  m_hGeometryParameters["GXe_H"] = 100. *mm;
-  m_hGeometryParameters["PMTGXe_H"] = 150. *mm;
+    m_hGeometryParameters["GXe_H"] = 100. *mm;
+    m_hGeometryParameters["PMTGXe_H"] = 150. *mm;
 
-  m_hGeometryParameters["Sapphire_oD"] = 950. *mm;
-  m_hGeometryParameters["SapphireThickness"] = 3. *mm;
+    m_hGeometryParameters["Sapphire_oD"] = 750. *mm;
+    m_hGeometryParameters["SapphireThickness"] = 3. *mm;
 
-  m_hGeometryParameters["GasGap_H"] = 5. *mm;
-  m_hGeometryParameters["CathodeGap"] = 50. *mm;
+    m_hGeometryParameters["AnodeThickness"] = 3. *mm;
+
+    m_hGeometryParameters["GasGap_H"] = 5. *mm;
+    m_hGeometryParameters["CathodeGap"] = 50. *mm;
 
 }
 
@@ -118,23 +120,47 @@ void HTPCDetectorConstruction::DefineMaterials()
     G4Element *Co = pNistManager->FindOrBuildElement("Co");
 
     //==== Teflon ====
-    G4Material *Teflon = new G4Material("Teflon", 2.2 * g / cm3, 2, kStateSolid);
+    G4Material *Teflon = new G4Material(
+        "Teflon", 
+        2.2 * g / cm3, 
+        2, 
+        kStateSolid
+    );
+
     Teflon->AddElement(C, 0.240183);
     Teflon->AddElement(F, 0.759817);
 
      //==== Photocathode Aluminium ====
-    G4Material *PhotoCathodeAluminium =
-        new G4Material("PhotoCathodeAluminium", 8.00 * g / cm3, 1, kStateSolid);
+    G4Material *PhotoCathodeAluminium = new G4Material(
+        "PhotoCathodeAluminium", 
+        8.00 * g / cm3, 
+        1, 
+        kStateSolid
+    );
+
     PhotoCathodeAluminium->AddElement(Al, 1);
 
     //==== PMT Ceramic ====
-    G4Material *Ceramic = new G4Material("Ceramic", 4. * g / cm3, 2, kStateSolid,
-                                       168.15 * kelvin, 1.5 * atmosphere);
+    G4Material *Ceramic = new G4Material(
+        "Ceramic", 
+        4. * g / cm3, 
+        2, 
+        kStateSolid,
+        168.15 * kelvin, 
+        1.5 * atmosphere
+    );
+
     Ceramic->AddElement(Al, 2);
     Ceramic->AddElement(O, 3);
 
     //==== Kovar ====
-    G4Material *Kovar = new G4Material("Kovar", 8.33 * g / cm3, 6, kStateSolid);
+    G4Material *Kovar = new G4Material(
+        "Kovar", 
+        8.33 * g / cm3, 
+        6, 
+        kStateSolid
+    );
+
     Kovar->AddElement(Fe, 0.5358);
     Kovar->AddElement(Ni, 0.29);
     Kovar->AddElement(Co, 0.17);
@@ -146,48 +172,98 @@ void HTPCDetectorConstruction::DefineMaterials()
     G4Material* Water = pNistManager->FindOrBuildMaterial("G4_WATER");
 
     //==== Steel ====
-    G4Material *Steel = new G4Material("Steel", 7.7 * g / cm3, 3);
+    G4Material *Steel = new G4Material(
+        "Steel", 
+        7.7 * g / cm3, 
+        3
+    );
+
     Steel->AddElement(C, 0.04);
     Steel->AddElement(Fe, 0.88);
     Steel->AddElement(Co, 0.08);
 
     //==== Vacuum ====
-    G4Material *Vacuum = new G4Material("Vacuum", 1.e-20 * g / cm3, 2, kStateGas);
+    G4Material *Vacuum = new G4Material("Vacuum", 
+        1.e-20 * g / cm3, 
+        2, 
+        kStateGas
+    );
+
     Vacuum->AddElement(N, 0.755);
     Vacuum->AddElement(O, 0.245);
 
     //==== Quartz ====
     // ref: http://www.sciner.com/Opticsland/FS.htm
-    G4Material *Quartz = new G4Material("Quartz", 2.201 * g / cm3, 2, kStateSolid,
-                                      168.15 * kelvin, 1.5 * atmosphere);
+    G4Material *Quartz = new G4Material(
+        "Quartz", 
+        2.201 * g / cm3, 
+        2, 
+        kStateSolid,
+        168.15 * kelvin, 
+        1.5 * atmosphere
+    );
+
     Quartz->AddElement(Si, 1);
     Quartz->AddElement(O, 2);
 
     //==== Liquid Xenon ====
-    G4Material *LXe = new G4Material("LXe", 2.862 * g / cm3, 1, kStateLiquid,
-                                   177.05 * kelvin, 1.5 * atmosphere);
+    G4Material *LXe = new G4Material(
+        "LXe", 
+        2.862 * g / cm3, 
+        1, 
+        kStateLiquid,
+        177.05 * kelvin, 
+        1.5 * atmosphere
+    );
+
     LXe->AddElement(Xe, 1);
 
     // Optical properties LXe
     const G4int iNbEntries = 3;
-    G4double pdLXePhotonMomentum[iNbEntries] = {6.91 * eV, 6.98 * eV, 7.05 * eV};
-    G4double pdLXeScintillation[iNbEntries] = {0.1, 1.0, 0.1};
-    G4double pdLXeRefractiveIndex[iNbEntries] = {1.63, 1.61, 1.58};
-    G4double pdLXeAbsorbtionLength[iNbEntries] = {100. * cm, 100. * cm,
-                                                100. * cm};
+    G4double pdLXePhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
+    G4double pdLXeScintillation[iNbEntries]    = {0.1, 1.0, 0.1};
+    G4double pdLXeRefractiveIndex[iNbEntries]  = {1.63, 1.61, 1.58};
+    G4double pdLXeAbsorbtionLength[iNbEntries] = {100. * cm, 100. * cm, 100. * cm};
     G4double pdLXeScatteringLength[iNbEntries] = {30. * cm, 30. * cm, 30. * cm};
+
     G4MaterialPropertiesTable *pLXePropertiesTable = new G4MaterialPropertiesTable();
-    pLXePropertiesTable->AddProperty("FASTCOMPONENT", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
-    pLXePropertiesTable->AddProperty("SLOWCOMPONENT", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
-    pLXePropertiesTable->AddProperty("RINDEX", pdLXePhotonMomentum, pdLXeRefractiveIndex, iNbEntries);
-    pLXePropertiesTable->AddProperty("ABSLENGTH", pdLXePhotonMomentum, pdLXeAbsorbtionLength, iNbEntries);
-    pLXePropertiesTable->AddProperty("RAYLEIGH", pdLXePhotonMomentum, pdLXeScatteringLength, iNbEntries);
+    pLXePropertiesTable->AddProperty(
+        "FASTCOMPONENT", 
+        pdLXePhotonMomentum, 
+        pdLXeScintillation, 
+        iNbEntries
+    );
+    pLXePropertiesTable->AddProperty(
+        "SLOWCOMPONENT", 
+        pdLXePhotonMomentum, 
+        pdLXeScintillation, 
+        iNbEntries
+    );
+    pLXePropertiesTable->AddProperty(
+        "RINDEX", 
+        pdLXePhotonMomentum, 
+        pdLXeRefractiveIndex, 
+        iNbEntries
+    );
+    pLXePropertiesTable->AddProperty(
+        "ABSLENGTH", 
+        pdLXePhotonMomentum, 
+        pdLXeAbsorbtionLength, 
+        iNbEntries
+    );
+    pLXePropertiesTable->AddProperty(
+        "RAYLEIGH", 
+        pdLXePhotonMomentum, 
+        pdLXeScatteringLength, 
+        iNbEntries
+    );
     pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / keV);
     pLXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
     pLXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
     pLXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27. * ns);
     pLXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
     pLXePropertiesTable->AddConstProperty("TOTALNUM_INT_SITES", -1);
+
     // initialize the number of interaction sites
     LXe->SetMaterialPropertiesTable(pLXePropertiesTable);
 
@@ -197,17 +273,43 @@ void HTPCDetectorConstruction::DefineMaterials()
     GXe->AddElement(Xe, 1);
 
     // Optical properties GXe
-    G4double pdGXePhotonMomentum[iNbEntries] = {6.91 * eV, 6.98 * eV, 7.05 * eV};
-    G4double pdGXeScintillation[iNbEntries] = {0.1, 1.0, 0.1};
-    G4double pdGXeRefractiveIndex[iNbEntries] = {1.00, 1.00, 1.00};
+    G4double pdGXePhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
+    G4double pdGXeScintillation[iNbEntries]    = {0.1, 1.0, 0.1};
+    G4double pdGXeRefractiveIndex[iNbEntries]  = {1.00, 1.00, 1.00};
     G4double pdGXeAbsorbtionLength[iNbEntries] = {100 * m, 100 * m, 100 * m};
     G4double pdGXeScatteringLength[iNbEntries] = {100 * m, 100 * m, 100 * m};
+
     G4MaterialPropertiesTable *pGXePropertiesTable = new G4MaterialPropertiesTable();
-    pGXePropertiesTable->AddProperty("FASTCOMPONENT", pdGXePhotonMomentum, pdGXeScintillation, iNbEntries);
-    pGXePropertiesTable->AddProperty("SLOWCOMPONENT", pdGXePhotonMomentum, pdGXeScintillation, iNbEntries);
-    pGXePropertiesTable->AddProperty("RINDEX", pdGXePhotonMomentum, pdGXeRefractiveIndex, iNbEntries);
-    pGXePropertiesTable->AddProperty("ABSLENGTH", pdGXePhotonMomentum, pdGXeAbsorbtionLength, iNbEntries);
-    pGXePropertiesTable->AddProperty("RAYLEIGH", pdGXePhotonMomentum, pdGXeScatteringLength, iNbEntries);
+    pGXePropertiesTable->AddProperty(
+        "FASTCOMPONENT", 
+        pdGXePhotonMomentum, 
+        pdGXeScintillation, 
+        iNbEntries
+    );
+    pGXePropertiesTable->AddProperty(
+        "SLOWCOMPONENT", 
+        pdGXePhotonMomentum, 
+        pdGXeScintillation, 
+        iNbEntries
+    );
+    pGXePropertiesTable->AddProperty(
+        "RINDEX", 
+        pdGXePhotonMomentum, 
+        pdGXeRefractiveIndex, 
+        iNbEntries
+    );
+    pGXePropertiesTable->AddProperty(
+        "ABSLENGTH", 
+        pdGXePhotonMomentum, 
+        pdGXeAbsorbtionLength, 
+        iNbEntries
+    );
+    pGXePropertiesTable->AddProperty(
+        "RAYLEIGH", 
+        pdGXePhotonMomentum, 
+        pdGXeScatteringLength, 
+        iNbEntries
+    );
     pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / (keV));
     pGXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
     pGXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
@@ -215,13 +317,13 @@ void HTPCDetectorConstruction::DefineMaterials()
     pGXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
     GXe->SetMaterialPropertiesTable(pGXePropertiesTable);
 
-    G4double pdTeflonPhotonMomentum[iNbEntries] = {6.91 * eV, 6.98 * eV, 7.05 * eV};
-    G4double pdTeflonRefractiveIndex[iNbEntries] = {1.63, 1.61, 1.58};
-    G4double pdTeflonReflectivity[iNbEntries] = {0.99, 0.99, 0.99};
-    G4double pdTeflonSpecularLobe[iNbEntries] = {0.01, 0.01, 0.01};
-    G4double pdTeflonSpecularSpike[iNbEntries] = {0.01, 0.01, 0.01};
-    G4double pdTeflonBackscatter[iNbEntries] = {0.01, 0.01, 0.01};
-    G4double pdTeflonEfficiency[iNbEntries] = {1.0, 1.0, 1.0};
+    G4double pdTeflonPhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
+    G4double pdTeflonRefractiveIndex[iNbEntries]  = {1.63, 1.61, 1.58};
+    G4double pdTeflonReflectivity[iNbEntries]     = {0.99, 0.99, 0.99};
+    G4double pdTeflonSpecularLobe[iNbEntries]     = {0.01, 0.01, 0.01};
+    G4double pdTeflonSpecularSpike[iNbEntries]    = {0.01, 0.01, 0.01};
+    G4double pdTeflonBackscatter[iNbEntries]      = {0.01, 0.01, 0.01};
+    G4double pdTeflonEfficiency[iNbEntries]       = {1.0, 1.0, 1.0};
     G4double pdTeflonAbsorbtionLength[iNbEntries] = {0.1 * cm, 0.1 * cm, 0.1 * cm};
 
     //==== Sapphire ====
@@ -231,12 +333,15 @@ void HTPCDetectorConstruction::DefineMaterials()
 
 }
 
+// -- Geometry Helper Functions --
 namespace {
+    // Builds a cylinder with two domes
     G4VSolid* BuildCapsule(G4double Rmax,
                            G4double Rmin,
                            G4double Dz,
                            G4double DomeCurve);
 
+    // Build a cylinder with only one dome (wheredome = 0 (bottom), 1 (top))                       
     G4VSolid* BuildHalfCapsule(G4double Rmax, 
                                G4double Dz, 
                                G4double DomeCurve,
@@ -247,7 +352,6 @@ namespace {
                         G4double Rmin,
                         G4double thickness,
                         G4double zpos);
-
 }
 
 
@@ -258,154 +362,179 @@ G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
     ConstructLab();
     ConstructCryostats();
     ConstructMedia();
+    ConstructTPC();
+
     //ConstructDetector();
 
-    return m_pLabPhysicalVolume;
+    return phys_Lab;
 }
 
 void HTPCDetectorConstruction::ConstructLab()
 {
     G4Material *Water = G4Material::GetMaterial("G4_WATER");
 
-    //Dimensions
+    // ----- Lab --------------------------------------------------------------
     G4double Lab_height = GetGeometryParameter("Lab_height");
-    G4double Lab_width = GetGeometryParameter("Lab_width");
-    G4double Lab_depth = GetGeometryParameter("Lab_depth");
+    G4double Lab_width  = GetGeometryParameter("Lab_width");
+    G4double Lab_depth  = GetGeometryParameter("Lab_depth");
 
-    //Lab
-     G4Box *Lab = new G4Box("Lab", Lab_width/2, Lab_depth/2, Lab_height/2);
+    G4Box *solid_Lab = new G4Box(
+        "solid_Lab", 
+        Lab_width/2, 
+        Lab_depth/2, 
+        Lab_height/2
+    );
 
-     m_pLabLogicalVolume =	new G4LogicalVolume(Lab, Water, "Lab_log");
+    logic_Lab = new G4LogicalVolume(
+        solid_Lab, 
+        Water, 
+        "logic_Lab"
+    );
 
-     m_pLabPhysicalVolume =  new G4PVPlacement(0, G4ThreeVector(),
-                                 m_pLabLogicalVolume, "Lab_phys", 0, false, 0);
+    phys_Lab = new G4PVPlacement(
+        0, 
+        G4ThreeVector(),
+        logic_Lab, 
+        "phys_Lab", 
+        0, 
+        false, 
+        0
+    );
 
-     m_pLabLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
+    // VisAttributes
+    logic_Lab->SetVisAttributes(G4VisAttributes::Invisible);
 }
+
 
 void HTPCDetectorConstruction::ConstructCryostats()
 {
-    G4Material *Steel = G4Material::GetMaterial("Steel");
+    G4Material *Steel  = G4Material::GetMaterial("Steel");
     G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
 
-
-
-    //----- Outer Cryostat-----
-    //Dimensions
-    G4double opendeg = 0.0 *deg;
+    // ----- Outer Cryostat (oCryostat) ---------------------------------------
+    G4double opendeg  = 0.0 *deg;
     G4double closedeg = 360.0 *deg;
     
     G4double oCryostat_oD = GetGeometryParameter("oCryostat_oD");
-    G4double oCryostat_H = GetGeometryParameter("oCryostat_H");
+    G4double oCryostat_H  = GetGeometryParameter("oCryostat_H");
     G4double oCryostatWall_thickness = GetGeometryParameter("oCryostatWall_thickness");
 
-    G4double curvature = GetGeometryParameter("curvature");
+    G4double curveLength = GetGeometryParameter("curveLength");
 
-    /*Adding the new parameters*/
     G4double oFlangeRelativeHeight = GetGeometryParameter("oFlangeRelativeHeight");
-    G4double oFlangeThickness = GetGeometryParameter("oFlangeThickness");
-    G4double oFlangeExtension = GetGeometryParameter("oFlangeExtension");
-
+    G4double oFlangeThickness      = GetGeometryParameter("oFlangeThickness");
+    G4double oFlangeExtension      = GetGeometryParameter("oFlangeExtension");
     G4double oFlangeHeight = oFlangeRelativeHeight*oCryostat_H/2;
     
     G4double sRingExtension = GetGeometryParameter("sRingExtension");
     G4double sRingThickness = GetGeometryParameter("sRingThickness");
     
-    auto solidCapsule1 = BuildCapsule(oCryostat_oD/2, 
-                                      oCryostat_oD/2 - oCryostatWall_thickness, 
-                                      oCryostat_H/2, 
-                                      curvature
-                                    );
+    auto solidCapsule1 = BuildCapsule(
+        oCryostat_oD/2, 
+        oCryostat_oD/2 - oCryostatWall_thickness, 
+        oCryostat_H/2, 
+        curveLength
+    );
 
-    auto oCryostat_Temp1 = AddFlange(solidCapsule1, 
-                               (oCryostat_oD/2) + oFlangeExtension, 
-                               oCryostat_oD/2, 
-                               oFlangeThickness,
-                               oFlangeHeight
-                            );
+    auto oCryostat_Temp1 = AddFlange(
+        solidCapsule1, 
+        oCryostat_oD/2 + oFlangeExtension, 
+        oCryostat_oD/2, 
+        oFlangeThickness,
+        oFlangeHeight
+    );
 
-    // Add bottom support ring
-    auto oCryostat_Temp2 = AddFlange(oCryostat_Temp1, 
-                               (oCryostat_oD/2) + sRingExtension, 
-                               oCryostat_oD/2, 
-                               sRingThickness,
-                               -0.5*oCryostat_H/2
-                            );
+    // |__ Add bottom support ring
+    auto oCryostat_Temp2 = AddFlange(
+        oCryostat_Temp1, 
+        oCryostat_oD/2 + sRingExtension, 
+        oCryostat_oD/2, 
+        sRingThickness,
+        -0.5*oCryostat_H/2
+    );
 
-    // Add middle support ring
-    auto oCryostat_Temp3 = AddFlange(oCryostat_Temp2, 
-                               (oCryostat_oD/2) + sRingExtension, 
-                               oCryostat_oD/2, 
-                               sRingThickness,
-                               0
-                            );
+    // _|_ Add middle support ring
+    auto oCryostat_Temp3 = AddFlange(
+        oCryostat_Temp2, 
+        oCryostat_oD/2 + sRingExtension, 
+        oCryostat_oD/2, 
+        sRingThickness,
+        0
+    );
 
-    // Add top support ring
-    auto oCryostat = AddFlange(oCryostat_Temp3, 
-                               (oCryostat_oD/2) + sRingExtension, 
-                               oCryostat_oD/2, 
-                               sRingThickness,
-                               0.5*oCryostat_H/2
-                            );
+    // __| Add top support ring
+    auto solid_oCryostat = AddFlange(
+        oCryostat_Temp3, 
+        oCryostat_oD/2 + sRingExtension, 
+        oCryostat_oD/2, 
+        sRingThickness,
+        0.5*oCryostat_H/2
+    );
 
-    logicCapsule1wFlange = new G4LogicalVolume(oCryostat,
-                                              Steel,
-                                              "oCryostat_log"
-                                              );
+    logic_oCryostat = new G4LogicalVolume(
+        solid_oCryostat,
+        Steel,
+        "logic_oCryostat"
+    );
 
-    auto posCapsule1wFlange  = G4ThreeVector(0., 0., 0.);
-    physCapsule1wFlange = new G4PVPlacement(0,
-                                            posCapsule1wFlange,
-                                            logicCapsule1wFlange,
-                                            "physCapsule1wFlange",
-                                            m_pLabLogicalVolume,
-                                            false,
-                                            0,
-                                            true
-                                            );
-
-    G4VisAttributes* visAttributesoCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.3));
-    visAttributesoCryostat->SetVisibility(true);
-    //visAttributesoCryostat->SetForceSolid(true);
-    visAttributesoCryostat->SetForceWireframe(true);
-    visAttributesoCryostat->SetForceAuxEdgeVisible(true);
-    logicCapsule1wFlange->SetVisAttributes(visAttributesoCryostat);
-
-
-    //----- CryostatVacuum-----
-    auto CryoVacuum = BuildCapsule(oCryostat_oD/2 - oCryostatWall_thickness, 0.*m, oCryostat_H/2 , curvature);
-    logicCryoVacuum = new G4LogicalVolume(CryoVacuum,
-                                              Vacuum,
-                                              "CryoVacuum_log"
-                                              );
-
-    auto posCryoVacuum  = G4ThreeVector(0., 0., 0.);
-    physCryoVacuum = new G4PVPlacement(0,
-                                            posCryoVacuum,
-                                            logicCryoVacuum,
-                                            "physCryoVacuum",
-                                            logicCapsule1wFlange,
-                                            false,
-                                            0,
-                                            true
-                                            );
+    auto pos_oCryostat  = G4ThreeVector(0., 0., 0.);
+    phys_oCryostat = new G4PVPlacement(
+        0,
+        pos_oCryostat,
+        logic_oCryostat,
+        "phys_oCryostat",
+        logic_Lab,
+        false,
+        0,
+        true
+    );
 
 
-    G4VisAttributes* visCryoVacuum = new G4VisAttributes(G4Colour(1., 1., 1., 0.1));
-    visCryoVacuum->SetVisibility(true);
-    visCryoVacuum->SetForceSolid(true);
-    //visCryoVacuum->SetForceWireframe(true);
-    //visCryoVacuum->SetForceAuxEdgeVisible(true);
-    logicCryoVacuum->SetVisAttributes(visCryoVacuum);
+    // VisAttributes
+    auto col_oCryostat = G4Colour(1., 1., 1., 0.3);
+    G4VisAttributes* vis_oCryostat = new G4VisAttributes(col_oCryostat);
+    vis_oCryostat  ->SetVisibility(true);
+    vis_oCryostat  ->SetForceWireframe(true);
+    vis_oCryostat  ->SetForceAuxEdgeVisible(true);
+    logic_oCryostat->SetVisAttributes(vis_oCryostat);
+
+    // ----- CryostatVacuum ---------------------------------------------------
+    auto solid_CryostatVacuum = BuildCapsule(
+        oCryostat_oD/2 - oCryostatWall_thickness, 
+        0.*m, 
+        oCryostat_H/2 , 
+        curveLength
+    );
+
+    logic_CryostatVacuum = new G4LogicalVolume(
+        solid_CryostatVacuum,
+        Vacuum,
+        "logic_CryostatVacuum"
+    );
+
+    auto pos_CryostatVacuum  = G4ThreeVector(0., 0., 0.);
+    phys_CryostatVacuum = new G4PVPlacement(
+        0,
+        pos_CryostatVacuum,
+        logic_CryostatVacuum,
+        "phys_CryostatVacuum",
+        logic_oCryostat,
+        false,
+        0,
+        true
+    );
+
+    // VisAttributes
+    auto col_CryostatVacuum = G4Colour(1., 1., 1., 0.);
+    G4VisAttributes* vis_CryostatVacuum = new G4VisAttributes(col_CryostatVacuum);
+    vis_CryostatVacuum  ->SetVisibility(true);
+    vis_CryostatVacuum  ->SetForceSolid(true);
+    logic_CryostatVacuum->SetVisAttributes(vis_CryostatVacuum);
     
-
-    //----- Inner Cryostat-----
-    //Dimensions
+    // ----- Inner Cryostat (iCryostat) ---------------------------------------
     G4double iCryostat_oD = GetGeometryParameter("iCryostat_oD");
     G4double iCryostat_H = GetGeometryParameter("iCryostat_H");
     G4double iCryostatWall_thickness = GetGeometryParameter("iCryostatWall_thickness");
-
-    //G4double curvature = GetGeometryParameter("curvature");
 
     G4double iFlangeRelativeHeight = GetGeometryParameter("iFlangeRelativeHeight");
     G4double iFlangeThickness = GetGeometryParameter("iFlangeThickness");
@@ -413,70 +542,67 @@ void HTPCDetectorConstruction::ConstructCryostats()
 
     G4double iFlangeHeight = iFlangeRelativeHeight*iCryostat_H/2;
     
-    auto solidCapsule2 = BuildCapsule(iCryostat_oD/2, 
-                                      iCryostat_oD/2 - iCryostatWall_thickness, 
-                                      iCryostat_H/2, 
-                                      curvature
-                                    );
+    auto solidCapsule2 = BuildCapsule(
+        iCryostat_oD/2, 
+        iCryostat_oD/2 - iCryostatWall_thickness, 
+        iCryostat_H/2, 
+        curveLength
+    );
 
-    auto iCryostat_Temp1 = AddFlange(solidCapsule2, 
-                               (iCryostat_oD/2) + iFlangeExtension, 
-                               iCryostat_oD/2, 
-                               iFlangeThickness, 
-                               iFlangeHeight
-                            );
+    auto iCryostat_Temp1 = AddFlange(
+        solidCapsule2, 
+        iCryostat_oD/2 + iFlangeExtension, 
+        iCryostat_oD/2, 
+        iFlangeThickness, 
+        iFlangeHeight
+    );
 
-    // Add bottom support ring
-    auto iCryostat_Temp2 = AddFlange(iCryostat_Temp1, 
-                               (iCryostat_oD/2) + sRingExtension, 
-                               iCryostat_oD/2, 
-                               sRingThickness,
-                               -0.5*iCryostat_H/2
-                            );
+    // |__ Add bottom support ring
+    auto iCryostat_Temp2 = AddFlange(
+        iCryostat_Temp1, 
+        iCryostat_oD/2 + sRingExtension, 
+        iCryostat_oD/2, 
+        sRingThickness,
+        -0.5*iCryostat_H/2
+    );
 
-    // Add middle support ring
-    auto iCryostat_Temp3 = AddFlange(iCryostat_Temp2, 
-                               (iCryostat_oD/2) + sRingExtension, 
-                               iCryostat_oD/2, 
-                               sRingThickness,
-                               0
-                            );
+    // _|_ Add middle support ring
+    auto iCryostat_Temp3 = AddFlange(
+        iCryostat_Temp2, 
+        iCryostat_oD/2 + sRingExtension, 
+        iCryostat_oD/2, 
+        sRingThickness,
+        0
+    );
 
-    // Add top support ring
-    auto iCryostat = AddFlange(iCryostat_Temp3, 
-                               (iCryostat_oD/2) + sRingExtension, 
-                               iCryostat_oD/2, 
-                               sRingThickness,
-                               0.5*iCryostat_H/2
-                            );
+    // __| Add top support ring
+    auto solid_iCryostat = AddFlange(
+        iCryostat_Temp3, 
+        iCryostat_oD/2 + sRingExtension, 
+        iCryostat_oD/2, 
+        sRingThickness,
+        0.5*iCryostat_H/2
+    );
 
-    logicCapsule2wFlange = new G4LogicalVolume(iCryostat,
-                                              Steel,
-                                              "iCryostat_log"
-                                              );
+    logic_iCryostat = new G4LogicalVolume(
+        solid_iCryostat,
+        Steel,
+        "logic_iCryostat"
+    );
 
-    auto posCapsule2wFlange  = G4ThreeVector(0., 0., 0.);
-    physCapsule2wFlange = new G4PVPlacement(0,
-                                            posCapsule2wFlange,
-                                            logicCapsule2wFlange,
-                                            "physCapsule2wFlange",
-                                            logicCryoVacuum,
-                                            false,
-                                            0,
-                                            true
-                                            );
+    auto pos_iCryostat  = G4ThreeVector(0., 0., 0.);
+    phys_iCryostat = new G4PVPlacement(
+        0,
+        pos_iCryostat,
+        logic_iCryostat,
+        "phys_iCryostat",
+        logic_CryostatVacuum,
+        false,
+        0,
+        true
+    );
 
-    G4VisAttributes* visAttributesiCryostat = new G4VisAttributes(G4Colour(1., 1., 1., 0.4));
-    visAttributesiCryostat->SetVisibility(true);
-    //visAttributesiCryostat->SetForceSolid(true);
-    visAttributesiCryostat->SetForceWireframe(true);
-    visAttributesiCryostat->SetForceAuxEdgeVisible(true);
-    logicCapsule2wFlange->SetVisAttributes(visAttributesiCryostat);
-
-	//Vis Attributes
-    //G4VisAttributes* iCryostatVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // Green
-    //m_piCryostatLogicalVolume->SetVisAttributes(iCryostatVis);
-
+    logic_iCryostat->SetVisAttributes(vis_oCryostat);
 }
 
 
@@ -486,344 +612,443 @@ void HTPCDetectorConstruction::ConstructMedia()
     G4Material *GXe = G4Material::GetMaterial("GXe");
 
     G4double iCryostat_oD = GetGeometryParameter("iCryostat_oD");
-    G4double iCryostat_H = GetGeometryParameter("iCryostat_H");
+    G4double iCryostat_H  = GetGeometryParameter("iCryostat_H");
     G4double iCryostatWall_thickness = GetGeometryParameter("iCryostatWall_thickness");
 
-    G4double curvature = GetGeometryParameter("curvature");
+    G4double curveLength = GetGeometryParameter("curveLength");
 
     G4double LiquidGasRatio = GetGeometryParameter("LiquidGasRatio");
 
-    // --- Build GXe Media
-    G4double GXeMedia_R  = (iCryostat_oD/2) - iCryostatWall_thickness;
-    G4double GXeMedia_dz = (iCryostat_H/2)*(1-LiquidGasRatio);
-    auto GXeMedia = BuildHalfCapsule(GXeMedia_R, 
-                                     GXeMedia_dz, 
-                                     curvature, 
-                                     1
-                                    );
+    // ----- GXe Medium (GXeMedium) -------------------------------------------
+    G4double GXeMedium_oD = iCryostat_oD - 2*iCryostatWall_thickness;
+    G4double GXeMedium_H  = iCryostat_H * (1-LiquidGasRatio);
 
-    G4LogicalVolume* logicGXeMedia = new G4LogicalVolume(GXeMedia,
-                                              GXe,
-                                              "GXeMedia"
-                                              );
+    auto solid_GXeMedium = BuildHalfCapsule(
+        GXeMedium_oD/2, 
+        GXeMedium_H/2, 
+        curveLength, 
+        1
+    );
 
-    auto posGXeMedia  = G4ThreeVector(0., 0., ((iCryostat_H/2) - GXeMedia_dz));
-    G4VPhysicalVolume* physGXeMedia = new G4PVPlacement(0,
-                                            posGXeMedia,
-                                            logicGXeMedia,
-                                            "physGXeMedia",
-                                            logicCapsule2wFlange,
+    logic_GXeMedium = new G4LogicalVolume(
+        solid_GXeMedium,
+        GXe,
+        "logic_GXeMedium"
+    );
+
+    auto pos_GXeMedium  = G4ThreeVector(0., 0., ((iCryostat_H/2) - GXeMedium_H/2));
+    phys_GXeMedium = new G4PVPlacement(
+        0,
+        pos_GXeMedium,
+        logic_GXeMedium,
+        "phys_GXeMedium",
+        logic_iCryostat,
+        false,
+        0,
+        true
+    );
+
+    // VisAttributes
+    auto col_GXeMedium = G4Colour(0., 1, 0., 0.15);
+    G4VisAttributes* vis_GXeMedium = new G4VisAttributes(col_GXeMedium);
+    vis_GXeMedium  ->SetVisibility(true);
+    vis_GXeMedium  ->SetForceSolid(true);
+    logic_GXeMedium->SetVisAttributes(vis_GXeMedium);
+
+
+    // ----- LXe Medium (LXeMedium) -------------------------------------------
+    G4double LXeMedium_oD = iCryostat_oD - 2*iCryostatWall_thickness;
+    G4double LXeMedium_H  = iCryostat_H * LiquidGasRatio;
+
+    auto solid_LXeMedium = BuildHalfCapsule(
+        LXeMedium_oD/2, 
+        LXeMedium_H/2, 
+        curveLength, 
+        0
+    );
+
+    logic_LXeMedium = new G4LogicalVolume(
+        solid_LXeMedium,
+        LXe,
+        "logic_LXeMedium"
+    );
+
+    auto pos_LXeMedium  = G4ThreeVector(0., 0., -((iCryostat_H/2) - LXeMedium_H/2));
+    phys_LXeMedium = new G4PVPlacement(0,
+                                            pos_LXeMedium,
+                                            logic_LXeMedium,
+                                            "phys_LXeMedium",
+                                            logic_iCryostat,
                                             false,
                                             0,
                                             true
                                             );
 
-    //Vis Attributes
-    G4VisAttributes* GXeMediaVis = new G4VisAttributes(G4Colour(0., 1, 0., 0.15));
-    GXeMediaVis->SetVisibility(true);
-    GXeMediaVis->SetForceSolid(true);
-    //LXeVis->SetForceWireframe(true);
-    //GXeMediaVis->SetForceAuxEdgeVisible(true);
-    logicGXeMedia->SetVisAttributes(GXeMediaVis);
-
-
-    // --- Build LXe Media
-    G4double LXeMedia_R  = (iCryostat_oD/2) - iCryostatWall_thickness;
-    G4double LXeMedia_dz = (iCryostat_H/2)*LiquidGasRatio;
-    auto LXeMedia = BuildHalfCapsule(LXeMedia_R, 
-                                     LXeMedia_dz, 
-                                     curvature, 
-                                     0
-                                    );
-
-    G4LogicalVolume* logicLXeMedia = new G4LogicalVolume(LXeMedia,
-                                              LXe,
-                                              "LXeMedia"
-                                              );
-
-    auto posLXeMedia  = G4ThreeVector(0., 0., -((iCryostat_H/2) - LXeMedia_dz));
-    G4VPhysicalVolume* physLXeMedia = new G4PVPlacement(0,
-                                            posLXeMedia,
-                                            logicLXeMedia,
-                                            "physLXeMedia",
-                                            logicCapsule2wFlange,
-                                            false,
-                                            0,
-                                            true
-                                            );
-
-    //Vis Attributes
-    G4VisAttributes* LXeMediaVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.15));
-    LXeMediaVis->SetVisibility(true);
-    LXeMediaVis->SetForceSolid(true);
-    //LXeVis->SetForceWireframe(true);
-    //LXeVis->SetForceAuxEdgeVisible(true);
-    logicLXeMedia->SetVisAttributes(LXeMediaVis);
-
+    // VisAttributes
+    auto col_LXeMedium = G4Colour(1.0, 0.0, 1.0, 0.15);
+    G4VisAttributes* vis_LXeMedium = new G4VisAttributes(col_LXeMedium);
+    vis_LXeMedium  ->SetVisibility(true);
+    vis_LXeMedium  ->SetForceSolid(true);
+    logic_LXeMedium->SetVisAttributes(vis_LXeMedium);
 }
 
 
-void HTPCDetectorConstruction::ConstructDetector()
+void HTPCDetectorConstruction::ConstructTPC()
 {
-    G4Material *LXe = G4Material::GetMaterial("LXe");
-    G4Material *Teflon = G4Material::GetMaterial("Teflon");
-    G4Material *GXe = G4Material::GetMaterial("GXe");
-    G4Material *Sapphire = G4Material::GetMaterial("Sapphire");
+    G4Material* LXe      = G4Material::GetMaterial("LXe");
+    G4Material* Teflon   = G4Material::GetMaterial("Teflon");
+    G4Material* GXe      = G4Material::GetMaterial("GXe");
+    G4Material* Sapphire = G4Material::GetMaterial("Sapphire");
 
-    // --------- TEST ----------
+    G4double TPC_oD         = GetGeometryParameter("TPC_oD");
+    G4double TPC_H          = GetGeometryParameter("TPC_H");
+    G4double PTFE_thickness = GetGeometryParameter("PTFE_thickness");
+    G4double GXe_H          = GetGeometryParameter("GXe_H");
 
-    auto halfCap = BuildHalfCapsule(250*mm, 260*mm , 0.2, 0);
-    G4LogicalVolume* logichalfCap = new G4LogicalVolume(halfCap,
-                                              LXe,
-                                              "halfcap"
-                                              );
+    G4double iCryostat_H    = GetGeometryParameter("iCryostat_H");
+    G4double LiquidGasRatio = GetGeometryParameter("LiquidGasRatio");
 
-    auto poshalfCap  = G4ThreeVector(0., 0., 5*m);
-    G4VPhysicalVolume* physhalfCap = new G4PVPlacement(0,
-                                            poshalfCap,
-                                            logichalfCap,
-                                            "physhalfCap",
-                                            m_pLabLogicalVolume,
-                                            false,
-                                            0,
-                                            true
-                                            );
+    G4double GXeTeflonTub_H = GXe_H;
+    G4double LXeTeflonTub_H = TPC_H - GXe_H;
 
 
-    //Vis Attributes
-    G4VisAttributes* halfCapVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.2));
-    halfCapVis->SetVisibility(true);
-    halfCapVis->SetForceSolid(true);
-    //LXeVis->SetForceWireframe(true);
-    //LXeVis->SetForceAuxEdgeVisible(true);
-    logichalfCap->SetVisAttributes(halfCapVis);
+    // ----- Teflon Tub -------------------------------------------------------
 
-    // ------- END TEST -------
+    // GXeTeflonTub
+    G4Tubs* solid_GXeTeflonTub = new G4Tubs(
+        "solid_GXeTeflonTub",
+        TPC_oD/2 - PTFE_thickness,
+        TPC_oD/2,
+        GXeTeflonTub_H/2,
+        0.   *deg,
+        360. *deg
+    );
 
-    //----- LXe Volume-----
-    //Dimensions
-    G4double opendeg = 0.0 *deg;
-    G4double closedeg = 360.0 *deg;
+    logic_GXeTeflonTub = new G4LogicalVolume(
+        solid_GXeTeflonTub,
+        Teflon,
+        "logic_GXeTeflonTub"
+    );
 
-    G4double d_XeRes_oD = GetGeometryParameter("iCryostat_oD");
-    G4double d_XeRes_H = GetGeometryParameter("iCryostat_H");
-    G4double d_iCryoThick = GetGeometryParameter("iCryostatWall_thickness");
-    G4double curvature = GetGeometryParameter("curvature");
+    G4double z_GXeTeflonTub = (iCryostat_H/2) * (1-LiquidGasRatio) - GXeTeflonTub_H/2;
+    auto pos_GXeTeflonTub = G4ThreeVector(0., 0., - z_GXeTeflonTub);
+    phys_GXeTeflonTub = new G4PVPlacement(
+        0,
+        pos_GXeTeflonTub,
+        logic_GXeTeflonTub,
+        "phys_GXeTeflonTub",
+        logic_GXeMedium,
+        false,
+        0,
+        true
+    );
 
-    auto LXeTub = BuildCapsule(d_XeRes_oD/2 - d_iCryoThick, 0.*m, d_XeRes_H/2 , curvature);
-    logicLXeTub = new G4LogicalVolume(LXeTub,
-                                              LXe,
-                                              "LXe_log"
-                                              );
+    // LXeTeflonTub
+    G4Tubs* solid_LXeTeflonTub = new G4Tubs(
+        "solid_LXeTeflonTub",
+        TPC_oD/2 - PTFE_thickness,
+        TPC_oD/2,
+        LXeTeflonTub_H/2,
+        0.   *deg,
+        360. *deg
+    );
 
-    auto posLXeTub  = G4ThreeVector(0., 0., 0.);
-    physLXeTub = new G4PVPlacement(0,
-                                            posLXeTub,
-                                            logicLXeTub,
-                                            "physLXeTub",
-                                            logicCapsule2wFlange,
-                                            false,
-                                            0,
-                                            true
-                                            );
+    logic_LXeTeflonTub = new G4LogicalVolume(
+        solid_LXeTeflonTub,
+        Teflon,
+        "logic_LXeTeflonTub"
+    );
+
+    G4double z_LXeTeflonTub = (iCryostat_H/2) * (LiquidGasRatio) - LXeTeflonTub_H/2;
+    auto pos_LXeTeflonTub = G4ThreeVector(0., 0., + z_LXeTeflonTub);
+    phys_LXeTeflonTub = new G4PVPlacement(
+        0,
+        pos_LXeTeflonTub,
+        logic_LXeTeflonTub,
+        "phys_LXeTeflonTub",
+        logic_LXeMedium,
+        false,
+        0,
+        true
+    );
+
+    // TeflonCap
+    G4Tubs* solid_TeflonCap = new G4Tubs(
+        "solid_TeflonCap",
+        0.,
+        TPC_oD/2 - PTFE_thickness,
+        PTFE_thickness/2,
+        0.   *deg,
+        360. *deg
+    );
+
+    logic_TeflonCap = new G4LogicalVolume(
+        solid_TeflonCap,
+        Teflon,
+        "logic_TeflonCap"
+    );
+
+    // Upper cap (GXe)
+    G4double base_GXeTeflonCap = -((iCryostat_H/2) * (1-LiquidGasRatio));
+    G4double z_GXeTeflonCap = base_GXeTeflonCap + GXeTeflonTub_H - PTFE_thickness/2;
+    auto pos_GXeTeflonCap = G4ThreeVector(0., 0., z_GXeTeflonCap);
+    phys_GXeTeflonTub = new G4PVPlacement(
+        0,
+        pos_GXeTeflonCap,
+        logic_TeflonCap,
+        "phys_GXeTeflonCap",
+        logic_GXeMedium,
+        false,
+        0,
+        true
+    );
+
+    // Lower cap (LXe)
+    G4double base_LXeTeflonCap = -((iCryostat_H/2) * (LiquidGasRatio));
+    G4double z_LXeTeflonCap = base_LXeTeflonCap + iCryostat_H*LiquidGasRatio - LXeTeflonTub_H + PTFE_thickness/2;
+    auto pos_LXeTeflonCap = G4ThreeVector(0., 0., z_LXeTeflonCap);
+    phys_LXeTeflonTub = new G4PVPlacement(
+        0,
+        pos_LXeTeflonCap,
+        logic_TeflonCap,
+        "phys_LXeTeflonCap",
+        logic_LXeMedium,
+        false,
+        0,
+        true
+    );
+
+    // VisAttributes
+    auto col_Teflon = G4Colour(0.0, 0.8, 1.0, 1.);
+    G4VisAttributes* vis_Teflon = new G4VisAttributes(col_Teflon);
+    vis_Teflon ->SetVisibility(true);
+    //vis_Teflon ->SetForceSolid(true);
+    vis_Teflon ->SetForceWireframe(true);
+    vis_Teflon ->SetForceAuxEdgeVisible(true);
+    logic_GXeTeflonTub->SetVisAttributes(vis_Teflon);
+    logic_LXeTeflonTub->SetVisAttributes(vis_Teflon);
+    logic_TeflonCap   ->SetVisAttributes(vis_Teflon);
 
 
-    //Vis Attributes
-    G4VisAttributes* LXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.2));
-    LXeVis->SetVisibility(true);
-    LXeVis->SetForceSolid(true);
-    //LXeVis->SetForceWireframe(true);
-    //LXeVis->SetForceAuxEdgeVisible(true);
-    logicLXeTub->SetVisAttributes(LXeVis);
-
-    //----- PTFE Cylinder----
-    //Dimensions
-
-    G4double d_TPC_oD = GetGeometryParameter("TPC_oD");
-    G4double d_TPC_H = GetGeometryParameter("TPC_H");
-    G4double d_PTFEThickness = GetGeometryParameter("PTFE_thickness");
-
-   //Container
-    G4Tubs *PTFETub = new G4Tubs
-        ("PTFETub", 0., d_TPC_oD/2, d_TPC_H/2, opendeg, closedeg);
-
-    m_pPTFECylLogicalVolume = new G4LogicalVolume(PTFETub, Teflon, "PTFE_log");
-
-    m_pPTFECylPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0),
-		      m_pPTFECylLogicalVolume, "PTFE_phys",
-		      logicLXeTub, false, 0);
-
-    //Vis Attributes
-    G4VisAttributes* PTFEVis = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 1.0));
-    PTFEVis->SetVisibility(true);
-    PTFEVis->SetForceWireframe(true);
-    PTFEVis->SetForceAuxEdgeVisible(true);
-    m_pPTFECylLogicalVolume->SetVisAttributes(PTFEVis);
-
+    // ----- Active Media -----------------------------------------------------
     
-    //----- Active LXe----
-    //Dimensions
+    // GXeActive
+    G4Tubs* solid_GXeActive = new G4Tubs(
+        "solid_GXeActive",
+        0.,
+        TPC_oD/2 - PTFE_thickness,
+        GXeTeflonTub_H/2 - PTFE_thickness,
+        0.   *deg,
+        360. *deg
+    );
 
-    G4double d_GXe_H = GetGeometryParameter("GXe_H");
-    G4double d_ALXe_H = (d_TPC_H-d_GXe_H)/2-d_PTFEThickness;
+    logic_GXeActive = new G4LogicalVolume(
+        solid_GXeActive,
+        GXe,
+        "logic_GXeActive"
+    );
 
-   //Container
-    G4Tubs *ALXeTubs = new G4Tubs
-        ("ALXeTubs", 0., d_TPC_oD/2-d_PTFEThickness, (d_TPC_H-d_GXe_H)/2-d_PTFEThickness, opendeg, closedeg);
+    //G4double z_GXeActive = (iCryostat_H/2) * (1-LiquidGasRatio) - GXeTeflonTub_H/2;
+    auto pos_GXeActive = G4ThreeVector(0., 0., 0.);
+    phys_GXeActive = new G4PVPlacement(
+        0,
+        pos_GXeActive,
+        logic_GXeActive,
+        "phys_GXeActive",
+        logic_GXeTeflonTub,
+        false,
+        0,
+        true
+    );
 
-    m_pALXeLogicalVolume = new G4LogicalVolume(ALXeTubs, LXe, "ALXe_log");
+    // VisAttributes
+    auto col_GXeActive = G4Colour(0., 1., 0., 0.5);
+    G4VisAttributes* vis_GXeActive = new G4VisAttributes(col_GXeActive);
+    vis_GXeActive   ->SetVisibility(true);
+    vis_GXeActive   ->SetForceSolid(true);
+    logic_GXeActive ->SetVisAttributes(vis_GXeActive);
 
-    G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
-      pHTPC_SD = new HTPCSensitiveDetector("HTPC_SD");
-      pSDManager->AddNewDetector(pHTPC_SD);
-      m_pALXeLogicalVolume->SetSensitiveDetector(pHTPC_SD);
+    // LXeActive
+    G4Tubs* solid_LXeActive = new G4Tubs(
+        "solid_LXeActive",
+        0.,
+        TPC_oD/2 - PTFE_thickness,
+        LXeTeflonTub_H/2 - PTFE_thickness,
+        0.   *deg,
+        360. *deg
+    );
 
-    m_pALXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,-d_GXe_H/2),
-		      m_pALXeLogicalVolume, "ALXe_phys",
-		      m_pPTFECylLogicalVolume, false, 0);
+    logic_LXeActive = new G4LogicalVolume(
+        solid_LXeActive,
+        LXe,
+        "logic_LXeActive"
+    );
 
-    //Vis Attributes
-    G4VisAttributes* ALXeVis = new G4VisAttributes(G4Colour(1.0, 0.0, 0.95, 0.5)); //Magenta
-    ALXeVis->SetVisibility(true);
-    ALXeVis->SetForceSolid(true);
-    m_pALXeLogicalVolume->SetVisAttributes(ALXeVis);
+    auto pos_LXeActive = G4ThreeVector(0., 0., 0.);
+    phys_LXeActive = new G4PVPlacement(
+        0,
+        pos_LXeActive,
+        logic_LXeActive,
+        "phys_LXeActive",
+        logic_LXeTeflonTub,
+        false,
+        0,
+        true
+    );
 
-    //----- GXe ----
-    //----- Inside PTFE Container -----
-    G4double d_PMTGXe_H = GetGeometryParameter("PMTGXe_H");
+    // VisAttributes
+    auto col_LXeActive = G4Colour(1., 0., 1., 0.5);
+    G4VisAttributes* vis_LXeActive = new G4VisAttributes(col_LXeActive);
+    vis_LXeActive   ->SetVisibility(true);
+    vis_LXeActive   ->SetForceSolid(true);
+    logic_LXeActive ->SetVisAttributes(vis_LXeActive);
 
-    G4Tubs *GXeTubs = new G4Tubs
-        ("GXeTubs", 0., d_TPC_oD/2-d_PTFEThickness, d_GXe_H/2, opendeg, closedeg);
-
-    m_pGXeLogicalVolume = new G4LogicalVolume(GXeTubs, GXe, "GXe_log");
-
-    m_pGXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0, d_TPC_H/2 - d_GXe_H/2 - d_PTFEThickness),
-		      m_pGXeLogicalVolume, "GXe_phys",
-		      m_pPTFECylLogicalVolume, false, 0);
-
-    //Vis Attributes
-    G4VisAttributes* GXeVis = new G4VisAttributes(G4Colour(0., 0.9, 0., 0.5)); //Purple
-    GXeVis->SetVisibility(true);
-    GXeVis->SetForceSolid(true);
-    m_pGXeLogicalVolume->SetVisAttributes(GXeVis);
-
-    //-----Above PTFE for Top PMTs-----
-    G4Tubs *PMTGXeTubs = new G4Tubs
-        ("PMTGXeTubs", 0., d_TPC_oD/2-d_PTFEThickness, d_PMTGXe_H/2, opendeg, closedeg);
-
-    m_pPMTGXeLogicalVolume = new G4LogicalVolume(PMTGXeTubs, GXe, "PMTGXe_log");
-
-    m_pGXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,d_TPC_H/2 + d_PMTGXe_H/2),
-		      m_pPMTGXeLogicalVolume, "PMTGXe_phys",
-		      logicLXeTub, false, 0);
-
-    //Vis Attributes
-    G4VisAttributes* PMTGXeVis = new G4VisAttributes(G4Colour(0., 1.0, 1.0, 1.)); //Cyan
-    PMTGXeVis->SetVisibility(true);
-    //PMTGXeVis->SetForceSolid(true);
-    PMTGXeVis->SetForceWireframe(true);
-    PMTGXeVis->SetForceAuxEdgeVisible(true);
-    m_pPMTGXeLogicalVolume->SetVisAttributes(PMTGXeVis);
-
-    //Vis Attributes
-    //G4VisAttributes* GXeVis = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0)); //Cyan
-    //m_pGXeLogicalVolume->SetVisAttributes(GXeVis);
-    //m_pPMTGXeLogicalVolume->SetVisAttributes(GXeVis);
-
-    //----- Sapphire----
-    //Consists of cylinder in gas and liquid.	
-
-    //Dimensions
-    G4double d_Sapphire_oD = GetGeometryParameter("Sapphire_oD");
+    // ---- Sapphire Tub ------------------------------------------------------
+    G4double d_Sapphire_oD       = GetGeometryParameter("Sapphire_oD");
     G4double d_SapphireThickness = GetGeometryParameter("SapphireThickness");
-    G4double d_GasGap_H = GetGeometryParameter("GasGap_H");
+    G4double AnodeThickness      = GetGeometryParameter("AnodeThickness");
 
-    //LXe Container
-    G4Tubs *SapphireLXeTubs = new G4Tubs
-        ("SapphireLXeTubs", d_Sapphire_oD/2-d_SapphireThickness, d_Sapphire_oD/2, 
-        (d_TPC_H-d_GXe_H)/2-d_PTFEThickness, opendeg, closedeg);
+    // GXeSapphireTub
+    G4Tubs* solid_GXeSapphireTub = new G4Tubs(
+        "solid_GXeSapphireTub",
+        d_Sapphire_oD/2 - d_SapphireThickness,
+        d_Sapphire_oD/2,
+        GXeTeflonTub_H/2 - AnodeThickness,
+        0.   *deg,
+        360. *deg
+    );
 
-    m_pSapphireLXeLogicalVolume = new G4LogicalVolume(SapphireLXeTubs, Sapphire, "SapphireLXe_log");
+    logic_GXeSapphireTub = new G4LogicalVolume(
+        solid_GXeSapphireTub,
+        Sapphire,
+        "logic_GXeSapphireTub"
+    );
 
-    m_pSapphireLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, 0),
-		      m_pSapphireLXeLogicalVolume, "SapphireLXe_phys",
-		      m_pALXeLogicalVolume, false, 0);
+    G4double z_GXeSapphireTub = AnodeThickness;
+    auto pos_GXeSapphireTub = G4ThreeVector(0., 0., z_GXeSapphireTub);
+    phys_GXeSapphireTub = new G4PVPlacement(
+        0,
+        pos_GXeSapphireTub,
+        logic_GXeSapphireTub,
+        "phys_GXeSapphireTub",
+        logic_GXeActive,
+        false,
+        0,
+        true
+    );
 
-    //Vis Attributes
-    G4VisAttributes* SapLXeContVis = new G4VisAttributes(G4Colour(1.0, 1.0, 0., 0.7));
-    SapLXeContVis->SetVisibility(true);
-    SapLXeContVis->SetForceSolid(true);
-    //SapLXeContVis->SetForceWireframe(true);
-    //SapLXeContVis->SetForceAuxEdgeVisible(true);
-    m_pSapphireLXeLogicalVolume->SetVisAttributes(SapLXeContVis);
+    // GXeSapphireCap
+    G4Tubs* solid_GXeSapphireCap = new G4Tubs(
+        "solid_GXeSapphireCap",
+        0,
+        TPC_oD/2 - PTFE_thickness,
+        AnodeThickness/2,
+        0.   *deg,
+        360. *deg
+    );
 
-    //GXe Container
-    G4Tubs *SapphireGXeTubs = new G4Tubs
-        ("SapphireGXeTubs", d_Sapphire_oD/2-d_SapphireThickness, d_Sapphire_oD/2, d_GasGap_H/2, opendeg, closedeg);
+    logic_GXeSapphireCap = new G4LogicalVolume(
+        solid_GXeSapphireCap,
+        Sapphire,
+        "logic_GXeSapphireCap"
+    );
 
-    m_pSapphireGXeLogicalVolume = new G4LogicalVolume(SapphireGXeTubs, Sapphire, "SapphireGXe_log");
+    G4double z_GXeSapphireCap = GXeTeflonTub_H/2 - AnodeThickness/2;
+    auto pos_GXeSapphireCap = G4ThreeVector(0., 0., z_GXeSapphireCap);
+    phys_GXeSapphireCap = new G4PVPlacement(
+        0,
+        pos_GXeSapphireCap,
+        logic_GXeSapphireCap,
+        "phys_GXeSapphireCap",
+        logic_GXeActive,
+        false,
+        0,
+        true
+    );
 
-    m_pSapphireLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, -d_GXe_H/2+d_GasGap_H/2),
-		      m_pSapphireGXeLogicalVolume, "SapphireGXe_phys",
-		      m_pGXeLogicalVolume, false, 0);
+    // LXeSapphireTub
+    G4Tubs* solid_LXeSapphireTub = new G4Tubs(
+        "solid_LXeSapphireTub",
+        d_Sapphire_oD/2 - d_SapphireThickness,
+        d_Sapphire_oD/2,
+        LXeTeflonTub_H/2 - AnodeThickness,
+        0.   *deg,
+        360. *deg
+    );
 
-    //Vis Attributes
-    G4VisAttributes* SapGXeContVis = new G4VisAttributes(G4Colour(1., 1., 1., 1.));
-    SapGXeContVis->SetVisibility(true);
-    //SapGXeContVis->SetForceSolid(true);
-    SapGXeContVis->SetForceWireframe(true);
-    SapGXeContVis->SetForceAuxEdgeVisible(true);
-    m_pSapphireGXeLogicalVolume->SetVisAttributes(SapGXeContVis);
-    
-    //----- Sapphire Anode----
-    //Solid plane within GXe
+    logic_LXeSapphireTub = new G4LogicalVolume(
+        solid_LXeSapphireTub,
+        Sapphire,
+        "logic_LXeSapphireTub"
+    );
 
-    //Anode Plane
-    G4Tubs *SapphireAnode = new G4Tubs
-        ("SapphireAnode", 0, d_TPC_oD/2-d_PTFEThickness, d_SapphireThickness/2, opendeg, closedeg);
+    G4double z_LXeSapphireTub = -AnodeThickness;
+    auto pos_LXeSapphireTub = G4ThreeVector(0., 0., z_LXeSapphireTub);
+    phys_LXeSapphireTub = new G4PVPlacement(
+        0,
+        pos_LXeSapphireTub,
+        logic_LXeSapphireTub,
+        "phys_LXeSapphireTub",
+        logic_LXeActive,
+        false,
+        0,
+        true
+    );
 
-    m_pSapphireAnodeLogicalVolume = new G4LogicalVolume(SapphireAnode, Sapphire, "SapphireAnode_log");
+    // LXeSapphireCap
+    G4Tubs* solid_LXeSapphireCap = new G4Tubs(
+        "solid_LXeSapphireCap",
+        0,
+        TPC_oD/2 - PTFE_thickness,
+        AnodeThickness/2,
+        0.   *deg,
+        360. *deg
+    );
 
-    m_pSapphireAnodePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, -d_GXe_H/2+d_GasGap_H+d_SapphireThickness/2),
-		      m_pSapphireAnodeLogicalVolume, "SapphireAnode_phys",
-		      m_pGXeLogicalVolume, false, 0);
+    logic_LXeSapphireCap = new G4LogicalVolume(
+        solid_LXeSapphireCap,
+        Sapphire,
+        "logic_LXeSapphireCap"
+    );
 
-    //Vis Attributes
-    G4VisAttributes* SapAnodeVis = new G4VisAttributes(G4Colour(1., 1., 1., 1.));
-    SapAnodeVis->SetVisibility(true);
-    SapAnodeVis->SetForceSolid(true);
-    //SapAnodeVis->SetForceWireframe(true);
-    //SapAnodeVis->SetForceAuxEdgeVisible(true);
-    m_pSapphireAnodeLogicalVolume->SetVisAttributes(SapAnodeVis);
+    G4double z_LXeSapphireCap = -LXeTeflonTub_H/2 + AnodeThickness/2;
+    auto pos_LXeSapphireCap = G4ThreeVector(0., 0., z_LXeSapphireCap);
+    phys_LXeSapphireCap = new G4PVPlacement(
+        0,
+        pos_LXeSapphireCap,
+        logic_LXeSapphireCap,
+        "phys_LXeSapphireCap",
+        logic_LXeActive,
+        false,
+        0,
+        true
+    );
 
-    //----- Sapphire Cylinder Bottom----
-    //Solid plane within LXe
-    G4double d_CathodeGap = GetGeometryParameter("CathodeGap");
+    // VisAttributes
+    auto col_Sapphire = G4Colour(1., 1., 0., 0.7);
+    G4VisAttributes* vis_Sapphire = new G4VisAttributes(col_Sapphire);
+    vis_Sapphire      ->SetVisibility(true);
+    vis_Sapphire      ->SetForceSolid(true);
+    logic_GXeSapphireTub ->SetVisAttributes(vis_Sapphire);
+    logic_LXeSapphireTub ->SetVisAttributes(vis_Sapphire);
 
-    G4Tubs *SapphireBot = new G4Tubs
-        ("SapphireBot", 0, d_Sapphire_oD/2-d_SapphireThickness, d_SapphireThickness/2, opendeg, closedeg);
+    auto col_SapphireCap = G4Colour(1., 1., 0., 1);
+    G4VisAttributes* vis_SapphireCap = new G4VisAttributes(col_SapphireCap);
+    vis_SapphireCap      ->SetVisibility(true);
+    //vis_SapphireCap      ->SetForceSolid(true);
+    vis_SapphireCap ->SetForceWireframe(true);
+    vis_SapphireCap ->SetForceAuxEdgeVisible(true);
+    logic_GXeSapphireCap ->SetVisAttributes(vis_SapphireCap);
+    logic_LXeSapphireCap ->SetVisAttributes(vis_SapphireCap);
 
-    m_pSapphireBotLogicalVolume = new G4LogicalVolume(SapphireBot, Sapphire, "SapphireBot_log");
-
-    m_pSapphireBotPhysicalVolume = new G4PVPlacement(0,
-              G4ThreeVector(0, 0, -d_ALXe_H+d_CathodeGap+d_SapphireThickness/2),
-		      m_pSapphireBotLogicalVolume, "SapphireBot_phys",
-		      m_pALXeLogicalVolume, false, 0);
-
-    //Vis Attributes
-    G4VisAttributes* SapPlaneVis = new G4VisAttributes(G4Colour(1., 1., 1., 1.));
-    SapPlaneVis->SetVisibility(true);
-    SapPlaneVis->SetForceSolid(true);
-    //SapPlaneVis->SetForceWireframe(true);
-    //SapPlaneVis->SetForceAuxEdgeVisible(true);
-    m_pSapphireBotLogicalVolume->SetVisAttributes(SapPlaneVis);
+    // ----- PMTs -------------------------------------------------------------
 
     G4double dPMTHeight = 114. * mm;
     stringstream hVolumeName;
 
-    //Construct Top PMT array
+    // Construct Top PMT array
     G4int iNbPMTs = 1120;
-    G4double dPMTOffsetZTop = -d_PMTGXe_H/2+dPMTHeight/2;
+    G4double dPMTOffsetZTop = -(iCryostat_H/2) * (1-LiquidGasRatio) + GXeTeflonTub_H + dPMTHeight/2;
 
     m_pPmtR11410LogicalVolume = ConstructPMT();
     for (G4int iPMT = 0; iPMT < iNbPMTs; ++iPMT) {
@@ -833,11 +1058,11 @@ void HTPCDetectorConstruction::ConstructDetector()
         m_pPMTPhysicalVolumes.push_back(new G4PVPlacement(0,
                               PmtPosition+G4ThreeVector(0., 0., dPMTOffsetZTop),
                              m_pPmtR11410LogicalVolume, hVolumeName.str(),
-                             m_pPMTGXeLogicalVolume, false, iPMT));
+                             logic_GXeMedium, false, iPMT));
     }
 
-    //Construct Bottom PMT array
-    G4double dPMTOffsetZBot = -d_TPC_H/2-dPMTHeight/2;
+    // Construct Bottom PMT array
+    G4double dPMTOffsetZBot = (iCryostat_H/2) * LiquidGasRatio - LXeTeflonTub_H - dPMTHeight/2;
     G4RotationMatrix *pRotX180 = new G4RotationMatrix();
     pRotX180->rotateX(180. * deg);
 
@@ -849,10 +1074,16 @@ void HTPCDetectorConstruction::ConstructDetector()
         m_pPMTPhysicalVolumes.push_back(new G4PVPlacement(pRotX180,
                               PmtPosition+G4ThreeVector(0., 0., dPMTOffsetZBot),
                               m_pPmtR11410LogicalVolume, hVolumeName.str(),
-                              logicLXeTub, false, iPMT_label));
+                              logic_LXeMedium, false, iPMT_label));
     }
 
 }
+
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+
 
 G4LogicalVolume *HTPCDetectorConstruction::ConstructPMT() {
 
@@ -1278,16 +1509,14 @@ namespace {
 
         
         // ~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Build helperCylinder
+        // Build helperBox
         // ~~~~~~~~~~~~~~~~~~~~~~~~~
-        G4Tubs* helpSolidCyl = new G4Tubs("helpSolidCyl",
-                                    0.,
-                                    Rmax*0.99,
-                                    4*Dz,
-                                    oCylSPhi,
-                                    oCylDPhi);
-
-        G4Box* helpSolidBox = new G4Box("helpSolidBox", 2*Rmax, 2*Rmax, 4*Dz);
+        G4Box* helpSolidBox = new G4Box(
+            "helpSolidBox", 
+            2*Rmax, 
+            2*Rmax, 
+            4*Dz
+        );
                                         
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~
