@@ -24,6 +24,7 @@ class G4VPhysicalVolume;
 #include <G4VUserDetectorConstruction.hh>
 #include "HTPCSensitiveDetector.hh"
 #include "G4ios.hh"
+#include "G4GenericMessenger.hh"
 
 class HTPCDetectorConstruction: public G4VUserDetectorConstruction
 {
@@ -33,6 +34,7 @@ public:
 
     G4VPhysicalVolume* Construct();
 
+    void ApplyMessengers();
     void DefineGeometryParameters();
     void DefineMaterials();
     void ConstructLab();
@@ -58,9 +60,17 @@ private:
     TDirectory *_detector;
 
     // Messenger Setup
-    //PurdueDetectorMessenger *m_pDetectorMessenger;
+    G4double iCryostat_Alpha;
+    G4double oCryostat_Alpha;
+    G4double CryostatVacuum_Alpha;
+    G4double Teflon_Alpha;
+    G4double GXeMedium_Alpha;
+    G4double LXeMedium_Alpha;
+    G4double GXeActive_Alpha;
+    G4double LXeActive_Alpha;
+    G4double Sapphire_Alpha;
 
-    // -- Hargy's newer declarations ------------------------------------------
+    G4GenericMessenger *fMessengerAlpha;
 
     // Laboratory
     G4LogicalVolume*   logic_Lab;
@@ -110,80 +120,14 @@ private:
     G4LogicalVolume*   logic_LXeSapphireTub;
     G4VPhysicalVolume* phys_LXeSapphireTub;
 
-   G4LogicalVolume*    logic_LXeSapphireCap;
+    G4LogicalVolume*    logic_LXeSapphireCap;
     G4VPhysicalVolume* phys_LXeSapphireCap;
 
-    // ------------------------------------------------------------------------
-
-    // -- Hargy's declarations
-    G4LogicalVolume*   logicCapsule1wFlange;
-    G4VPhysicalVolume* physCapsule1wFlange;
-
-    G4LogicalVolume*   logicCryoVacuum;
-    G4VPhysicalVolume* physCryoVacuum;
-
-    G4LogicalVolume*   logicCapsule2wFlange;
-    G4VPhysicalVolume* physCapsule2wFlange;
-
-    G4LogicalVolume* logicGXeMedium;
-    G4VPhysicalVolume* physGXeMedium;
-
-    G4LogicalVolume* logicLXeMedium;
-    G4VPhysicalVolume* physLXeMedium;
-
-    G4LogicalVolume*   logicLXeTub;
-    G4VPhysicalVolume* physLXeTub;
-
     // -----------------------
-
-    //Laboratory
-    G4LogicalVolume   *m_pLabLogicalVolume;
-    G4VPhysicalVolume *m_pLabPhysicalVolume;
-
-    //Outer Cryostat
-    G4LogicalVolume   *m_poCryostatLogicalVolume;
-    G4VPhysicalVolume *m_poCryostatPhysicalVolume;
-
-    //CryostatVacuum
-    G4LogicalVolume   *m_pCryoVacuumLogicalVolume;
-    G4VPhysicalVolume *m_pCryoVacuumPhysicalVolume;
-
-    //CryostatVacuum
-    G4LogicalVolume   *m_piCryostatLogicalVolume;
-    G4VPhysicalVolume *m_piCryostatPhysicalVolume;
-
-    //LXe Volume
-    G4LogicalVolume   *m_pLXeLogicalVolume;
-    G4VPhysicalVolume *m_pLXePhysicalVolume;
-
-    //PTFECyl Volume
-    G4LogicalVolume   *m_pPTFECylLogicalVolume;
-    G4VPhysicalVolume *m_pPTFECylPhysicalVolume;
-
-    //ALXe Volume
-    G4LogicalVolume   *m_pALXeLogicalVolume;
-    G4VPhysicalVolume *m_pALXePhysicalVolume;
-
-    //GXe Volume
-    G4LogicalVolume   *m_pGXeLogicalVolume;
-    G4VPhysicalVolume *m_pGXePhysicalVolume;
 
     //PMTGXe Volume
     G4LogicalVolume   *m_pPMTGXeLogicalVolume;
     G4VPhysicalVolume *m_pPMTGXePhysicalVolume;
-
-    //Sapphire Volumes
-    G4LogicalVolume   *m_pSapphireLXeLogicalVolume;
-    G4VPhysicalVolume *m_pSapphireLXePhysicalVolume;
-
-    G4LogicalVolume   *m_pSapphireGXeLogicalVolume;
-    G4VPhysicalVolume *m_pSapphireGXePhysicalVolume;
-
-    G4LogicalVolume   *m_pSapphireAnodeLogicalVolume;
-    G4VPhysicalVolume *m_pSapphireAnodePhysicalVolume;
-
-    G4LogicalVolume   *m_pSapphireBotLogicalVolume;
-    G4VPhysicalVolume *m_pSapphireBotPhysicalVolume;
 
     //PMT VOlumes
     G4LogicalVolume *m_pPMTLogicalVolume;
@@ -199,8 +143,6 @@ private:
     G4VPhysicalVolume *m_PMTCeramicPhysicalVolume;
 
     G4LogicalVolume *m_pPmtR11410LogicalVolume;
-    //G4LogicalVolume *m_pPmtBasesLogicalVolume;
-    //vector<G4VPhysicalVolume *> m_pPmtBasesPhysicalVolumes;
     vector<G4VPhysicalVolume *> m_pPMTPhysicalVolumes;
 
     HTPCSensitiveDetector *pHTPC_SD;

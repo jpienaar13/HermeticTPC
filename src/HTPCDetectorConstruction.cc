@@ -39,7 +39,10 @@ map<G4String, G4double> HTPCDetectorConstruction::m_hGeometryParameters;
 HTPCDetectorConstruction::HTPCDetectorConstruction(G4String fName)
 {
   detRootFile = fName;
-  //m_pDetectorMessenger = new PurdueDetectorMessenger(this);
+  G4cout << "[Construct] iCryostat_Alpha=" << iCryostat_Alpha
+       << " LXeMedium_Alpha=" << LXeMedium_Alpha << G4endl;
+
+  ApplyMessengers();
 }
 
 HTPCDetectorConstruction::~HTPCDetectorConstruction()
@@ -47,21 +50,76 @@ HTPCDetectorConstruction::~HTPCDetectorConstruction()
   //delete m_pDetectorMessenger;
 }
 
+void HTPCDetectorConstruction::ApplyMessengers() {
+
+    fMessengerAlpha = new G4GenericMessenger(this,
+                                        "/Alpha/",
+                                        "Alpha");
+
+    fMessengerAlpha->DeclareProperty("iCryostat_Alpha",
+                                iCryostat_Alpha,
+                                "iCryostat_Alpha");
+ 
+    fMessengerAlpha->DeclareProperty("oCryostat_Alpha",
+                                oCryostat_Alpha,
+                                "oCryostat_Alpha");
+
+    fMessengerAlpha->DeclareProperty("CryostatVacuum_Alpha",
+                                CryostatVacuum_Alpha,
+                                "CryostatVacuum_Alpha");
+
+    fMessengerAlpha->DeclareProperty("Teflon_Alpha",
+                                Teflon_Alpha,
+                                "Teflon_Alpha");
+
+    fMessengerAlpha->DeclareProperty("GXeMedium_Alpha",
+                                GXeMedium_Alpha,
+                                "GXeMedium_Alpha");
+
+    fMessengerAlpha->DeclareProperty("LXeMedium_Alpha",
+                                LXeMedium_Alpha,
+                                "LXeMedium_Alpha");
+
+    fMessengerAlpha->DeclareProperty("GXeActive_Alpha",
+                                GXeActive_Alpha,
+                                "GXeActive_Alpha");
+
+    fMessengerAlpha->DeclareProperty("LXeActive_Alpha",
+                                LXeActive_Alpha,
+                                "LXeActive_Alpha");
+
+    fMessengerAlpha->DeclareProperty("Sapphire_Alpha",
+                                Sapphire_Alpha,
+                                "Sapphire_Alpha");
+                        
+    // Defaults
+    iCryostat_Alpha      = 1.0;
+    oCryostat_Alpha      = 0.2;
+    CryostatVacuum_Alpha = 0.0;
+    Teflon_Alpha         = 1.0;
+    GXeMedium_Alpha      = 0.3;
+    LXeMedium_Alpha      = 0.3;
+    GXeActive_Alpha      = 0.5;
+    LXeActive_Alpha      = 0.5;
+    Sapphire_Alpha       = 0.7;
+}
+
 void HTPCDetectorConstruction::DefineGeometryParameters()
 {
-    m_hGeometryParameters["tolerance"] = 10. *mm;
+     //============================Tolerances==================================
+    m_hGeometryParameters["kTol"]      = 0.1 *mm;
 
     //============================Laboratory===================================
     m_hGeometryParameters["Lab_height"] = 19000. *mm;
-    m_hGeometryParameters["Lab_width"] = 19000. *mm;
-    m_hGeometryParameters["Lab_depth"] = 19000. *mm;
+    m_hGeometryParameters["Lab_width"]  = 19000. *mm;
+    m_hGeometryParameters["Lab_depth"]  = 19000. *mm;
 
     //===============================Cryostats=================================
     m_hGeometryParameters["oCryostat_oD"] = 3400. *mm;
-    m_hGeometryParameters["oCryostat_H"] = 4000. *mm; 
+    m_hGeometryParameters["oCryostat_H"]  = 4000. *mm; 
 
     m_hGeometryParameters["iCryostat_oD"] = 3100. *mm;
-    m_hGeometryParameters["iCryostat_H"] = 3900. *mm;
+    m_hGeometryParameters["iCryostat_H"]  = 3900. *mm;
 
     m_hGeometryParameters["oCryostatWall_thickness"] = 10. *mm;
     m_hGeometryParameters["iCryostatWall_thickness"] = 10. *mm;
@@ -86,18 +144,18 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
 
     //===============================TPC=======================================
     m_hGeometryParameters["TPC_oD"] = 3000. *mm;
-    m_hGeometryParameters["TPC_H"] = 3150. *mm;
+    m_hGeometryParameters["TPC_H"]  = 3150. *mm;
     m_hGeometryParameters["PTFE_thickness"] = 3. *mm;
 
-    m_hGeometryParameters["GXe_H"] = 100. *mm;
+    m_hGeometryParameters["GXe_H"]    = 100. *mm;
     m_hGeometryParameters["PMTGXe_H"] = 150. *mm;
 
-    m_hGeometryParameters["Sapphire_oD"] = 750. *mm;
+    m_hGeometryParameters["Sapphire_oD"]       = 750. *mm;
     m_hGeometryParameters["SapphireThickness"] = 3. *mm;
 
     m_hGeometryParameters["AnodeThickness"] = 3. *mm;
 
-    m_hGeometryParameters["GasGap_H"] = 5. *mm;
+    m_hGeometryParameters["GasGap_H"]   = 5. *mm;
     m_hGeometryParameters["CathodeGap"] = 50. *mm;
 
 }
@@ -108,11 +166,11 @@ void HTPCDetectorConstruction::DefineMaterials()
 
     //========== Elements ==========
     G4Element *Xe = new G4Element("Xenon", "Xe", 54., 131.293 * g / mole);
-    G4Element *C = new G4Element("Carbon", "C", 6., 12.011 * g / mole);
+    G4Element *C  = new G4Element("Carbon", "C", 6., 12.011 * g / mole);
     G4Element *Fe = new G4Element("Iron", "Fe", 26., 55.85 * g / mole);
-    G4Element *N = new G4Element("Nitrogen", "N", 7., 14.007 * g / mole);
-    G4Element *O = new G4Element("Oxygen", "O", 8., 15.999 * g / mole);
-    G4Element *F = new G4Element("Fluorine", "F", 9., 18.998 * g / mole);
+    G4Element *N  = new G4Element("Nitrogen", "N", 7., 14.007 * g / mole);
+    G4Element *O  = new G4Element("Oxygen", "O", 8., 15.999 * g / mole);
+    G4Element *F  = new G4Element("Fluorine", "F", 9., 18.998 * g / mole);
     G4Element *Al = new G4Element("Aluminium", "Al", 13., 26.982 * g / mole);
     G4Element *Si = new G4Element("Silicon", "Si", 14., 28.086 * g / mole);
     G4Element *Ni = new G4Element("Nickel", "Ni", 28., 58.693 * g / mole);
@@ -364,8 +422,6 @@ G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
     ConstructMedia();
     ConstructTPC();
 
-    //ConstructDetector();
-
     return phys_Lab;
 }
 
@@ -414,6 +470,8 @@ void HTPCDetectorConstruction::ConstructCryostats()
     // ----- Outer Cryostat (oCryostat) ---------------------------------------
     G4double opendeg  = 0.0 *deg;
     G4double closedeg = 360.0 *deg;
+
+    G4double kTol = GetGeometryParameter("kTol");
     
     G4double oCryostat_oD = GetGeometryParameter("oCryostat_oD");
     G4double oCryostat_H  = GetGeometryParameter("oCryostat_H");
@@ -491,7 +549,7 @@ void HTPCDetectorConstruction::ConstructCryostats()
 
 
     // VisAttributes
-    auto col_oCryostat = G4Colour(1., 1., 1., 0.3);
+    auto col_oCryostat = G4Colour(1., 1., 1., oCryostat_Alpha);
     G4VisAttributes* vis_oCryostat = new G4VisAttributes(col_oCryostat);
     vis_oCryostat  ->SetVisibility(true);
     vis_oCryostat  ->SetForceWireframe(true);
@@ -525,7 +583,7 @@ void HTPCDetectorConstruction::ConstructCryostats()
     );
 
     // VisAttributes
-    auto col_CryostatVacuum = G4Colour(1., 1., 1., 0.);
+    auto col_CryostatVacuum = G4Colour(1., 1., 1., CryostatVacuum_Alpha);
     G4VisAttributes* vis_CryostatVacuum = new G4VisAttributes(col_CryostatVacuum);
     vis_CryostatVacuum  ->SetVisibility(true);
     vis_CryostatVacuum  ->SetForceSolid(true);
@@ -533,7 +591,7 @@ void HTPCDetectorConstruction::ConstructCryostats()
     
     // ----- Inner Cryostat (iCryostat) ---------------------------------------
     G4double iCryostat_oD = GetGeometryParameter("iCryostat_oD");
-    G4double iCryostat_H = GetGeometryParameter("iCryostat_H");
+    G4double iCryostat_H  = GetGeometryParameter("iCryostat_H");
     G4double iCryostatWall_thickness = GetGeometryParameter("iCryostatWall_thickness");
 
     G4double iFlangeRelativeHeight = GetGeometryParameter("iFlangeRelativeHeight");
@@ -602,7 +660,13 @@ void HTPCDetectorConstruction::ConstructCryostats()
         true
     );
 
-    logic_iCryostat->SetVisAttributes(vis_oCryostat);
+    // VisAttributes
+    auto col_iCryostat = G4Colour(1., 1., 1., iCryostat_Alpha);
+    G4VisAttributes* vis_iCryostat = new G4VisAttributes(col_iCryostat);
+    vis_iCryostat  ->SetVisibility(true);
+    vis_iCryostat  ->SetForceWireframe(true);
+    vis_iCryostat  ->SetForceAuxEdgeVisible(true);
+    logic_iCryostat->SetVisAttributes(vis_iCryostat);
 }
 
 
@@ -610,6 +674,8 @@ void HTPCDetectorConstruction::ConstructMedia()
 {
     G4Material *LXe = G4Material::GetMaterial("LXe");
     G4Material *GXe = G4Material::GetMaterial("GXe");
+
+    G4double kTol = GetGeometryParameter("kTol");
 
     G4double iCryostat_oD = GetGeometryParameter("iCryostat_oD");
     G4double iCryostat_H  = GetGeometryParameter("iCryostat_H");
@@ -627,7 +693,7 @@ void HTPCDetectorConstruction::ConstructMedia()
         GXeMedium_oD/2, 
         GXeMedium_H/2, 
         curveLength, 
-        1
+        1 // 'top'
     );
 
     logic_GXeMedium = new G4LogicalVolume(
@@ -642,14 +708,14 @@ void HTPCDetectorConstruction::ConstructMedia()
         pos_GXeMedium,
         logic_GXeMedium,
         "phys_GXeMedium",
-        logic_iCryostat,
+        logic_CryostatVacuum,
         false,
         0,
         true
     );
 
     // VisAttributes
-    auto col_GXeMedium = G4Colour(0., 1, 0., 0.15);
+    auto col_GXeMedium = G4Colour(0., 1, 0., GXeMedium_Alpha);
     G4VisAttributes* vis_GXeMedium = new G4VisAttributes(col_GXeMedium);
     vis_GXeMedium  ->SetVisibility(true);
     vis_GXeMedium  ->SetForceSolid(true);
@@ -664,7 +730,7 @@ void HTPCDetectorConstruction::ConstructMedia()
         LXeMedium_oD/2, 
         LXeMedium_H/2, 
         curveLength, 
-        0
+        0 // 'bottom'
     );
 
     logic_LXeMedium = new G4LogicalVolume(
@@ -678,14 +744,14 @@ void HTPCDetectorConstruction::ConstructMedia()
                                             pos_LXeMedium,
                                             logic_LXeMedium,
                                             "phys_LXeMedium",
-                                            logic_iCryostat,
+                                            logic_CryostatVacuum,
                                             false,
                                             0,
                                             true
                                             );
 
     // VisAttributes
-    auto col_LXeMedium = G4Colour(1.0, 0.0, 1.0, 0.15);
+    auto col_LXeMedium = G4Colour(1.0, 0.0, 1.0, GXeMedium_Alpha);
     G4VisAttributes* vis_LXeMedium = new G4VisAttributes(col_LXeMedium);
     vis_LXeMedium  ->SetVisibility(true);
     vis_LXeMedium  ->SetForceSolid(true);
@@ -699,6 +765,8 @@ void HTPCDetectorConstruction::ConstructTPC()
     G4Material* Teflon   = G4Material::GetMaterial("Teflon");
     G4Material* GXe      = G4Material::GetMaterial("GXe");
     G4Material* Sapphire = G4Material::GetMaterial("Sapphire");
+    
+    G4double kTol = GetGeometryParameter("kTol");
 
     G4double TPC_oD         = GetGeometryParameter("TPC_oD");
     G4double TPC_H          = GetGeometryParameter("TPC_H");
@@ -717,7 +785,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     // GXeTeflonTub
     G4Tubs* solid_GXeTeflonTub = new G4Tubs(
         "solid_GXeTeflonTub",
-        TPC_oD/2 - PTFE_thickness,
+        0, // TPC_oD/2 - PTFE_thickness,
         TPC_oD/2,
         GXeTeflonTub_H/2,
         0.   *deg,
@@ -746,7 +814,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     // LXeTeflonTub
     G4Tubs* solid_LXeTeflonTub = new G4Tubs(
         "solid_LXeTeflonTub",
-        TPC_oD/2 - PTFE_thickness,
+        0, //TPC_oD/2 - PTFE_thickness,
         TPC_oD/2,
         LXeTeflonTub_H/2,
         0.   *deg,
@@ -773,6 +841,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     );
 
     // TeflonCap
+    /*
     G4Tubs* solid_TeflonCap = new G4Tubs(
         "solid_TeflonCap",
         0.,
@@ -792,7 +861,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     G4double base_GXeTeflonCap = -((iCryostat_H/2) * (1-LiquidGasRatio));
     G4double z_GXeTeflonCap = base_GXeTeflonCap + GXeTeflonTub_H - PTFE_thickness/2;
     auto pos_GXeTeflonCap = G4ThreeVector(0., 0., z_GXeTeflonCap);
-    phys_GXeTeflonTub = new G4PVPlacement(
+    phys_GXeTeflonCap = new G4PVPlacement(
         0,
         pos_GXeTeflonCap,
         logic_TeflonCap,
@@ -807,7 +876,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     G4double base_LXeTeflonCap = -((iCryostat_H/2) * (LiquidGasRatio));
     G4double z_LXeTeflonCap = base_LXeTeflonCap + iCryostat_H*LiquidGasRatio - LXeTeflonTub_H + PTFE_thickness/2;
     auto pos_LXeTeflonCap = G4ThreeVector(0., 0., z_LXeTeflonCap);
-    phys_LXeTeflonTub = new G4PVPlacement(
+    phys_LXeTeflonCap = new G4PVPlacement(
         0,
         pos_LXeTeflonCap,
         logic_TeflonCap,
@@ -816,10 +885,10 @@ void HTPCDetectorConstruction::ConstructTPC()
         false,
         0,
         true
-    );
+    ); */
 
     // VisAttributes
-    auto col_Teflon = G4Colour(0.0, 0.8, 1.0, 1.);
+    auto col_Teflon = G4Colour(0.0, 0.0, 1.0, Teflon_Alpha);
     G4VisAttributes* vis_Teflon = new G4VisAttributes(col_Teflon);
     vis_Teflon ->SetVisibility(true);
     //vis_Teflon ->SetForceSolid(true);
@@ -827,7 +896,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     vis_Teflon ->SetForceAuxEdgeVisible(true);
     logic_GXeTeflonTub->SetVisAttributes(vis_Teflon);
     logic_LXeTeflonTub->SetVisAttributes(vis_Teflon);
-    logic_TeflonCap   ->SetVisAttributes(vis_Teflon);
+    //logic_TeflonCap   ->SetVisAttributes(vis_Teflon);
 
 
     // ----- Active Media -----------------------------------------------------
@@ -837,7 +906,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "solid_GXeActive",
         0.,
         TPC_oD/2 - PTFE_thickness,
-        GXeTeflonTub_H/2 - PTFE_thickness,
+        GXeTeflonTub_H/2 - PTFE_thickness/2,
         0.   *deg,
         360. *deg
     );
@@ -848,8 +917,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_GXeActive"
     );
 
-    //G4double z_GXeActive = (iCryostat_H/2) * (1-LiquidGasRatio) - GXeTeflonTub_H/2;
-    auto pos_GXeActive = G4ThreeVector(0., 0., 0.);
+    auto pos_GXeActive = G4ThreeVector(0., 0., -PTFE_thickness);
     phys_GXeActive = new G4PVPlacement(
         0,
         pos_GXeActive,
@@ -862,7 +930,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     );
 
     // VisAttributes
-    auto col_GXeActive = G4Colour(0., 1., 0., 0.5);
+    auto col_GXeActive = G4Colour(0., 1., 0., GXeActive_Alpha);
     G4VisAttributes* vis_GXeActive = new G4VisAttributes(col_GXeActive);
     vis_GXeActive   ->SetVisibility(true);
     vis_GXeActive   ->SetForceSolid(true);
@@ -873,7 +941,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "solid_LXeActive",
         0.,
         TPC_oD/2 - PTFE_thickness,
-        LXeTeflonTub_H/2 - PTFE_thickness,
+        LXeTeflonTub_H/2 - PTFE_thickness/2,
         0.   *deg,
         360. *deg
     );
@@ -884,7 +952,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_LXeActive"
     );
 
-    auto pos_LXeActive = G4ThreeVector(0., 0., 0.);
+    auto pos_LXeActive = G4ThreeVector(0., 0., PTFE_thickness/2);
     phys_LXeActive = new G4PVPlacement(
         0,
         pos_LXeActive,
@@ -897,7 +965,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     );
 
     // VisAttributes
-    auto col_LXeActive = G4Colour(1., 0., 1., 0.5);
+    auto col_LXeActive = G4Colour(1., 0., 1., LXeActive_Alpha);
     G4VisAttributes* vis_LXeActive = new G4VisAttributes(col_LXeActive);
     vis_LXeActive   ->SetVisibility(true);
     vis_LXeActive   ->SetForceSolid(true);
@@ -913,8 +981,8 @@ void HTPCDetectorConstruction::ConstructTPC()
         "solid_GXeSapphireTub",
         d_Sapphire_oD/2 - d_SapphireThickness,
         d_Sapphire_oD/2,
-        GXeTeflonTub_H/2 - AnodeThickness,
-        0.   *deg,
+        GXeTeflonTub_H/2 - AnodeThickness/2,
+        0.,
         360. *deg
     );
 
@@ -924,7 +992,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_GXeSapphireTub"
     );
 
-    G4double z_GXeSapphireTub = AnodeThickness;
+    G4double z_GXeSapphireTub = -AnodeThickness;
     auto pos_GXeSapphireTub = G4ThreeVector(0., 0., z_GXeSapphireTub);
     phys_GXeSapphireTub = new G4PVPlacement(
         0,
@@ -953,7 +1021,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_GXeSapphireCap"
     );
 
-    G4double z_GXeSapphireCap = GXeTeflonTub_H/2 - AnodeThickness/2;
+    G4double z_GXeSapphireCap = GXeTeflonTub_H/2 - PTFE_thickness - AnodeThickness/2;
     auto pos_GXeSapphireCap = G4ThreeVector(0., 0., z_GXeSapphireCap);
     phys_GXeSapphireCap = new G4PVPlacement(
         0,
@@ -971,7 +1039,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "solid_LXeSapphireTub",
         d_Sapphire_oD/2 - d_SapphireThickness,
         d_Sapphire_oD/2,
-        LXeTeflonTub_H/2 - AnodeThickness,
+        LXeTeflonTub_H/2 - AnodeThickness/2,
         0.   *deg,
         360. *deg
     );
@@ -982,7 +1050,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_LXeSapphireTub"
     );
 
-    G4double z_LXeSapphireTub = -AnodeThickness;
+    G4double z_LXeSapphireTub = AnodeThickness;
     auto pos_LXeSapphireTub = G4ThreeVector(0., 0., z_LXeSapphireTub);
     phys_LXeSapphireTub = new G4PVPlacement(
         0,
@@ -1011,7 +1079,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_LXeSapphireCap"
     );
 
-    G4double z_LXeSapphireCap = -LXeTeflonTub_H/2 + AnodeThickness/2;
+    G4double z_LXeSapphireCap = -LXeTeflonTub_H/2 + PTFE_thickness + AnodeThickness/2;
     auto pos_LXeSapphireCap = G4ThreeVector(0., 0., z_LXeSapphireCap);
     phys_LXeSapphireCap = new G4PVPlacement(
         0,
@@ -1025,7 +1093,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     );
 
     // VisAttributes
-    auto col_Sapphire = G4Colour(1., 1., 0., 0.7);
+    auto col_Sapphire = G4Colour(1., 1., 0., Sapphire_Alpha);
     G4VisAttributes* vis_Sapphire = new G4VisAttributes(col_Sapphire);
     vis_Sapphire      ->SetVisibility(true);
     vis_Sapphire      ->SetForceSolid(true);
@@ -1035,8 +1103,8 @@ void HTPCDetectorConstruction::ConstructTPC()
     auto col_SapphireCap = G4Colour(1., 1., 0., 1);
     G4VisAttributes* vis_SapphireCap = new G4VisAttributes(col_SapphireCap);
     vis_SapphireCap      ->SetVisibility(true);
-    //vis_SapphireCap      ->SetForceSolid(true);
-    vis_SapphireCap ->SetForceWireframe(true);
+    vis_SapphireCap      ->SetForceSolid(true);
+    //vis_SapphireCap ->SetForceWireframe(true);
     vis_SapphireCap ->SetForceAuxEdgeVisible(true);
     logic_GXeSapphireCap ->SetVisAttributes(vis_SapphireCap);
     logic_LXeSapphireCap ->SetVisAttributes(vis_SapphireCap);
@@ -1349,7 +1417,11 @@ G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index, G4int i_nmbP
 // ---- GEOMETRY FUNCTIONS --- //
 namespace {
     // Put it in an unnamed namespace so it's local to this translation unit
-    G4VSolid* BuildCapsule(G4double Rmax, G4double Rmin, G4double Dz, G4double DomeCurve) {
+    G4VSolid* BuildCapsule(
+        G4double Rmax, 
+        G4double Rmin, 
+        G4double Dz, 
+        G4double DomeCurve) {
 
         // -- Globals --
         G4double zOffset   = Dz - DomeCurve; // * Dz;
@@ -1357,22 +1429,20 @@ namespace {
         RotFlip->rotateX(180*degree);
         G4ThreeVector Trans(0, 0, zOffset);
         
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         // Build oCylinder
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         G4double oCylSPhi = 0.  *deg;
         G4double oCylDPhi = 360.*deg;
     
-        G4Tubs* oSolidCyl = new G4Tubs("oSolidCyl",
-                                    0.,
-                                    Rmax,
-                                    Dz,
-                                    oCylSPhi,
-                                    oCylDPhi);
+        G4Tubs* oSolidCyl = new G4Tubs(
+            "oSolidCyl",
+            0.,
+            Rmax,
+            Dz,
+            oCylSPhi,
+            oCylDPhi
+        );
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         // Build oSphere
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         G4double oSphRmin   = 0.*m;
         G4double oSphRmax   = sqrt(pow(Rmax,2) + pow(Dz - zOffset,2));
         G4double oSphSPhi   = 0.   *deg;
@@ -1381,53 +1451,51 @@ namespace {
         G4double oSphDTheta = atan(Rmax / (Dz - zOffset)) * (180/M_PI) *deg;
         
         
-        G4Sphere* oSolidSph = new G4Sphere("oSolidSph",
-                                       oSphRmin,
-                                       oSphRmax,
-                                       oSphSPhi,
-                                       oSphDPhi,
-                                       oSphSTheta,
-                                       oSphDTheta
-                                       );
+        G4Sphere* oSolidSph = new G4Sphere(
+            "oSolidSph",
+            oSphRmin,
+            oSphRmax,
+            oSphSPhi,
+            oSphDPhi,
+            oSphSTheta,
+            oSphDTheta
+        );
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         // Build oCapsule
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
-        G4UnionSolid* oSolidUnion1 = new G4UnionSolid("oSolidCyl+oSolidSph1", 
-                                      oSolidCyl, 
-                                      oSolidSph,
-                                      0,
-                                      Trans
-                                      );
+        G4UnionSolid* oSolidUnion1 = new G4UnionSolid(
+            "oSolidCyl+oSolidSph1", 
+            oSolidCyl, 
+            oSolidSph,
+            0,
+            Trans
+        );
     
-        G4UnionSolid* oSolidUnion2 = new G4UnionSolid("oSolidUnion1+oSolidSph2", 
-                                      oSolidUnion1, 
-                                      oSolidSph,
-                                      RotFlip,
-                                      -Trans
-                                      );
+        G4UnionSolid* oSolidUnion2 = new G4UnionSolid(
+            "oSolidUnion1+oSolidSph2", 
+            oSolidUnion1, 
+            oSolidSph,
+            RotFlip,
+            -Trans
+        );
 
         if (Rmin <= 0) {
             return oSolidUnion2;
                 }
         else {
-
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
             // Build iCylinder
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
             G4double iCylSPhi = 0.  *deg;
             G4double iCylDPhi = 360.*deg;
         
-            G4Tubs* iSolidCyl = new G4Tubs("iSolidCyl",
-                                        0.,
-                                        Rmin,
-                                        Dz,
-                                        iCylSPhi,
-                                        iCylDPhi);
+            G4Tubs* iSolidCyl = new G4Tubs(
+                "iSolidCyl",
+                0.,
+                Rmin,
+                Dz,
+                iCylSPhi,
+                iCylDPhi
+            );
     
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
             // Build iSphere
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
             G4double iSphRmin   = 0.*m;
             G4double iSphRmax   = sqrt(pow(Rmin,2) + pow(Dz - zOffset,2));
             G4double iSphSPhi   = 0.   *deg;
@@ -1436,170 +1504,167 @@ namespace {
             G4double iSphDTheta = atan(Rmin / (Dz - zOffset)) * (180/M_PI) *deg;
             
             
-            G4Sphere* iSolidSph = new G4Sphere("iSolidSph",
-                                           iSphRmin,
-                                           iSphRmax,
-                                           iSphSPhi,
-                                           iSphDPhi,
-                                           iSphSTheta,
-                                           iSphDTheta
-                                           );
+            G4Sphere* iSolidSph = new G4Sphere(
+                "iSolidSph",
+                iSphRmin,
+                iSphRmax,
+                iSphSPhi,
+                iSphDPhi,
+                iSphSTheta,
+                iSphDTheta
+            );
     
-    
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
             // Build iCapsule
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
-            G4UnionSolid* iSolidUnion1 = new G4UnionSolid("iSolidCyl+iSolidSph1", 
-                                          iSolidCyl, 
-                                          iSolidSph,
-                                          0,
-                                          Trans
-                                          );
+            G4UnionSolid* iSolidUnion1 = new G4UnionSolid(
+                "iSolidCyl+iSolidSph1", 
+                iSolidCyl, 
+                iSolidSph,
+                0,
+                Trans
+            );
         
-            G4UnionSolid* iSolidUnion2 = new G4UnionSolid("iSolidUnion1+iSolidSph2", 
-                                          iSolidUnion1, 
-                                          iSolidSph,
-                                          RotFlip,
-                                          -Trans
-                                          );
+            G4UnionSolid* iSolidUnion2 = new G4UnionSolid(
+                "iSolidUnion1+iSolidSph2", 
+                iSolidUnion1, 
+                iSolidSph,
+                RotFlip,
+                -Trans
+            );
                 
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
             // Build Capsule
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
-            G4SubtractionSolid* solidCapsule = new G4SubtractionSolid("solidCapsule", 
-                                                                            oSolidUnion2, 
-                                                                            iSolidUnion2
-                                                                        );
-    
-    
-    
-            return solidCapsule;
-            
-        }
+            G4SubtractionSolid* solidCapsule = new G4SubtractionSolid(
+                "solidCapsule", 
+                oSolidUnion2, 
+                iSolidUnion2
+            );
 
-    
+            return solidCapsule;
+        }
     }
 }
 
 namespace {
     // Put it in an unnamed namespace so it's local to this translation unit
-    G4VSolid* BuildHalfCapsule(G4double Rmax, 
-                               G4double Dz, 
-                               G4double DomeCurve,
-                               G4int    whereDome) {
+    G4VSolid* BuildHalfCapsule(
+        G4double Rmax, 
+        G4double Dz, 
+        G4double DomeCurve,
+        G4int    whereDome) {
 
         // -- Globals --
-        G4double zOffset   = Dz - DomeCurve; // * Dz;
+        G4double zOffset   = Dz - DomeCurve;
         G4RotationMatrix* RotFlip = new G4RotationMatrix;
         RotFlip->rotateX(180*degree);
         G4ThreeVector Trans(0, 0, zOffset);
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        G4double Rmax_eff = Rmax* 1; //0.995;
+
         // Build oCylinder
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         G4double oCylSPhi = 0.  *deg;
         G4double oCylDPhi = 360.*deg;
     
-        G4Tubs* oSolidCyl = new G4Tubs("oSolidCyl",
-                                    0.,
-                                    Rmax*0.99            ,
-                                    Dz,
-                                    oCylSPhi,
-                                    oCylDPhi);
-
+        G4Tubs* oSolidCyl = new G4Tubs(
+            "oSolidCyl",
+            0.,
+            Rmax_eff,
+            Dz,
+            oCylSPhi,
+            oCylDPhi
+        );
+                                        
+        // Build oSphere
+        G4double oSphRmin   = 0.*m;
+        G4double oSphRmax   = sqrt(pow(Rmax_eff,2) + pow(Dz - zOffset,2));
+        G4double oSphSPhi   = 0.   *deg;
+        G4double oSphDPhi   = 360. *deg;
+        G4double oSphSTheta = 0.   *deg;
+        G4double oSphDTheta = atan(Rmax_eff / (Dz - zOffset)) * (180/M_PI) *deg;
         
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        G4Sphere* oSolidSph = new G4Sphere(
+            "oSolidSph",
+            oSphRmin,
+            oSphRmax, // *0.99
+            oSphSPhi,
+            oSphDPhi,
+            oSphSTheta,
+            oSphDTheta
+        );
+
         // Build helperBox
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         G4Box* helpSolidBox = new G4Box(
             "helpSolidBox", 
             2*Rmax, 
             2*Rmax, 
             4*Dz
         );
-                                        
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Build oSphere
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
-        G4double oSphRmin   = 0.*m;
-        G4double oSphRmax   = sqrt(pow(Rmax,2) + pow(Dz - zOffset,2));
-        G4double oSphSPhi   = 0.   *deg;
-        G4double oSphDPhi   = 360. *deg;
-        G4double oSphSTheta = 0.   *deg;
-        G4double oSphDTheta = atan(Rmax / (Dz - zOffset)) * (180/M_PI) *deg;
-        
-        
-        G4Sphere* oSolidSph = new G4Sphere("oSolidSph",
-                                       oSphRmin,
-                                       oSphRmax*0.99,
-                                       oSphSPhi,
-                                       oSphDPhi,
-                                       oSphSTheta,
-                                       oSphDTheta
-                                       );
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         // Build oCapsule
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         if (whereDome == 1) {
-        G4UnionSolid* oSolidUnion1 = new G4UnionSolid("oSolidCyl+oSolidSph1", 
-                                      oSolidCyl, 
-                                      oSolidSph,
-                                      0,
-                                      Trans
-                                      );
+        G4UnionSolid* oSolidUnion1 = new G4UnionSolid(
+            "oSolidCyl+oSolidSph1", 
+            oSolidCyl, 
+            oSolidSph,
+            0,
+            Trans
+        );
 
-        G4IntersectionSolid* oSolidInt1 = new G4IntersectionSolid("oSolidInt1",
-                                                                 oSolidUnion1,
-                                                                 helpSolidBox,
-                                                                 0,
-                                                                 G4ThreeVector(0,0,3*Dz));
+        G4IntersectionSolid* oSolidInt1 = new G4IntersectionSolid(
+            "oSolidInt1",
+            oSolidUnion1,
+            helpSolidBox,
+            0,
+            G4ThreeVector(0,0,3*Dz)
+        );
 
         return oSolidInt1;
                                     }
 
         else if (whereDome == 0) {
-        G4UnionSolid* oSolidUnion1 = new G4UnionSolid("oSolidCyl+oSolidSph1", 
-                                      oSolidCyl, 
-                                      oSolidSph,
-                                      RotFlip,
-                                      -Trans
-                                      );
+        G4UnionSolid* oSolidUnion1 = new G4UnionSolid(
+            "oSolidCyl+oSolidSph1", 
+            oSolidCyl, 
+            oSolidSph,
+            RotFlip,
+            -Trans
+        );
         return oSolidUnion1;
         }
-
     }
 }
 
 
 namespace {
     // Put it in an unnamed namespace so it's local to this translation unit
-    G4VSolid* AddFlange(G4VSolid* baseSolid, G4double Rmax, G4double Rmin, G4double thickness, G4double zpos) {
+    G4VSolid* AddFlange(
+        G4VSolid* baseSolid, 
+        G4double Rmax, 
+        G4double Rmin, 
+        G4double thickness, 
+        G4double zpos) {
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         // Build Flange
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         G4double FlangeSPhi = 0.  *deg;
         G4double FlangeDPhi = 360.*deg;
     
-        G4Tubs* SolidFlange = new G4Tubs("SolidFlange",
-                                    Rmin,
-                                    Rmax,
-                                    thickness,
-                                    FlangeSPhi,
-                                    FlangeDPhi);
+        G4Tubs* SolidFlange = new G4Tubs(
+            "SolidFlange",
+            Rmin,
+            Rmax,
+            thickness,
+            FlangeSPhi,
+            FlangeDPhi
+        );
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~
         // Join with Flange
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~ 
         G4ThreeVector flangeTrans(0, 0, zpos);
-        G4UnionSolid* solidCapsulewFlange = new G4UnionSolid("solidCapsulewFlange",
-                                      baseSolid, 
-                                      SolidFlange,
-                                      0,
-                                      flangeTrans
-                                      );
+        G4UnionSolid* solidCapsulewFlange = new G4UnionSolid(
+            "solidCapsulewFlange",
+            baseSolid, 
+            SolidFlange,
+            0,
+            flangeTrans
+        );
         
         return solidCapsulewFlange;
     }
