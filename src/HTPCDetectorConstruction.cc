@@ -964,6 +964,12 @@ void HTPCDetectorConstruction::ConstructTPC()
         true
     );
 
+    // Defining LXeActive as a sensitive detector
+    G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
+    LXeSensDet = new HTPCSensitiveDetector("LXeSensDet");
+    pSDManager->AddNewDetector(LXeSensDet);
+    logic_LXeActive->SetSensitiveDetector(LXeSensDet);
+
     // VisAttributes
     auto col_LXeActive = G4Colour(1., 0., 1., LXeActive_Alpha);
     G4VisAttributes* vis_LXeActive = new G4VisAttributes(col_LXeActive);
