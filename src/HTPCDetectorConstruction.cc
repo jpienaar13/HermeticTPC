@@ -489,7 +489,7 @@ void HTPCDetectorConstruction::ConstructCryostats()
     
     auto solidCapsule1 = BuildCapsule(
         oCryostat_oD/2, 
-        oCryostat_oD/2 - oCryostatWall_thickness, 
+        0,
         oCryostat_H/2, 
         curveLength
     );
@@ -602,7 +602,7 @@ void HTPCDetectorConstruction::ConstructCryostats()
     
     auto solidCapsule2 = BuildCapsule(
         iCryostat_oD/2, 
-        iCryostat_oD/2 - iCryostatWall_thickness, 
+        0,
         iCryostat_H/2, 
         curveLength
     );

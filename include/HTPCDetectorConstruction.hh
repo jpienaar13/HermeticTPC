@@ -145,6 +145,6 @@ private:
     G4LogicalVolume *m_pPmtR11410LogicalVolume;
     vector<G4VPhysicalVolume *> m_pPMTPhysicalVolumes;
 
-    HTPCSensitiveDetector *pHTPC_SD;
+    HTPCSensitiveDetector *LXeSensDet;
 };
 #endif
