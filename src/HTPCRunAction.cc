@@ -3,14 +3,13 @@
 
 #include "G4UImanager.hh"
 #include "G4VVisManager.hh"
-
+#include "G4Threading.hh"
 #include "HTPCAnalysisManager.hh"
 #include "HTPCRunAction.hh"
 #include "TRandom3.h"
 
 HTPCRunAction::HTPCRunAction(HTPCAnalysisManager *pAnalysisManager) {
   m_hRanSeed = 0;  // default value
-
   m_pAnalysisManager = pAnalysisManager;
 }
 
@@ -31,6 +30,11 @@ void HTPCRunAction::BeginOfRunAction(const G4Run *pRun) {
   } else {
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
   }
+
+  G4cout << "RunAction type: "
+       << (G4Threading::IsMasterThread() ? "MASTER" : "WORKER")
+       << G4endl;
+
   G4cout << "PurdueRunAction::BeginOfRunAction Initialize random numbers "
             "with seed = "
          << m_hRanSeed << G4endl;

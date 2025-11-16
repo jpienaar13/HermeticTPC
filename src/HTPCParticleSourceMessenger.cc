@@ -381,7 +381,7 @@ void HTPCParticleSourceMessenger::SetNewValue(G4UIcommand *command,
       m_iAtomicMass = StoI(next());
       G4String sQ = next();
 
-      if (sQ.isNull())
+      if (sQ.empty())
       {
         m_iIonCharge = m_iAtomicNumber;
       }
@@ -389,7 +389,7 @@ void HTPCParticleSourceMessenger::SetNewValue(G4UIcommand *command,
       {
         m_iIonCharge = StoI(sQ);
         sQ = next();
-        if (sQ.isNull())
+        if (sQ.empty())
         {
           m_dIonExciteEnergy = 0.0;
         }

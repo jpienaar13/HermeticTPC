@@ -39,130 +39,188 @@
 #include "G4VModularPhysicsList.hh"
 #include "G4BuilderType.hh"
 
-// Neutron capture header
-//#include "SKNeutronCapturePhysics.hh"
+// ======================================================================
+// Helper: Safely Replace Physics Constructor
+// ======================================================================
+bool HTPCPhysicsList::SafeReplacePhysics(G4VPhysicsConstructor* newPhys)
+{
+    if (!newPhys) return false;
 
+    G4int type = newPhys->GetPhysicsType();
+
+    // Count how many constructors of this type exist BEFORE replacement
+    G4int beforeCount = 0;
+    for (G4int i = 0; ; ++i) {
+        const G4VPhysicsConstructor* p = this->GetPhysics(i);
+        if (p == nullptr) break;
+        if (p->GetPhysicsType() == type) ++beforeCount;
+    }
+
+    // Perform replacement (void in modern Geant4)
+    G4VModularPhysicsList::ReplacePhysics(newPhys);
+
+    // Count how many constructors of this type exist AFTER replacement
+    G4int afterCount = 0;
+    for (G4int i = 0; ; ++i) {
+        const G4VPhysicsConstructor* p = this->GetPhysics(i);
+        if (p == nullptr) break;
+        if (p->GetPhysicsType() == type) ++afterCount;
+    }
+
+    // Success if exactly one constructor of that type is present after replacement
+    return (afterCount == 1);
+}
+
+
+// ======================================================================
+// CONSTRUCTOR
+// ======================================================================
 HTPCPhysicsList::HTPCPhysicsList()
-    : G4VModularPhysicsList() {
-  VerboseLevel = 0;
-  OpVerbLevel = 0;
-  SetVerboseLevel(VerboseLevel);
+    : G4VModularPhysicsList()
+{
+    // Enable diagnostic output
+    VerboseLevel = 1;
+    OpVerbLevel = 0;
+    SetVerboseLevel(VerboseLevel);
 
-  // Hadron Elastic scattering
-  RegisterPhysics(new G4HadronElasticPhysicsHP(VerboseLevel));
+    G4cout << "\n\n=====================================================\n";
+    G4cout << "  HTPCPhysicsList: Constructor Called\n";
+    G4cout << "  VerboseLevel = 1 (Diagnostics Enabled)\n";
+    G4cout << "=====================================================\n\n";
 
-  // Hadron Inelastic Physics
-  auto HadronInelasticPhysics = new G4HadronPhysicsQGSP_BERT(VerboseLevel);
-  //auto HadronInelasticPhysics = new G4HadronPhysicsShielding(VerboseLevel);
-  //auto HadronInelasticPhysics = new G4HadronStoppingProcess(VerboseLevel); // may not work
+    // ------------------------------------------------------------------
+    // Register Physics
+    // ------------------------------------------------------------------
+    RegisterPhysics(new G4HadronElasticPhysicsHP(VerboseLevel));
 
-  // Before registration, Physics type should be set to replace that later.
-  // This should be set for hadron physics, not for electromagnetic physics.
-  HadronInelasticPhysics->SetPhysicsType(bHadronInelastic);
-  RegisterPhysics(HadronInelasticPhysics);
+    auto hadron = new G4HadronPhysicsQGSP_BERT(VerboseLevel);
+    hadron->SetPhysicsType(bHadronInelastic);
+    RegisterPhysics(hadron);
 
-  // Ion Elastic scattering
-  RegisterPhysics(new G4IonElasticPhysics(VerboseLevel));
+    RegisterPhysics(new G4IonElasticPhysics(VerboseLevel));
+    RegisterPhysics(new G4IonPhysics(VerboseLevel));
 
-  // Ion Inelastic Physics
-  RegisterPhysics(new G4IonPhysics(VerboseLevel));
-  ////RegisterPhysics( new G4IonINCLXXPhysics(VerboseLevel));
+    RegisterPhysics(new G4EmStandardPhysics(VerboseLevel, ""));
+    RegisterPhysics(new G4EmExtraPhysics(VerboseLevel));
 
-  // Gamma-Nuclear Physics - see Hadr03
-  // RegisterPhysics( new GammaPhysics("gamma") );
+    RegisterPhysics(new G4DecayPhysics(VerboseLevel));
+    RegisterPhysics(new G4RadioactiveDecayPhysics(VerboseLevel));
 
-  // EM physics
-  /// G4EmStandardPhysics
-  RegisterPhysics(new G4EmStandardPhysics(VerboseLevel, ""));
+    G4NuclideTable::GetInstance()->SetThresholdOfHalfLife(1 * nanosecond);
+    G4NuclideTable::GetInstance()->SetLevelTolerance(1.0 * eV);
 
-  /// G4EmExtraPhysics
-  RegisterPhysics(new G4EmExtraPhysics(VerboseLevel));
+    RegisterPhysics(new G4StoppingPhysics(VerboseLevel));
 
-  // Decay
-  /// G4DecayPhysics
-  RegisterPhysics(new G4DecayPhysics(VerboseLevel));
-
-  // Radioactive decay
-  RegisterPhysics(new G4RadioactiveDecayPhysics(VerboseLevel));
-  G4NuclideTable::GetInstance()->SetThresholdOfHalfLife(1*nanosecond);
-  G4NuclideTable::GetInstance()->SetLevelTolerance(1.0*eV);
-
-  /// G4StoppingPhysics
-  //  like G4CaptureAtRestPhysics, but uses G4MuonMinusCaptureAtRest for muons
-  RegisterPhysics(new G4StoppingPhysics(VerboseLevel));
+    // ------------------------------------------------------------------
+    // Print registered constructors
+    // ------------------------------------------------------------------
+    G4cout << "HTPCPhysicsList: Registered physics constructors:\n";
+    for (G4int i = 0; ; ++i) {
+        const G4VPhysicsConstructor* pc = this->GetPhysics(i);
+        if (!pc) break;
+        G4cout << "  [" << i << "] " << pc->GetPhysicsName()
+               << " (type=" << pc->GetPhysicsType() << ")\n";
+    }
+    G4cout << G4endl;
 }
 
-void HTPCPhysicsList::SetEMlowEnergyModel(G4String name) {
-    if (name == "emstandard") {
-    ReplacePhysics(new G4EmStandardPhysics(VerboseLevel, ""));
-  } else if (name == "emlivermore") {
-    ReplacePhysics(new G4EmLivermorePhysics(VerboseLevel, ""));
-  } else if (name == "empenelope") {
-    ReplacePhysics(new G4EmPenelopePhysics(VerboseLevel, ""));
-  } else {
-    G4cout << "HTPCPhysicsList::HTPCPhysicsList() FATAL: Bad EM physics "
-              "list chosen: " << name << G4endl;
-    G4String msg =
-        " Available choices are: <emstandard> <emlivermore "
-        "(default)> <empenelope>";
-    G4Exception("HTPCPhysicsList::HTPCPhysicsList()", "PhysicsList",
-                FatalException, msg);
-  }
-  G4cout << "HTPCPhysicsList::SetEMlowEnergyModel(): "
-         << name << G4endl;
+
+// ======================================================================
+// EM Physics Selection
+// ======================================================================
+void HTPCPhysicsList::SetEMlowEnergyModel(G4String name)
+{
+    G4cout << "HTPCPhysicsList::SetEMlowEnergyModel(): switching to " << name << "\n";
+
+    G4VPhysicsConstructor* em = nullptr;
+
+    if (name == "emstandard")
+        em = new G4EmStandardPhysics(VerboseLevel, "");
+    else if (name == "emlivermore")
+        em = new G4EmLivermorePhysics(VerboseLevel, "");
+    else if (name == "empenelope")
+        em = new G4EmPenelopePhysics(VerboseLevel, "");
+    else
+        G4Exception("HTPCPhysicsList::SetEMlowEnergyModel",
+                    "PhysicsList", FatalException,
+                    "Invalid EM model choice.");
+
+    G4cout << "Attempting ReplacePhysics()...\n";
+
+    if (!SafeReplacePhysics(em))
+        G4cout << "WARNING: EM physics replacement FAILED.\n";
+    else
+        G4cout << "EM model successfully replaced.\n";
+
+    G4cout << G4endl;
 }
 
-void HTPCPhysicsList::SetHadronicModel(G4String name) {
-  // Hadron Inelastic Physics
-  G4VPhysicsConstructor* HadronInelasticPhysics = nullptr;
-  if (name == "QGSP_BIC_HP") {
-      HadronInelasticPhysics = new G4HadronPhysicsQGSP_BIC_HP(VerboseLevel);
-  } else if (name == "QGSP_BIC") {
-      HadronInelasticPhysics = new G4HadronPhysicsQGSP_BIC(VerboseLevel);
-  } else if (name == "FTFP_BERT_HP") {
-      HadronInelasticPhysics = new G4HadronPhysicsFTFP_BERT_HP(VerboseLevel);
-  } else if (name == "QBBC") {
-      HadronInelasticPhysics = new G4HadronInelasticQBBC(VerboseLevel);
-  } else if (name == "INCLXX") {
-      HadronInelasticPhysics = new G4HadronPhysicsINCLXX(VerboseLevel);
-  } else if (name == "QGSP_BERT_HP") {
-      HadronInelasticPhysics = new G4HadronPhysicsQGSP_BERT_HP(VerboseLevel);
-  } else if (name == "QGSP_BERT") {
-      HadronInelasticPhysics = new G4HadronPhysicsQGSP_BERT(VerboseLevel);
-  } else if (name == "Shielding") {
-      HadronInelasticPhysics = new G4HadronPhysicsShielding(VerboseLevel);
-  }
-   else {
-    G4String msg =
-        "HTPCPhysicsList::HTPCPhysicsList() Available choices "
-        "for Hadronic Physics are: <QGSP_BIC_HP> <QGSP_BERT_HP> "
-        "<FTFP_BERT_HP> <QBBC> <QGSP_BERT> <Shielding>";
-    G4Exception("HTPCPhysicsList::HTPCPhysicsList()", "PhysicsList",
-                FatalException, msg);
-  }
-   if(HadronInelasticPhysics){
-     // pType of Hadron physics is required by ReplacePhysics()
-     // As default, it is not set, thus is should be set manually.
-     // For future, Geant4 will be updated to fix this bug.
-     HadronInelasticPhysics->SetPhysicsType(bHadronInelastic);
-     ReplacePhysics(HadronInelasticPhysics);
-   }
 
-  G4cout << "HTPCPhysicsList::SetHadronicModel(): " << name << G4endl;
+// ======================================================================
+// Hadronic Physics Selection
+// ======================================================================
+void HTPCPhysicsList::SetHadronicModel(G4String name)
+{
+    G4cout << "HTPCPhysicsList::SetHadronicModel(): switching to " << name << "\n";
+
+    G4VPhysicsConstructor* had = nullptr;
+
+    if (name == "QGSP_BIC_HP")
+        had = new G4HadronPhysicsQGSP_BIC_HP(VerboseLevel);
+    else if (name == "QGSP_BIC")
+        had = new G4HadronPhysicsQGSP_BIC(VerboseLevel);
+    else if (name == "FTFP_BERT_HP")
+        had = new G4HadronPhysicsFTFP_BERT_HP(VerboseLevel);
+    else if (name == "QBBC")
+        had = new G4HadronInelasticQBBC(VerboseLevel);
+    else if (name == "INCLXX")
+        had = new G4HadronPhysicsINCLXX(VerboseLevel);
+    else if (name == "QGSP_BERT_HP")
+        had = new G4HadronPhysicsQGSP_BERT_HP(VerboseLevel);
+    else if (name == "QGSP_BERT")
+        had = new G4HadronPhysicsQGSP_BERT(VerboseLevel);
+    else if (name == "Shielding")
+        had = new G4HadronPhysicsShielding(VerboseLevel);
+    else
+        G4Exception("HTPCPhysicsList::SetHadronicModel",
+                    "PhysicsList", FatalException,
+                    "Invalid hadronic model.");
+
+    had->SetPhysicsType(bHadronInelastic);
+
+    G4cout << "Attempting ReplacePhysics()...\n";
+
+    if (!SafeReplacePhysics(had))
+        G4cout << "WARNING: Hadronic physics replacement FAILED.\n";
+    else
+        G4cout << "Hadronic model successfully replaced.\n";
+
+    G4cout << G4endl;
 }
 
+
+// ======================================================================
+// SET CUTS
+// ======================================================================
+void HTPCPhysicsList::SetCuts()
+{
+    G4cout << "\nHTPCPhysicsList::SetCuts(): Applying production cuts\n";
+
+    G4double lowlimit = 250 * eV;
+    G4ProductionCutsTable::GetProductionCutsTable()
+        ->SetEnergyRange(lowlimit, 100. * GeV);
+
+    G4cout << "  Cut gamma:  " << GetCutValue("gamma") / mm << " mm\n";
+    G4cout << "  Cut e-:     " << GetCutValue("e-") / mm << " mm\n";
+    G4cout << "  Cut e+:     " << GetCutValue("e+") / mm << " mm\n";
+    G4cout << "  Cut proton: " << GetCutValue("proton") / mm << " mm\n";
+
+    G4cout << "\nDumping Production Cuts Table:\n";
+    DumpCutValuesTable();
+
+    G4cout << "\n";
+}
+
+
+// ======================================================================
 HTPCPhysicsList::~HTPCPhysicsList() {}
-
-void HTPCPhysicsList::SetCuts() {
-  // special for low energy physics
-  G4double lowlimit = 250 * eV;
-  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowlimit, 100. * GeV);
-
-  G4cout << "HTPCPhysicsList::SetCuts:" << G4endl;
-  G4cout << " CutLength gamma: " << GetCutValue("gamma")/mm <<" mm" << G4endl;
-  G4cout << " CutLength e-: " << GetCutValue("e-")/mm <<" mm" << G4endl;
-  G4cout << " CutLength e+: " << GetCutValue("e+")/mm <<" mm" << G4endl;
-  G4cout << " CutLength proton: " << GetCutValue("proton")/mm <<" mm" << G4endl;
-
-  if (VerboseLevel > 0) DumpCutValuesTable();
-}

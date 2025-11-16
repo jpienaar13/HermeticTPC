@@ -289,38 +289,43 @@ void HTPCDetectorConstruction::DefineMaterials()
         "FASTCOMPONENT", 
         pdLXePhotonMomentum, 
         pdLXeScintillation, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pLXePropertiesTable->AddProperty(
         "SLOWCOMPONENT", 
         pdLXePhotonMomentum, 
         pdLXeScintillation, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pLXePropertiesTable->AddProperty(
         "RINDEX", 
         pdLXePhotonMomentum, 
         pdLXeRefractiveIndex, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pLXePropertiesTable->AddProperty(
         "ABSLENGTH", 
         pdLXePhotonMomentum, 
         pdLXeAbsorbtionLength, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pLXePropertiesTable->AddProperty(
         "RAYLEIGH", 
         pdLXePhotonMomentum, 
         pdLXeScatteringLength, 
-        iNbEntries
+        iNbEntries,
+        true
     );
-    pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / keV);
-    pLXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
-    pLXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
-    pLXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27. * ns);
-    pLXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
-    pLXePropertiesTable->AddConstProperty("TOTALNUM_INT_SITES", -1);
+    //pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / keV);
+    //pLXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
+    //pLXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
+    //pLXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27. * ns);
+    //pLXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
+    //pLXePropertiesTable->AddConstProperty("TOTALNUM_INT_SITES", -1);
 
     // initialize the number of interaction sites
     LXe->SetMaterialPropertiesTable(pLXePropertiesTable);
@@ -342,37 +347,42 @@ void HTPCDetectorConstruction::DefineMaterials()
         "FASTCOMPONENT", 
         pdGXePhotonMomentum, 
         pdGXeScintillation, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pGXePropertiesTable->AddProperty(
         "SLOWCOMPONENT", 
         pdGXePhotonMomentum, 
         pdGXeScintillation, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pGXePropertiesTable->AddProperty(
         "RINDEX", 
         pdGXePhotonMomentum, 
         pdGXeRefractiveIndex, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pGXePropertiesTable->AddProperty(
         "ABSLENGTH", 
         pdGXePhotonMomentum, 
         pdGXeAbsorbtionLength, 
-        iNbEntries
+        iNbEntries,
+        true
     );
     pGXePropertiesTable->AddProperty(
         "RAYLEIGH", 
         pdGXePhotonMomentum, 
         pdGXeScatteringLength, 
-        iNbEntries
+        iNbEntries,
+        true
     );
-    pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / (keV));
-    pGXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
-    pGXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
-    pGXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27. * ns);
-    pGXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
+    //pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0. / (keV));
+    //pGXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
+    //pGXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3. * ns);
+    //pGXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27. * ns);
+    //pGXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
     GXe->SetMaterialPropertiesTable(pGXePropertiesTable);
 
     G4double pdTeflonPhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
@@ -458,7 +468,7 @@ void HTPCDetectorConstruction::ConstructLab()
     );
 
     // VisAttributes
-    logic_Lab->SetVisAttributes(G4VisAttributes::Invisible);
+    logic_Lab->SetVisAttributes(G4VisAttributes(false));
 }
 
 

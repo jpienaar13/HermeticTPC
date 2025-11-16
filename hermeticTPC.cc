@@ -10,6 +10,8 @@
 #include <G4VisExecutive.hh>
 #include <G4UIExecutive.hh>
 #include <G4GeneralParticleSource.hh>
+#include <G4HadronicParameters.hh>
+#include <G4SystemOfUnits.hh>
 
 #include "HTPCDetectorConstruction.hh"
 #include "HTPCPhysicsList.hh"
@@ -96,6 +98,9 @@ main(int argc, char **argv)
 
   // Physics List
   HTPCPhysicsList *physList = new HTPCPhysicsList();
+    
+  // Set a huge time threshold for radioactive decays
+  G4HadronicParameters::Instance()->SetTimeThresholdForRadioactiveDecay(1.0e+60 * year);
   pRunManager->SetUserInitialization(physList);
 
   // Visualization Manager

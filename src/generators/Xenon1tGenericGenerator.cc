@@ -172,8 +172,7 @@ void Xenon1tGenericGenerator::ConfineSourceToVolume(G4String hVolumeList)
     G4String hRequiredVolumeName = *pIt;
     G4bool bMatch = false;
 
-    if ((bMatch = ((G4int)hRequiredVolumeName.last('*') !=
-                   (G4int)std::string::npos)))
+    if ((bMatch = ((G4int)hRequiredVolumeName.rfind('*') != std::string::npos)))
       hRequiredVolumeName = hRequiredVolumeName.strip(G4String::trailing, '*');
 
     G4bool bFoundOne = false;
