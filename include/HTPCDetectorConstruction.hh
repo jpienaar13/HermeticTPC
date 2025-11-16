@@ -60,6 +60,7 @@ private:
     TDirectory *_detector;
 
     // Messenger Setup
+    G4double Copper_Alpha;
     G4double iCryostat_Alpha;
     G4double oCryostat_Alpha;
     G4double CryostatVacuum_Alpha;
@@ -96,6 +97,10 @@ private:
     G4LogicalVolume*   logic_TeflonCap;
     G4VPhysicalVolume* phys_GXeTeflonCap;
     G4VPhysicalVolume* phys_LXeTeflonCap;
+
+    // Copper Field Cage
+    G4LogicalVolume* logic_CopperFCTub;
+    G4VPhysicalVolume* phys_CopperFCTub;
 
     // Media
     G4LogicalVolume* logic_GXeMedium;

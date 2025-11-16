@@ -59,6 +59,10 @@ void HTPCDetectorConstruction::ApplyMessengers() {
     fMessengerAlpha->DeclareProperty("iCryostat_Alpha",
                                 iCryostat_Alpha,
                                 "iCryostat_Alpha");
+    
+    fMessengerAlpha->DeclareProperty("Copper_Alpha",
+                                Copper_Alpha,
+                                "Copper_Alpha");
  
     fMessengerAlpha->DeclareProperty("oCryostat_Alpha",
                                 oCryostat_Alpha,
@@ -93,6 +97,7 @@ void HTPCDetectorConstruction::ApplyMessengers() {
                                 "Sapphire_Alpha");
                         
     // Defaults
+    Copper_Alpha         = 0.5;
     iCryostat_Alpha      = 1.0;
     oCryostat_Alpha      = 0.2;
     CryostatVacuum_Alpha = 0.0;
@@ -141,7 +146,12 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
 
     // =============================Media======================================
     m_hGeometryParameters["LiquidGasRatio"] = 0.85;
-
+    
+    //=============================Field Cage==================================
+    m_hGeometryParameters["FC_iD"] = 3000. *mm;
+    m_hGeometryParameters["FC_H"]  = 3000. *mm;
+    m_hGeometryParameters["FC_thickness"] = 2. *mm;  
+    
     //===============================TPC=======================================
     m_hGeometryParameters["TPC_oD"] = 3000. *mm;
     m_hGeometryParameters["TPC_H"]  = 3150. *mm;
@@ -175,6 +185,7 @@ void HTPCDetectorConstruction::DefineMaterials()
     G4Element *Si = new G4Element("Silicon", "Si", 14., 28.086 * g / mole);
     G4Element *Ni = new G4Element("Nickel", "Ni", 28., 58.693 * g / mole);
     G4Element *Mn = new G4Element("Manganese", "Mn", 25., 54.938 * g / mole);
+    G4Element *Cu = new G4Element("Copper", "Cu", 29., 63.546 * g / mole);
     G4Element *Co = pNistManager->FindOrBuildElement("Co");
 
     //==== Teflon ====
@@ -398,6 +409,10 @@ void HTPCDetectorConstruction::DefineMaterials()
     G4Material *Sapphire = new G4Material("Sapphire", 3.98 * g / cm3, 2, kStateSolid);
     Sapphire->AddElement(Al, 2);
     Sapphire->AddElement(O, 3);
+    
+    //==== Copper ====
+    G4Material *Copper = new G4Material("Copper", 8.92 * g / cm3, 1);
+    Copper->AddElement(Cu, 1);
 
 }
 
@@ -776,6 +791,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     G4Material* Teflon   = G4Material::GetMaterial("Teflon");
     G4Material* GXe      = G4Material::GetMaterial("GXe");
     G4Material* Sapphire = G4Material::GetMaterial("Sapphire");
+    G4Material* Copper   = G4Material::GetMaterial("Copper");
     
     G4double kTol = GetGeometryParameter("kTol");
 
@@ -789,7 +805,48 @@ void HTPCDetectorConstruction::ConstructTPC()
 
     G4double GXeTeflonTub_H = GXe_H;
     G4double LXeTeflonTub_H = TPC_H - GXe_H;
-
+    
+    G4double FC_iD         = GetGeometryParameter("FC_iD");
+    G4double FC_H          = GetGeometryParameter("FC_H");
+    G4double FC_thickness  = GetGeometryParameter("FC_thickness");
+    G4double CathodeGap_H  = GetGeometryParameter("CathodeGap");
+    
+    // ----- Copper Field Cage -------------------------------------------------------
+    G4Tubs* solid_CopperFCTub = new G4Tubs(
+        "solid_CopperFCTub",
+        FC_iD/2,  
+        FC_iD/2 + FC_thickness,
+        FC_H/2,
+        0.   *deg,
+        360. *deg
+    );   
+    
+    logic_CopperFCTub = new G4LogicalVolume(
+        solid_CopperFCTub,
+        Copper,
+        "logic_CopperFCTub"
+    );
+    
+    G4double z_CopperFCTub = (iCryostat_H/2) * (LiquidGasRatio) - (LXeTeflonTub_H)/2 + CathodeGap_H/2;
+    auto pos_CopperFCTub = G4ThreeVector(0., 0., + z_CopperFCTub);
+    phys_CopperFCTub = new G4PVPlacement(
+        0,
+        pos_CopperFCTub,
+        logic_CopperFCTub,
+        "phys_CopperFCTub",
+        logic_LXeMedium,
+        false,
+        0,
+        true
+    );   
+     
+    auto col_Copper = G4Colour(1.0, 0.6, 0, Copper_Alpha);
+    G4VisAttributes* vis_Copper = new G4VisAttributes(col_Copper);
+    vis_Copper        ->SetVisibility(true);
+    vis_Copper        ->SetForceWireframe(true);
+    vis_Copper        ->SetForceAuxEdgeVisible(true);
+    logic_CopperFCTub->SetVisAttributes(vis_Copper);
+    logic_CopperFCTub->SetVisAttributes(vis_Copper);
 
     // ----- Teflon Tub -------------------------------------------------------
 
@@ -860,7 +917,6 @@ void HTPCDetectorConstruction::ConstructTPC()
     vis_Teflon        ->SetForceAuxEdgeVisible(true);
     logic_GXeTeflonTub->SetVisAttributes(vis_Teflon);
     logic_LXeTeflonTub->SetVisAttributes(vis_Teflon);
-
 
     // ----- Active Media -----------------------------------------------------
     
