@@ -136,6 +136,18 @@ main(int argc, char **argv)
   // initialize it all....
   pRunManager->Initialize();
 
+  G4ThreeVector gp(0, 0, 0);
+  auto nav = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  G4VPhysicalVolume* found = nav->LocateGlobalPointAndSetup(gp);
+  if (found) {
+    G4cout << "Point " << gp << " is in physical volume: " << found->GetName()
+           << " (copyNo=" << found->GetCopyNo() << ")"
+           << " logical: " << found->GetLogicalVolume()->GetName()
+           << G4endl;
+  } else {
+    G4cout << "Point " << gp << " not found in any volume!" << G4endl;
+  }
+    
   G4UIExecutive *pUI = 0;
   G4UIsession * pUIsession = 0;
 

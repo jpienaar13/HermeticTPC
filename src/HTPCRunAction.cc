@@ -35,7 +35,7 @@ void HTPCRunAction::BeginOfRunAction(const G4Run *pRun) {
        << (G4Threading::IsMasterThread() ? "MASTER" : "WORKER")
        << G4endl;
 
-  G4cout << "PurdueRunAction::BeginOfRunAction Initialize random numbers "
+  G4cout << "BeginOfRunAction Initialize random numbers "
             "with seed = "
          << m_hRanSeed << G4endl;
   CLHEP::HepRandom::setTheSeed(m_hRanSeed);

@@ -101,6 +101,13 @@ private:
     // Copper Field Cage
     G4LogicalVolume* logic_CopperFCTub;
     G4VPhysicalVolume* phys_CopperFCTub;
+    
+    //Copper Support Plate
+    G4LogicalVolume* logic_TopCopperPlate;
+    G4VPhysicalVolume* phys_TopCopperPlate;
+    
+    G4LogicalVolume* logic_BotCopperPlate;
+    G4VPhysicalVolume* phys_BotCopperPlate;
 
     // Media
     G4LogicalVolume* logic_GXeMedium;
@@ -134,7 +141,7 @@ private:
     G4LogicalVolume   *m_pPMTGXeLogicalVolume;
     G4VPhysicalVolume *m_pPMTGXePhysicalVolume;
 
-    //PMT VOlumes
+    //PMT Volumes
     G4LogicalVolume *m_pPMTLogicalVolume;
 
     G4LogicalVolume *m_pPMTInnerVacuumLogicalVolume;

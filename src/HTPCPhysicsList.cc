@@ -79,7 +79,7 @@ HTPCPhysicsList::HTPCPhysicsList()
     : G4VModularPhysicsList()
 {
     // Enable diagnostic output
-    VerboseLevel = 1;
+    VerboseLevel = 0;
     OpVerbLevel = 0;
     SetVerboseLevel(VerboseLevel);
 

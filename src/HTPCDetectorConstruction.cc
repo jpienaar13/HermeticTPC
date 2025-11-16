@@ -152,6 +152,11 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
     m_hGeometryParameters["FC_H"]  = 3000. *mm;
     m_hGeometryParameters["FC_thickness"] = 2. *mm;  
     
+    //========================Copper Support Plates============================
+    m_hGeometryParameters["CopperPlate_oD"] = 3050. *mm;
+    m_hGeometryParameters["PmtHole_oD"] = 80. *mm;
+    m_hGeometryParameters["CopperPlate_Thickness"] = 20. *mm;
+    
     //===============================TPC=======================================
     m_hGeometryParameters["TPC_oD"] = 3000. *mm;
     m_hGeometryParameters["TPC_H"]  = 3150. *mm;
@@ -1174,12 +1179,88 @@ void HTPCDetectorConstruction::ConstructTPC()
                               m_pPmtR11410LogicalVolume, hVolumeName.str(),
                               logic_LXeMedium, false, iPMT_label));
     }
+    
+
+    // ---- Copper Support Plates---------------------------------------------
+    G4double CopperPlate_oD       = GetGeometryParameter("CopperPlate_oD");
+    G4double PmtHole_oD           = GetGeometryParameter("PmtHole_oD");
+    G4double CopperPlate_Thickness = GetGeometryParameter("CopperPlate_Thickness");
+    G4double dCopperPlateOffsetZTop = -(iCryostat_H/2) * (1-LiquidGasRatio) 
+                              + GXeTeflonTub_H 
+                              + dPMTHeight*1.2;
+    G4double dCopperPlateOffsetZBot = (iCryostat_H/2) * LiquidGasRatio 
+                              - LXeTeflonTub_H 
+                              - dPMTHeight*1.2;
+    
+    
+    G4Tubs* solid_Plate = new G4Tubs(
+        "solid_Plate",
+        0.0,
+        CopperPlate_oD/2,
+        CopperPlate_Thickness/ 2.0,
+        0.0,
+        360.0 * deg); 
+    //For now ignore holes in PMT Support PLate
+    /*
+    G4VSolid* solid_CopperPlate = solid_Plate;
+    
+    // Subtract PMT Ho;es
+    for (G4int iPMT = 0; iPMT < iNbPMTs; ++iPMT)
+    {
+        G4String name = "PMTHole_" + std::to_string(iPMT);
+
+        G4Tubs* holeSolid = new G4Tubs(
+            name,
+            0.0,
+            PmtHole_oD/2.,
+            CopperPlate_Thickness/2.,
+            0.0,
+            360.0 * deg);
+
+        G4ThreeVector PmtPosition = GetPMTPosition(iPMT, iNbPMTs);
+        solid_CopperPlate = new G4SubtractionSolid("solid_CopperPlate_" + std::to_string(iPMT),
+                                   solid_CopperPlate,
+                                   holeSolid,
+                                   nullptr,
+                                   PmtPosition);
+    }
+    */
+    logic_TopCopperPlate = new G4LogicalVolume(
+        solid_Plate,
+        Copper,
+        "logic_TopCopperPlate");
+    
+    phys_TopCopperPlate = new G4PVPlacement(
+                  0,
+                  G4ThreeVector(0, 0, dCopperPlateOffsetZTop),
+                  logic_TopCopperPlate,
+                  "phys_TopCopperPlate",
+                  logic_GXeMedium,
+                  false,
+                  0);
+    
+    logic_BotCopperPlate = new G4LogicalVolume(
+        solid_Plate,
+        Copper,
+        "logic_BotCopperPlate");
+    
+    phys_BotCopperPlate = new G4PVPlacement(
+                  0,
+                  G4ThreeVector(0, 0, dCopperPlateOffsetZBot),
+                  logic_BotCopperPlate,
+                  "phys_BotCopperPlate",
+                  logic_LXeMedium,
+                  false,
+                  0);
+
+    logic_TopCopperPlate->SetVisAttributes(vis_Copper);
+    logic_TopCopperPlate->SetVisAttributes(vis_Copper);
+    logic_BotCopperPlate->SetVisAttributes(vis_Copper);
+    logic_BotCopperPlate->SetVisAttributes(vis_Copper);
 
 }
 
 
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 
 
@@ -1557,7 +1638,7 @@ G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index, G4int i_nmbP
 
         y += dy;
         row++;
-    }
+    }    
 
     // Should never reach here if index is valid
     throw std::runtime_error("Could not find packing center for given index : " + std::to_string(index));

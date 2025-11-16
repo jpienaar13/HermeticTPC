@@ -147,7 +147,7 @@ void Xenon1tGenericGenerator::ConfineSourceToVolume(G4String hVolumeList)
 
   param->m_hVolumeNames->clear();
 
-  G4cout << "Xenon1tGenericGenerator: Confine generation to the following volumes: " << G4endl;
+  G4cout << "Confine generation to the following volumes: " << G4endl;
   // store all the volume names
   while (!hStream.eof())
   {
@@ -561,7 +561,7 @@ void Xenon1tGenericGenerator::GenerateEnergyFromSpectrum()
         } 
       }
       throw std::runtime_error(
-        "Xenon1tGenericGenerator::GenerateEnergyFromSpectrum: algorithm failed. Perhaps the spectrum is invalid."
+        "GenerateEnergyFromSpectrum: algorithm failed. Perhaps the spectrum is invalid."
       );
     }
   }
@@ -741,7 +741,7 @@ G4double Xenon1tGenericGenerator::GetConfinedVolume()
   // G4cout << " Shape Volume (cm3) " << GetShapeVolume()/cm3 << " , Volume
   // Volume (cm3) " << dVolumeInCm3 << G4endl;
   G4cout << " ****************************" << G4endl;
-  G4cout << " ** Xenon1tGenericGenerator: Total volume of the regions where the "
+  G4cout << " ** Total volume of the regions where the "
          "events are generated (confined):  "
          << dVolumeInCm3 << " cm3 " << G4endl;
   G4cout << " ****************************" << G4endl;
