@@ -488,8 +488,9 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4double sRingThickness = GetGeometryParameter("sRingThickness");
     
     auto solidCapsule1 = BuildCapsule(
-        oCryostat_oD/2, 
-        oCryostat_oD/2 - oCryostatWall_thickness, 
+        oCryostat_oD/2,
+        0.,
+        //oCryostat_oD/2 - oCryostatWall_thickness, 
         oCryostat_H/2, 
         curveLength
     );
@@ -601,8 +602,9 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4double iFlangeHeight = iFlangeRelativeHeight*iCryostat_H/2;
     
     auto solidCapsule2 = BuildCapsule(
-        iCryostat_oD/2, 
-        iCryostat_oD/2 - iCryostatWall_thickness, 
+        iCryostat_oD/2,
+        0.,
+        //iCryostat_oD/2 - iCryostatWall_thickness, 
         iCryostat_H/2, 
         curveLength
     );
@@ -708,7 +710,7 @@ void HTPCDetectorConstruction::ConstructMedia()
         pos_GXeMedium,
         logic_GXeMedium,
         "phys_GXeMedium",
-        logic_CryostatVacuum,
+        logic_iCryostat,
         false,
         0,
         true
@@ -740,15 +742,16 @@ void HTPCDetectorConstruction::ConstructMedia()
     );
 
     auto pos_LXeMedium  = G4ThreeVector(0., 0., -((iCryostat_H/2) - LXeMedium_H/2));
-    phys_LXeMedium = new G4PVPlacement(0,
-                                            pos_LXeMedium,
-                                            logic_LXeMedium,
-                                            "phys_LXeMedium",
-                                            logic_CryostatVacuum,
-                                            false,
-                                            0,
-                                            true
-                                            );
+    phys_LXeMedium = new G4PVPlacement(
+        0,
+        pos_LXeMedium,
+        logic_LXeMedium,
+        "phys_LXeMedium",
+        logic_iCryostat,
+        false,
+        0,
+        true
+    );
 
     // VisAttributes
     auto col_LXeMedium = G4Colour(1.0, 0.0, 1.0, GXeMedium_Alpha);
@@ -840,63 +843,15 @@ void HTPCDetectorConstruction::ConstructTPC()
         true
     );
 
-    // TeflonCap
-    /*
-    G4Tubs* solid_TeflonCap = new G4Tubs(
-        "solid_TeflonCap",
-        0.,
-        TPC_oD/2 - PTFE_thickness,
-        PTFE_thickness/2,
-        0.   *deg,
-        360. *deg
-    );
-
-    logic_TeflonCap = new G4LogicalVolume(
-        solid_TeflonCap,
-        Teflon,
-        "logic_TeflonCap"
-    );
-
-    // Upper cap (GXe)
-    G4double base_GXeTeflonCap = -((iCryostat_H/2) * (1-LiquidGasRatio));
-    G4double z_GXeTeflonCap = base_GXeTeflonCap + GXeTeflonTub_H - PTFE_thickness/2;
-    auto pos_GXeTeflonCap = G4ThreeVector(0., 0., z_GXeTeflonCap);
-    phys_GXeTeflonCap = new G4PVPlacement(
-        0,
-        pos_GXeTeflonCap,
-        logic_TeflonCap,
-        "phys_GXeTeflonCap",
-        logic_GXeMedium,
-        false,
-        0,
-        true
-    );
-
-    // Lower cap (LXe)
-    G4double base_LXeTeflonCap = -((iCryostat_H/2) * (LiquidGasRatio));
-    G4double z_LXeTeflonCap = base_LXeTeflonCap + iCryostat_H*LiquidGasRatio - LXeTeflonTub_H + PTFE_thickness/2;
-    auto pos_LXeTeflonCap = G4ThreeVector(0., 0., z_LXeTeflonCap);
-    phys_LXeTeflonCap = new G4PVPlacement(
-        0,
-        pos_LXeTeflonCap,
-        logic_TeflonCap,
-        "phys_LXeTeflonCap",
-        logic_LXeMedium,
-        false,
-        0,
-        true
-    ); */
-
     // VisAttributes
     auto col_Teflon = G4Colour(0.0, 0.0, 1.0, Teflon_Alpha);
     G4VisAttributes* vis_Teflon = new G4VisAttributes(col_Teflon);
-    vis_Teflon ->SetVisibility(true);
-    //vis_Teflon ->SetForceSolid(true);
-    vis_Teflon ->SetForceWireframe(true);
-    vis_Teflon ->SetForceAuxEdgeVisible(true);
+    vis_Teflon        ->SetVisibility(true);
+    //vis_Teflon      ->SetForceSolid(true);
+    vis_Teflon        ->SetForceWireframe(true);
+    vis_Teflon        ->SetForceAuxEdgeVisible(true);
     logic_GXeTeflonTub->SetVisAttributes(vis_Teflon);
     logic_LXeTeflonTub->SetVisAttributes(vis_Teflon);
-    //logic_TeflonCap   ->SetVisAttributes(vis_Teflon);
 
 
     // ----- Active Media -----------------------------------------------------
@@ -917,7 +872,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_GXeActive"
     );
 
-    auto pos_GXeActive = G4ThreeVector(0., 0., -PTFE_thickness);
+    auto pos_GXeActive = G4ThreeVector(0., 0., -PTFE_thickness/2);
     phys_GXeActive = new G4PVPlacement(
         0,
         pos_GXeActive,
@@ -987,7 +942,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "solid_GXeSapphireTub",
         d_Sapphire_oD/2 - d_SapphireThickness,
         d_Sapphire_oD/2,
-        GXeTeflonTub_H/2 - AnodeThickness/2,
+        GXeTeflonTub_H/2 - PTFE_thickness/2 - AnodeThickness/2,
         0.,
         360. *deg
     );
@@ -998,7 +953,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_GXeSapphireTub"
     );
 
-    G4double z_GXeSapphireTub = -AnodeThickness;
+    G4double z_GXeSapphireTub = -AnodeThickness/2;
     auto pos_GXeSapphireTub = G4ThreeVector(0., 0., z_GXeSapphireTub);
     phys_GXeSapphireTub = new G4PVPlacement(
         0,
@@ -1045,7 +1000,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "solid_LXeSapphireTub",
         d_Sapphire_oD/2 - d_SapphireThickness,
         d_Sapphire_oD/2,
-        LXeTeflonTub_H/2 - AnodeThickness/2,
+        LXeTeflonTub_H/2 - PTFE_thickness/2 - AnodeThickness/2,
         0.   *deg,
         360. *deg
     );
@@ -1056,7 +1011,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         "logic_LXeSapphireTub"
     );
 
-    G4double z_LXeSapphireTub = AnodeThickness;
+    G4double z_LXeSapphireTub = AnodeThickness/2;
     auto pos_LXeSapphireTub = G4ThreeVector(0., 0., z_LXeSapphireTub);
     phys_LXeSapphireTub = new G4PVPlacement(
         0,
