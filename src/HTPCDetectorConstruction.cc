@@ -488,9 +488,14 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4double sRingThickness = GetGeometryParameter("sRingThickness");
     
     auto solidCapsule1 = BuildCapsule(
+<<<<<<< HEAD
         oCryostat_oD/2,
         0.,
         //oCryostat_oD/2 - oCryostatWall_thickness, 
+=======
+        oCryostat_oD/2, 
+        0,
+>>>>>>> 08a8232d6ca6cafb324c28f27a725b0f4135350d
         oCryostat_H/2, 
         curveLength
     );
@@ -602,9 +607,14 @@ void HTPCDetectorConstruction::ConstructCryostats()
     G4double iFlangeHeight = iFlangeRelativeHeight*iCryostat_H/2;
     
     auto solidCapsule2 = BuildCapsule(
+<<<<<<< HEAD
         iCryostat_oD/2,
         0.,
         //iCryostat_oD/2 - iCryostatWall_thickness, 
+=======
+        iCryostat_oD/2, 
+        0,
+>>>>>>> 08a8232d6ca6cafb324c28f27a725b0f4135350d
         iCryostat_H/2, 
         curveLength
     );
