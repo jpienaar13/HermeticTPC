@@ -4,7 +4,7 @@
 #PBS -m n
 #PBS -l walltime=02:00:00
 #PBS -l select=1:ncpus=1:mem=2500mb
-#PBS -l io=1
+#PBS -l io=5
 #PBS -j oe
 #PBS -o /srv01/xenon/jacquesp/HermeticTPC/logs/{{BASENAME}}.log
 
@@ -21,4 +21,4 @@ fi
 
 # Post-process
 echo "Running post-processing..."
-# python /home/jpienaar/HermeticTPC/analysis/process_backgrounds.py /scratch/midway2/jpienaar/hermeticTPC/{{OUTFILE}} --outfile /scratch/midway2/jpienaar/hermeticTPC/{{BASENAME}}
+ python /srv01/xenon/jacquesp/HermeticTPC/analysis/process_backgrounds.py /storage/xenon/jacquesp/hermeticTPC/{{OUTFILE}} --outfile /storage/xenon/jacquesp/hermeticTPC/{{BASENAME}}
