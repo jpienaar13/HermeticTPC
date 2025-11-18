@@ -19,15 +19,15 @@
 
 ##################
 # Select the volume to confine the source.
-/xe/gun/confine phys_oCryostat phys_iCryostat
+/xe/gun/confine phys_CopperFCTub
 
 ##################
 # particle type + energy spectrum
 /xe/gun/energy 0 keV
 /xe/gun/particle ion
 
-# Co60
-/xe/gun/ion 27 60 0 0
+# U238
+/xe/gun/ion 92 238 0 0
 
 
 # postpone decay

@@ -18,7 +18,7 @@
 /xe/gun/halfz  250 cm
 
 ##################
-# Select the volume to confine the source. 
+# Select the volume to confine the source.
 /xe/gun/confine phys_GXeSapphireTub phys_GXeSapphireCap phys_LXeSapphireTub phys_LXeSapphireCap
 
 ##################
@@ -26,12 +26,12 @@
 /xe/gun/energy 0 keV
 /xe/gun/particle ion
 
-# Th232
-/xe/gun/ion 90 232 0 0
-
+# K40
+/xe/gun/ion 19 40 0 0
 
 # postpone decay
-#/xe/Postponedecay true
+#/xe/Postponedecay false
+#/xe/MaxLifeTime 1000000 ns
 
 
 ##################

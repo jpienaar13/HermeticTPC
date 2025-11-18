@@ -19,25 +19,24 @@
 
 ##################
 # Select the volume to confine the source.
-/xe/gun/confine PTFE_phys
+/xe/gun/confine phys_GXeTeflonTub phys_LXeTeflonTub
 
 ##################
 # particle type + energy spectrum
 /xe/gun/energy 0 keV
 /xe/gun/particle ion
 
-# Th232
-/xe/gun/ion 92 238 0 0
+# Co60
+/xe/gun/ion 27 60 0 0
 
 
 # postpone decay
-/xe/Postponedecay true
+#/xe/Postponedecay true
 
 
 ##################
 # MC acceleration techniques for gammas. AP playground: if false it is not used
 /run/forced/setVarianceReduction false
-
 #
 # Scintillation processes in the LXe
 #
