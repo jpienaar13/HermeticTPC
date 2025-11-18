@@ -46,7 +46,7 @@ echo "Activating LCG environment..."
 source /cvmfs/sft.cern.ch/lcg/views/LCG_105/x86_64-el9-gcc12-opt/setup.sh
 
 # Define container path and directories
-SCRATCH_DIR="/storage/xenon/jacquesp/hermeticTPC"
+SCRATCH_DIR="/storage/xenon/nadavh/hermeticTPC"
 TEMPLATE=run_hermeticTPCsingle.sh
 LOGDIR="$SCRATCH_DIR/logs"
 

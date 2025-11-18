@@ -19,7 +19,7 @@
 
 ##################
 # Select the volume to confine the source.
-/xe/gun/confine iCryostat_phys oCryostat_phys
+/xe/gun/confine phys_iCryostat phys_oCryostat
 
 ##################
 # particle type + energy spectrum
