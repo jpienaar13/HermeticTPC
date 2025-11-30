@@ -172,6 +172,8 @@ void HTPCDetectorConstruction::DefineGeometryParameters()
 
     m_hGeometryParameters["GasGap_H"]   = 5. *mm;
     m_hGeometryParameters["CathodeGap"] = 50. *mm;
+    
+    m_hGeometryParameters["i_NbPMTS"] = 1184;
 
 }
 
@@ -1144,8 +1146,10 @@ void HTPCDetectorConstruction::ConstructTPC()
     G4double dPMTHeight = 114. * mm;
     stringstream hVolumeName;
 
+    ResetPMTCache(); 
+    
     // Construct Top PMT array
-    G4int iNbPMTs = 1120;
+    G4int iNbPMTs = GetGeometryParameter("i_NbPMTS");
     G4double dPMTOffsetZTop = -(iCryostat_H/2) * (1-LiquidGasRatio) 
                               + GXeTeflonTub_H 
                               + dPMTHeight/2;
@@ -1160,7 +1164,8 @@ void HTPCDetectorConstruction::ConstructTPC()
                              m_pPmtR11410LogicalVolume, hVolumeName.str(),
                              logic_GXeMedium, false, iPMT));
     }
-
+    G4cout<<"Top Array Constructed"<<G4endl;
+    
     // Construct Bottom PMT array
     G4double dPMTOffsetZBot = (iCryostat_H/2) * LiquidGasRatio 
                               - LXeTeflonTub_H 
@@ -1179,6 +1184,7 @@ void HTPCDetectorConstruction::ConstructTPC()
                               m_pPmtR11410LogicalVolume, hVolumeName.str(),
                               logic_LXeMedium, false, iPMT_label));
     }
+    G4cout<<"Bottom Array Constructed"<<G4endl;
     
 
     // ---- Copper Support Plates---------------------------------------------
@@ -1603,52 +1609,95 @@ G4double HTPCDetectorConstruction::GetGeometryParameter(const char *szParameter)
   }
 }
 
-G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index, G4int i_nmbPMTS) {
-
+G4ThreeVector HTPCDetectorConstruction::GetPMTPosition(G4int index, G4int i_nmbPMTS)
+{
     if (index < 0 || index >= i_nmbPMTS) {
-        throw std::out_of_range("Index must be between 0 and 1181");
+        throw std::out_of_range("Index must be between 0 and number of PMTs");
     }
+    
+    // -----------------------------------------------------------
 
-    G4double outer_radius = GetGeometryParameter("TPC_oD") / 2; // Container radius
-    const G4double circle_diameter = 0.0762 * m;
-    const G4double circle_radius =  0.081/2 *m; //circle_diameter / 2.0;
-    const G4double dy = circle_radius * std::sqrt(3.0); // Vertical spacing
+    if (!fPMTCacheInitialized || fCachedPMTCount != i_nmbPMTS)
+    {
+        fCachedPMTPositions.clear();
+        fCachedPMTPositions.reserve(i_nmbPMTS);
 
-    G4double y = -outer_radius;
-    int row = 0;
-    int current_index = 0;
+        fCachedPMTCount = i_nmbPMTS;
 
-    while (y <= outer_radius) {
-        G4double x_offset = (row % 2 == 0) ? 0.0 : circle_radius;
-        G4double x = -outer_radius + x_offset;
+        G4double outer_radius = GetGeometryParameter("TPC_oD") / 2.0; // Container radius
+        const G4double circle_diameter        = 0.0762 * m;
+        const G4double circle_radius_physical = circle_diameter / 2.0;
+        const G4double spacing_diameter = 0.081 * m;   
+        const G4double spacing_radius   = spacing_diameter / 2.0;
+        const G4double dy               = spacing_radius * std::sqrt(3.0); //Vertical row spacing
 
-        while (x <= outer_radius) {
-            G4double dist_to_center = std::sqrt(x * x + y * y);
-            if (dist_to_center + circle_diameter <= outer_radius) {
-                if (current_index == index) {
-                    return G4ThreeVector(x, y, 0.0);
+        G4double y = -outer_radius;
+        int row = 0;
+        int current_index = 0;
+
+        while (y <= outer_radius && current_index < i_nmbPMTS)
+        {
+            G4double x_offset = (row % 2 == 0 ? 0.0 : spacing_radius);
+            G4double x = -outer_radius + x_offset;
+
+            while (x <= outer_radius && current_index < i_nmbPMTS)
+            {
+                G4double dist_to_center = std::sqrt(x*x + y*y);
+
+                // PMT fits inside tank if its physical radius fits
+                if (dist_to_center + circle_radius_physical <= outer_radius)
+                {
+                    fCachedPMTPositions.emplace_back(x, y, 0.0);
+                    ++current_index;
                 }
-                current_index++;
-                if (current_index >= i_nmbPMTS) {
-                    break;
-                }
+
+                x += 2.0 * spacing_radius;   
             }
-            x += 2*circle_radius;
+
+            y += dy;
+            ++row;
         }
 
-        y += dy;
-        row++;
-    }    
+        if ((int)fCachedPMTPositions.size() != i_nmbPMTS) {
+            throw std::runtime_error(
+                "GetPMTPosition: generated "
+                + std::to_string(fCachedPMTPositions.size()) +
+                " positions, but expected " + std::to_string(i_nmbPMTS));
+        }
 
-    // Should never reach here if index is valid
-    throw std::runtime_error("Could not find packing center for given index : " + std::to_string(index));
+        // Find PMT closest to center
+        G4ThreeVector centroid(0,0,0);
+        for (auto &p : fCachedPMTPositions)
+            centroid += p;
+        centroid /= (G4double)fCachedPMTPositions.size();
+
+        // Compute shift
+        G4ThreeVector shift =  -centroid;
+
+        // Apply shift to all
+        for (auto &p : fCachedPMTPositions)
+            p += shift;
+
+        fPMTCacheInitialized = true;
+    }
+
+    return fCachedPMTPositions[index];
 }
+
+void HTPCDetectorConstruction::ResetPMTCache()
+{
+    fPMTCacheInitialized = false;
+    fCachedPMTCount = -1;
+    fCachedPMTPositions.clear();
+    G4cout<<"PMT cache reset"<<G4endl;
+    G4cout<<"PMT Cache size now "<<fCachedPMTPositions.size()<<G4endl;
+}
+
 
 /* ----------------------------------------------------------------------- */
 
 // ---- GEOMETRY FUNCTIONS --- //
 namespace {
-    // Put it in an unnamed namespace so it's local to this translation unit
     G4VSolid* BuildCapsule(
         G4double Rmax, 
         G4double Rmin, 

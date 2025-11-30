@@ -24,6 +24,8 @@ class HTPCStackingAction : public G4UserStackingAction {
   G4bool PostponeFlag;
   G4double MaxLifeTime;
   G4String KillPostponedNucleusName = "None";
+  G4StackManager* stackManager;
+
 
  public:
   inline void SetPostponeFlag(G4bool val) { PostponeFlag = val; };

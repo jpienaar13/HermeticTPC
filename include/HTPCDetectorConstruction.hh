@@ -41,6 +41,7 @@ public:
     void ConstructCryostats();
     void ConstructMedia();
     void ConstructTPC();
+    void ResetPMTCache();
 
     void ConstructDetector();
 
@@ -53,6 +54,9 @@ public:
 private:
 
     static map<G4String, G4double> m_hGeometryParameters;
+    std::vector<G4ThreeVector> fCachedPMTPositions;
+    G4bool fPMTCacheInitialized = false;
+    G4int fCachedPMTCount = -1;
 
     // ROOT Setup
     TFile      *_fGeom;
