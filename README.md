@@ -10,7 +10,7 @@ The job submission scripts provided are optimsied for use on the Weizmann Atlas 
 ## Installation Instructions on Atlas cluster##
 1. Clone the repository and ensure that ROOT and GEANT4 are properly set up:
     ```
-    git clone [https://<username>:<password>@github.com/jpienaar13/mc.git](https://github.com/jpienaar13/HermeticTPC.git)
+    git clone https://github.com/jpienaar13/HermeticTPC.git
     ```
 
 2. Source the following CVMFS resource
