@@ -7,7 +7,7 @@ GEANT4.11.02
 (The Capsule-cryostats branch was developed on GEANT4.10.7 before switching. The PMT packing algorithm in this branch is currently outdated.)
 The job submission scripts provided are optimsied for use on the Weizmann Atlas cluster. Change as needed.
 
-## Installation Instructions on Atlas cluster##
+## Installation Instructions on Atlas cluster
 1. Clone the repository and ensure that ROOT and GEANT4 are properly set up:
     ```
     git clone https://github.com/jpienaar13/HermeticTPC.git
