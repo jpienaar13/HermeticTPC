@@ -30,6 +30,6 @@ The job submission scripts provided are optimsied for use on the Weizmann Atlas 
    There are currently no implemented preinit options so the -p option (inherited from XENON) does nothing. The number of primaries to be simulated is specified with the -n option and the output file name with -o.
 
 
-## Pos processing
+## Post processing
 Post processing is done with the proc_root_reduced.py script. Currently the scale factor, which specifies when energy depositions are separated into clusters, defaults to 10mm, but it can be specified with --scale option. 
 
