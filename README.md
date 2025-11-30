@@ -1,3 +1,12 @@
+#Hermetic TPC GEANT4 Simulation
+
+## Supported GEANT4 Versions (Installation Prerequisites) ##
+Current main branch supported:
+
+GEANT4.11.02
+(The Capsule-cryostats branch was developed on GEANT4.10.7 before switching. The PMT packing algorithm in this branch is currently outdated.)
+The job submission scripts provided are optimsied for use on the Weizmann Atlas cluster. Change as needed.
+
 Run like this:
 
 cmake -S .. -B build -DMAKE_STYLE=OFF && cmake --build build -j --target install
