@@ -14,14 +14,15 @@ using namespace std;
 #include "G4VModularPhysicsList.hh"
 
 class HTPCPhysicsList : public G4VModularPhysicsList {
- public:
-  HTPCPhysicsList();
-  virtual ~HTPCPhysicsList();
+public:
+    HTPCPhysicsList();
+    ~HTPCPhysicsList() override;
 
  public:
-  void SetCuts();
-
-  // functions for the messenger interface
+  
+  // functions for the messenger interface  
+  bool SafeReplacePhysics(G4VPhysicsConstructor* newPhys);
+  void SetCuts();    
   void SetCerenkov(G4bool useCerenkov);
   void SetEMlowEnergyModel(G4String theModel);
   void SetHadronicModel(G4String theModel);

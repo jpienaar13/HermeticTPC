@@ -10,6 +10,8 @@
 #include <G4VisExecutive.hh>
 #include <G4UIExecutive.hh>
 #include <G4GeneralParticleSource.hh>
+#include <G4HadronicParameters.hh>
+#include <G4SystemOfUnits.hh>
 
 #include "HTPCDetectorConstruction.hh"
 #include "HTPCPhysicsList.hh"
@@ -96,6 +98,9 @@ main(int argc, char **argv)
 
   // Physics List
   HTPCPhysicsList *physList = new HTPCPhysicsList();
+    
+  // Set a huge time threshold for radioactive decays
+  G4HadronicParameters::Instance()->SetTimeThresholdForRadioactiveDecay(1.0e+60 * year);
   pRunManager->SetUserInitialization(physList);
 
   // Visualization Manager
@@ -131,6 +136,18 @@ main(int argc, char **argv)
   // initialize it all....
   pRunManager->Initialize();
 
+  G4ThreeVector gp(0, 0, 0);
+  auto nav = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  G4VPhysicalVolume* found = nav->LocateGlobalPointAndSetup(gp);
+  if (found) {
+    G4cout << "Point " << gp << " is in physical volume: " << found->GetName()
+           << " (copyNo=" << found->GetCopyNo() << ")"
+           << " logical: " << found->GetLogicalVolume()->GetName()
+           << G4endl;
+  } else {
+    G4cout << "Point " << gp << " not found in any volume!" << G4endl;
+  }
+    
   G4UIExecutive *pUI = 0;
   G4UIsession * pUIsession = 0;
 

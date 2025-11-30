@@ -37,10 +37,6 @@ G4bool HTPCSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory *)
 	G4double dEnergyDeposited = pStep->GetTotalEnergyDeposit();
 	G4Track *pTrack = pStep->GetTrack();
 
-	//if(pTrack->GetDefinition()->GetParticleName() == "neutron")
-	// {
-
-	// G4cout << G4endl << "I MADE A NEW HIT " << G4endl;
 	HTPCDetectorHit* pHit = new HTPCDetectorHit();
 	pHit->SetTrackId(pTrack->GetTrackID());
 	if(!m_hParticleTypes.count(pTrack->GetTrackID()))

@@ -1,1 +1,5 @@
 build/
+logs/
+.vscode/
+lib/
+*.root

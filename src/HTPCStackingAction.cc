@@ -17,8 +17,9 @@
 HTPCStackingAction::HTPCStackingAction(HTPCAnalysisManager *pAnalysisManager) {
   m_pAnalysisManager = pAnalysisManager;
   theMessenger = new HTPCStackingActionMessenger(this);
-  PostponeFlag = false;
-  MaxLifeTime = 1 * ns;
+  stackManager = G4EventManager::GetEventManager()->GetStackManager();
+  PostponeFlag = true;
+  MaxLifeTime = 1.0 * ns;
 }
 
 HTPCStackingAction::~HTPCStackingAction() {delete theMessenger;}
@@ -59,29 +60,27 @@ G4ClassificationOfNewTrack HTPCStackingAction::ClassifyNewTrack(
 
   // Radioactive decays
   if (PostponeFlag) {
-    // Postpone radioactive decays if you want, for backward compatability
-    if (pTrack->GetDefinition()->GetParticleType() == "nucleus" &&
-        !pTrack->GetDefinition()->GetPDGStable()) {
-      //G4cout<<"Postpone decays "<<pTrack->GetDefinition()->GetParticleName()<<G4endl;
-      if (pTrack->GetParentID() > 0 &&
-          pTrack->GetCreatorProcess()->GetProcessName().find("RadioactiveDecay") != std::string::npos &&
-          pTrack->GetDefinition()->GetPDGLifeTime() > MaxLifeTime)
-          {
-              hTrackClassification = fPostpone;
-          }
-
-      if (pTrack->GetDefinition()->GetParticleName() == KillPostponedNucleusName)
-          {
-             hTrackClassification = fKill;
-          }
-
-      }
+    if (PostponeFlag &&
+        pTrack->GetDefinition()->GetParticleType() == "nucleus" &&
+        !pTrack->GetDefinition()->GetPDGStable() &&
+        pTrack->GetParentID() > 0 &&
+        pTrack->GetDefinition()->GetPDGLifeTime() > MaxLifeTime) {
+        hTrackClassification = fPostpone;
+        /*
+        G4cout << "Postponed " << pTrack->GetDefinition()->GetParticleName()
+               << " in event "
+               << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()
+               << G4endl;
+        */
+    }
   }
 
   return hTrackClassification;
 }
 
-void HTPCStackingAction::NewStage() {}
+void HTPCStackingAction::NewStage()
+{
+}
 
 void HTPCStackingAction::PrepareNewEvent() {}
 
