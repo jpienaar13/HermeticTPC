@@ -3,3 +3,10 @@ logs/
 .vscode/
 lib/
 *.root
+*.parquet
+
+make.sh
+analysis/fuse_data/
+
+CMakeFiles/
+CMakeCache.txt

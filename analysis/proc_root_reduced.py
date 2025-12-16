@@ -266,7 +266,6 @@ def main():
     parser.add_argument("--scale", type=float, default=10.0, help="Clustering scale in units consistent with z position.")
     parser.add_argument("--fulfill", type=float, default=1.0, help="Fraction of total events to process.")
 
-
     args = parser.parse_args()
 
     result_df = process_root_file(
