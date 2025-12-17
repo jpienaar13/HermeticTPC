@@ -100,6 +100,94 @@ def get_total_events(fn, treename='events'):
         total = len(tree.arrays('etot'))
     return total
 
+def time_cluster(time_arr, scale=1e8):
+    sz = len(time_arr)
+    order = np.argsort(time_arr)
+    times = time_arr[order]
+
+    cluster_num = 0
+    cluster_idxs_sorted = np.zeros(sz, dtype=int)
+
+    prev_t = times[0]
+    cluster_idxs_sorted[0] = 0
+
+    for i in range(1, sz):
+        t = times[i]
+        delta = t - prev_t
+
+        if delta > scale:
+            cluster_num += 1
+        cluster_idxs_sorted[i] = cluster_num
+        prev_t = t
+
+    # map cluster labels back to original order
+    cluster_idxs = np.zeros(sz, dtype=int)
+    cluster_idxs[order] = cluster_idxs_sorted
+
+    return cluster_idxs
+
+def split_by_septime(data, scale=1e8):
+
+    branches = ['nsteps', 
+                'xp', 
+                'yp', 
+                'zp', 
+                'etot', 
+                'xp_pri', 
+                'yp_pri', 
+                'zp_pri', 
+                'ed',
+                'PreStepEnergy',
+                'type',
+                'time']
+
+    val_mtx = [[] for _ in range(12)]
+
+    time_mtx = np.array(data['time'])
+
+    for i, time in enumerate(time_mtx):
+        cluster_idxs = time_cluster(time, scale=scale)
+        t_idx_uniques = np.unique(cluster_idxs)
+
+        for t_idx in t_idx_uniques:
+            mask = (cluster_idxs == t_idx)
+            for k, branch in enumerate(branches):
+                if branch=='type':
+                    old_val = np.array(data[branch][i])
+                    new_val = old_val[mask]
+                elif branch=='nsteps':
+                    new_val = int(np.sum(mask))
+                elif branch=='etot':
+                    edep_arr = np.array(data['ed'][i])
+                    edep_arr_cluster = edep_arr[mask]
+                    new_val=np.sum(edep_arr_cluster)
+                else:
+                    old_val = data[branch][i]
+                    if isinstance(old_val, np.ndarray):
+                        new_val = old_val[mask]
+                    elif isinstance(old_val, (np.ndarray, list)):
+                        new_val = old_val[mask]
+                    else:
+                        new_val = old_val
+
+                val_mtx[k].append(new_val)
+
+    new_data = {
+        branches[0]  : val_mtx[0],
+        branches[1]  : val_mtx[1],
+        branches[2]  : val_mtx[2],
+        branches[3]  : val_mtx[3],
+        branches[4]  : val_mtx[4],
+        branches[5]  : val_mtx[5],
+        branches[6]  : val_mtx[6],
+        branches[7]  : val_mtx[7],
+        branches[8]  : val_mtx[8],
+        branches[9]  : val_mtx[9],
+        branches[10] : val_mtx[10],
+        branches[11] : val_mtx[11]
+    }
+
+    return new_data
 
 def generate_reduced_df(data, scale=10):
 
@@ -156,6 +244,8 @@ def generate_reduced_df(data, scale=10):
                 z = z_arr[cluster]
                 ed = ed_arr[cluster]
     
+                # I should add a better averaging algorithm
+                # that weighs position by edep
                 E = np.nansum(ed)
                 X = np.nanmean(x)
                 Y = np.nanmean(y)
@@ -183,12 +273,12 @@ def generate_reduced_df(data, scale=10):
     
     data_reduced = {
         "clusters" : np.array(Clusters_main),
-        "nclusters" : Clusterval_main,
+        "nclusters": Clusterval_main,
         "edep"     : Edep_main,
         "xp"       : xp_main,
         "yp"       : yp_main,
         "zp"       : zp_main,
-        "e_gam"   : EG_main,
+        "e_gam"    : EG_main,
         "xp_pri"   : xp_pr_main,
         "yp_pri"   : yp_pr_main,
         "zp_pri"   : zp_pr_main
@@ -239,6 +329,7 @@ def process_root_file(fn, treename='events', chunksize=1000, scale=10, fulfill =
         istop = min(i_chunk + chunksize, total)
 
         data = read_root_file(fn, treename=treename, istart=istart, istop=istop)
+        data = split_by_septime(data, scale=1e8) #0.1s
         df_reduced = generate_reduced_df(data, scale=scale)
 
         if prev_df is not None:
