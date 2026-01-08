@@ -32,7 +32,7 @@
 
 # postpone decay
 #/xe/Postponedecay 1
-
+/xe/Postponedecay false
 
 ##################
 # Tree Filling options
