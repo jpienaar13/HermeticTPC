@@ -18,7 +18,7 @@ HTPCStackingAction::HTPCStackingAction(HTPCAnalysisManager *pAnalysisManager) {
   m_pAnalysisManager = pAnalysisManager;
   theMessenger = new HTPCStackingActionMessenger(this);
   stackManager = G4EventManager::GetEventManager()->GetStackManager();
-  PostponeFlag = true;
+  PostponeFlag = false;
   MaxLifeTime = 1.0 * ns;
 }
 

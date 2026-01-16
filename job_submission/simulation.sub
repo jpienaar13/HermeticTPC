@@ -1,0 +1,159 @@
+#!/bin/bash
+#SBATCH --job-name=simulation
+#SBATCH --partition=normal
+#SBATCH --time=02:00:00
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 1
+#SBATCH --mem=8G
+#SBATCH --output=/home/l/l_alth03/logs/simulation-%j.out
+#SBATCH --error=/home/l/l_alth03/logs/simulation-%j.err
+#SBATCH --array=0-0
+
+# This script will run an array of simulations using Geant4 in a singularity container.
+# It is designed to be run on a SLURM cluster.
+# You can test the script commands by using the --test option followed by a number.
+# The number specifies how many jobs to run in test mode. For example, --test 5 will run 5 jobs.
+
+# To submit the job array, use:
+# sbatch --array=0-2 simulation.sub
+
+# make logs directory if needed
+LOGSDIR="/home/l/l_alth03/logs"
+mkdir -p $LOGSDIR
+
+# Simulation settings
+SIMULATION_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/software"
+SIMULATION_VERSION="20251205_HermeticTPC"
+SIMULATION_binary="hermeticTPC"
+
+# Read macros from folder als list of files
+MACROS=($(ls $SIMULATION_PATH/$SIMULATION_VERSION/macros/*_neutron.mac))
+NMACROS=${#MACROS[@]}
+echo "Found $NMACROS macros in $SIMULATION_PATH/$SIMULATION_VERSION/macros:"
+for macro in "${MACROS[@]}"; do
+    echo " - $(basename "$macro")"
+done
+echo ""
+
+# Geant4 settings
+GEANT4_BINARY="$SIMULATION_PATH/$SIMULATION_VERSION/build/bin/$SIMULATION_binary"
+GEANT4_PATH="$SIMULATION_PATH/$SIMULATION_VERSION"
+GEANT4_OUTPUT_DIR="/scratch/tmp/$USER/$SIMULATION_VERSION"
+GEANT4_NUMBER_OF_EVENTS=5000
+GEANT4_ADDPARAMS=""
+
+# Provide a container path to the singularity image with Geant4
+CONTAINER_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/software/container/xenonnt_mc_ms_20260112.sif"
+CONTAINER_BIND="--bind /cloud/wwu1/p_agweinheimer/AGW_LowRad:/cloud/wwu1/p_agweinheimer/AGW_LowRad --bind /scratch/tmp/$USER:/scratch/tmp/$USER"
+
+# Parse arguments
+test_mode=false
+test_value=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --test)
+            test_mode=true
+            if [[ $2 =~ ^[0-9]+$ ]]; then
+                test_value=$2
+                shift
+            fi
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            ;;
+    esac
+    shift
+done
+
+N_jobs_max=1
+if [ "$test_mode" == true ] && [ -n "$test_value" ]; then
+    N_jobs_max=$test_value
+fi
+
+# Set the range for the loop based on the mode
+if [ "$test_mode" == true ]; then
+    loop_range=$(seq 0 $N_jobs_max)
+else
+    loop_range=$SLURM_ARRAY_TASK_ID
+fi
+
+# Loop over the determined range
+for i in $loop_range; do
+    # Select macro based on index
+    MINDEX=$(( i % NMACROS ))
+    RUNNUMBER=$(printf "%05d" $(( i / NMACROS )))
+    MACRO="${MACROS[$MINDEX]}"
+    MACRO_BASENAME=$(basename "$MACRO" .mac)
+    GEANT4_OUTPUT_FILE="${MACRO_BASENAME}_${RUNNUMBER}.root"
+    GEANT4_PARAMS="-f $MACRO -o $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE -n $GEANT4_NUMBER_OF_EVENTS"
+
+    PARQUET_OUTPUT_FILE=$(basename "$GEANT4_OUTPUT_FILE" .root).parquet
+
+    COMMAND="mkdir -p $GEANT4_OUTPUT_DIR && cd $GEANT4_PATH && $GEANT4_BINARY $GEANT4_PARAMS"
+    COMMANDPQ="mkdir -p $GEANT4_OUTPUT_DIR/parquet && python $GEANT4_PATH/analysis/proc_root_reduced.py $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE --outfile $GEANT4_OUTPUT_DIR/parquet/$PARQUET_OUTPUT_FILE"
+    COMMANDF="python $GEANT4_PATH/analysis/proc_fuse.py --config_file $GEANT4_PATH/analysis/fuse_files/XENONnT_public_config.json --output_folder $GEANT4_OUTPUT_DIR/fuse_data --input_file_name $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE --run_number ${MACRO_BASENAME}_${RUNNUMBER}"
+
+    if [ "$test_mode" == false ]; then
+        ml Singularity
+
+        # Check if output file already exists
+        if [ ! -f "$GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE" ]; then
+            # Run the command in the singularity container
+            echo "Running command: singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c \"$COMMAND\""
+            singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "$COMMAND"
+        else
+            echo "Output file $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE already exists. Skipping simulation."
+        fi
+
+        # Wait 5 seconds to ensure file system consistency
+        sleep 2
+
+        # Check if output file was created
+        if [ -f "$GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE" ]; then
+            #echo "Output file $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE created successfully."
+
+            #if [ ! -f "$GEANT4_OUTPUT_DIR/parquet/$PARQUET_OUTPUT_FILE" ]; then
+            echo "Run parquet conversion with: $COMMANDPQ"
+            singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "$COMMANDPQ"
+            #fi
+
+            # Check if parquet file was created
+            if [ ! -f "$GEANT4_OUTPUT_DIR/parquet/$PARQUET_OUTPUT_FILE" ]; then
+                echo "Error: Parquet file $GEANT4_OUTPUT_DIR/parquet/$PARQUET_OUTPUT_FILE was not created."
+            fi
+
+            #FUSE_OUTPUT_SUBDIR=$(ls -d $GEANT4_OUTPUT_DIR/fuse_data/${MACRO_BASENAME}_${RUNNUMBER}_* 2>/dev/null)
+            #if [ -z "$FUSE_OUTPUT_SUBDIR" ]; then
+            echo "Run fuse processing with: $COMMANDF"
+            singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "$COMMANDF"
+            #fi
+
+            # Clean temp folder if command failed
+            FUSE_OUTPUT_SUBDIR=$(ls -d $GEANT4_OUTPUT_DIR/fuse_data/${MACRO_BASENAME}_${RUNNUMBER}-*_temp 2>/dev/null)
+            if [ -n "$FUSE_OUTPUT_SUBDIR" ]; then
+                echo "Fuse processing failed. Cleaning up temp folder $FUSE_OUTPUT_SUBDIR."
+                rm -rf "$FUSE_OUTPUT_SUBDIR"
+            fi
+
+            # Check if fuse output folder with run name was created
+            FUSE_OUTPUT_SUBDIR=$(ls -d $GEANT4_OUTPUT_DIR/fuse_data/${MACRO_BASENAME}_${RUNNUMBER}-* 2>/dev/null)
+            if [ -z "$FUSE_OUTPUT_SUBDIR" ]; then
+                echo "Error: Fuse output folder for ${MACRO_BASENAME}_${RUNNUMBER} was not created."
+            fi
+
+            # Clean up root file to save space if both post-processing steps were successful
+            if [ -f "$GEANT4_OUTPUT_DIR/parquet/$PARQUET_OUTPUT_FILE" ] && [ -n "$FUSE_OUTPUT_SUBDIR" ]; then
+                echo "Post-processing successful. Deleting root file $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE to save space."
+                rm "$GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE"
+            fi
+        else
+            echo "Error: Output file $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE was not found."
+        fi
+    else
+        echo "=> singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c \"$COMMAND\""
+        echo "---> singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c \"$COMMANDPQ\""
+        echo "---> singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c \"$COMMANDF\""
+        echo ""
+        #echo "Test mode: $COMMAND"
+    fi
+done

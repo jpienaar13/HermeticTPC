@@ -704,7 +704,7 @@ void Xenon1tGenericGenerator::GeneratePrimaryVertexFromTrack(G4Track *pTrack, G4
 
 G4double Xenon1tGenericGenerator::GetConfinedVolume()
 {
-  G4int Ngoal = 100000, NinVolume = 0, NinShape = 0;
+  G4int Ngoal = 1000000, NinVolume = 0, NinShape = 0;
 
   while (NinVolume < Ngoal)
   {
