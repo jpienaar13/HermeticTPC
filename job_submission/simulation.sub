@@ -28,6 +28,13 @@ SIMULATION_binary="hermeticTPC"
 
 # Read macros from folder als list of files
 MACROS=($(ls $SIMULATION_PATH/$SIMULATION_VERSION/macros/*_neutron.mac))
+
+# Manually override macros (uncomment to use)
+MACROS=(
+    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_Cryostat_U238_neutron.mac"
+    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_PMT_U238_neutron.mac"
+)
+
 NMACROS=${#MACROS[@]}
 echo "Found $NMACROS macros in $SIMULATION_PATH/$SIMULATION_VERSION/macros:"
 for macro in "${MACROS[@]}"; do
@@ -49,12 +56,19 @@ CONTAINER_BIND="--bind /cloud/wwu1/p_agweinheimer/AGW_LowRad:/cloud/wwu1/p_agwei
 # Parse arguments
 test_mode=false
 test_value=""
+start_from=0
 while [[ $# -gt 0 ]]; do
     case $1 in
         --test)
             test_mode=true
             if [[ $2 =~ ^[0-9]+$ ]]; then
                 test_value=$2
+                shift
+            fi
+            ;;
+        --start-from)
+            if [[ $2 =~ ^[0-9]+$ ]]; then
+                start_from=$2
                 shift
             fi
             ;;
@@ -81,7 +95,7 @@ fi
 for i in $loop_range; do
     # Select macro based on index
     MINDEX=$(( i % NMACROS ))
-    RUNNUMBER=$(printf "%05d" $(( i / NMACROS )))
+    RUNNUMBER=$(printf "%05d" $(( start_from + (i / NMACROS) )))
     MACRO="${MACROS[$MINDEX]}"
     MACRO_BASENAME=$(basename "$MACRO" .mac)
     GEANT4_OUTPUT_FILE="${MACRO_BASENAME}_${RUNNUMBER}.root"

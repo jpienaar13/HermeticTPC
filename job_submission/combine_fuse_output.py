@@ -44,17 +44,21 @@ def main():
     for run in tqdm.tqdm(runs):
         macro = run.split("_neutron_")[0]
         runid = run.split("_neutron_")[1]
-        df = st.get_df(run, targets=('clustered_interactions'), progress_bar=False)
+        try:
+            df = st.get_df(run, targets=('clustered_interactions'), progress_bar=False)
 
-        df.insert(0, 'runid', runid)
-        df.insert(0, 'macro', macro)
+            df.insert(0, 'runid', runid)
+            df.insert(0, 'macro', macro)
 
-        # write new key or append if key already exists
-        if macro in outstore:
-            outstore.append(macro, df, format="table", data_columns=df.columns.tolist(), index=False)
-        else:
-            outstore.put(macro, df, format="table", data_columns=df.columns.tolist())
-    
+            # write new key or append if key already exists
+            if macro in outstore:
+                outstore.append(macro, df, format="table", data_columns=df.columns.tolist(), index=False)
+            else:
+                outstore.put(macro, df, format="table", data_columns=df.columns.tolist())
+        except Exception as e:
+            print(f"Error processing run {run}: {e}")
+            continue
+
     for key in outstore.keys():
         outstore.create_table_index(key, columns=df.columns.tolist(), optlevel=9, kind='full')
 
