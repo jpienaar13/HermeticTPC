@@ -107,10 +107,10 @@ HTPCParticleSourceMessenger::HTPCParticleSourceMessenger(
   // particle generator type
   m_pGeneratorCmd = new G4UIcmdWithAString("/xe/gun/generator", this);
   m_pGeneratorCmd->SetGuidance("Sets particle generator type.");
-  m_pGeneratorCmd->SetGuidance("[ generic | muon | decay0 | multivertex | ambe ]");
+  m_pGeneratorCmd->SetGuidance("[ generic | muon | decay0 | multivertex | ambe | opticalphoton ]");
   m_pGeneratorCmd->SetParameterName("GenType", true, true);
   m_pGeneratorCmd->SetDefaultValue("generic");
-  m_pGeneratorCmd->SetCandidates("generic muon decay0 multivertex ambe");
+  m_pGeneratorCmd->SetCandidates("generic muon decay0 multivertex ambe opticalphoton");
 
   // source distribution type
   m_pTypeCmd = new G4UIcmdWithAString("/xe/gun/type", this);

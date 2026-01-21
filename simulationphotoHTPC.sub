@@ -1,0 +1,84 @@
+#!/bin/bash
+#SBATCH --job-name=simulationHTPC
+#SBATCH --partition=normal
+#SBATCH --time=02:00:00
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 1
+#SBATCH --mem=2G
+#SBATCH --output=/home/r/r_brau09/logs/simulation-%j.out
+#SBATCH --error=/home/r/r_brau09/logs/simulation-%j.err
+#SBATCH --array=0-0
+
+# This script will run an array of simulations using Geant4 in a singularity container.
+# It is designed to be run on a SLURM cluster.
+# You can test the script commands by using the --test option followed by a number.
+# The number specifies how many jobs to run in test mode. For example, --test 5 will run 5 jobs.
+
+# To submit the job array, use:
+# sbatch --array=0-2 simulation.sub
+
+# Geant4 settings
+GEANT4_BINARY="/cloud/wwu1/p_agweinheimer/AGW_LowRad/home/r_brau09/HermeticTPC/build/bin/hermeticTPC"
+GEANT4_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/home/r_brau09/HermeticTPC"
+GEANT4_OUTPUT_DIR="/scratch/tmp/$USER/21_01_2026_HTPC_Test_optPhot"
+GEANT4_OUTPUT_FILE="HTPC_optphot_\$i.root"
+GEANT4_NUMBER_OF_EVENTS=100000
+GEANT4_PARAMS="-f ./macros/opticalPhoton.mac -o $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE -n $GEANT4_NUMBER_OF_EVENTS"
+
+# Provide a container path to the singularity image with Geant4
+CONTAINER_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/software/container/xenonnt_mc_ms_20260112.sif"
+CONTAINER_BIND="--bind /cloud/wwu1/p_agweinheimer/AGW_LowRad:/cloud/wwu1/p_agweinheimer/AGW_LowRad --bind /cloud/wwu1/p_agweinheimer/AGW_XENON:/cloud/wwu1/p_agweinheimer/AGW_XENON --bind /scratch/tmp/$USER:/scratch/tmp/$USER"
+
+# Parse arguments
+test_mode=false
+test_value=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --test)
+            test_mode=true
+            if [[ $2 =~ ^[0-9]+$ ]]; then
+                test_value=$2
+                shift
+            fi
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            ;;
+    esac
+    shift
+done
+
+N_jobs_max=1
+if [ "$test_mode" == true ] && [ -n "$test_value" ]; then
+    N_jobs_max=$test_value
+fi
+
+# Set the range for the loop based on the mode
+if [ "$test_mode" == true ]; then
+    loop_range=$(seq 0 $N_jobs_max)
+else
+    loop_range=$SLURM_ARRAY_TASK_ID
+fi
+
+# make logs directory if needed
+mkdir -p /home/r/r_brau09/logs
+
+# Loop over the determined range
+for i in $loop_range; do
+    COMMAND="cd $GEANT4_PATH && $GEANT4_BINARY $GEANT4_PARAMS"
+    # expand the variable in the command
+    COMMAND=${COMMAND//\$i/$i}
+
+    if [ "$test_mode" == false ]; then
+        ml Singularity
+
+        # make output directory if needed
+        singularity exec $CONTAINER_BIND $CONTAINER_PATH mkdir -p $GEANT4_OUTPUT_DIR
+
+        # Run the command in the singularity container
+        echo "Running command: singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c \"$COMMAND\""
+        singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "$COMMAND"
+    else
+        echo "Test mode: $COMMAND"
+    fi
+done

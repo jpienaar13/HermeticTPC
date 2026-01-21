@@ -1,0 +1,12 @@
+#For optical Photons
+/xe/gun/particle opticalphoton
+/xe/gun/energy 6.98 eV
+/xe/gun/angtype iso
+
+/xe/gun/type   Volume
+/xe/gun/shape  Cylinder
+/xe/gun/center 0  0 -292.5 mm
+/xe/gun/radius 1640 mm
+/xe/gun/halfz  1757.5 mm
+/xe/gun/confine phys_LXeMedium
+

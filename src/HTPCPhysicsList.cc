@@ -31,6 +31,7 @@
 #include "G4IonElasticPhysics.hh"
 #include "G4IonINCLXXPhysics.hh"
 #include "G4IonPhysics.hh"
+#include <G4OpticalPhysics.hh>
 
 #include "G4EmLivermorePhysics.hh"
 #include "G4PhysListFactory.hh"
@@ -102,6 +103,8 @@ HTPCPhysicsList::HTPCPhysicsList()
 
     RegisterPhysics(new G4EmStandardPhysics(VerboseLevel, ""));
     RegisterPhysics(new G4EmExtraPhysics(VerboseLevel));
+
+    RegisterPhysics(OpticalPhysicsModel = new G4OpticalPhysics(VerboseLevel));
 
     RegisterPhysics(new G4DecayPhysics(VerboseLevel));
     RegisterPhysics(new G4RadioactiveDecayPhysics(VerboseLevel));

@@ -23,6 +23,7 @@ class G4VPhysicalVolume;
 #include <G4Polycone.hh>
 #include <G4VUserDetectorConstruction.hh>
 #include "HTPCSensitiveDetector.hh"
+#include "HTPCPhotoDetSensitiveDetector.hh"
 #include "G4ios.hh"
 #include "G4GenericMessenger.hh"
 
@@ -101,6 +102,11 @@ private:
     G4LogicalVolume*   logic_TeflonCap;
     G4VPhysicalVolume* phys_GXeTeflonCap;
     G4VPhysicalVolume* phys_LXeTeflonCap;
+    
+    // Teflon PMT Holder
+    G4LogicalVolume*   logic_TeflonTubPMTHolder;
+    G4VPhysicalVolume* phys_GXeTeflonTubPMTHolder;
+    G4VPhysicalVolume* phys_LXeTeflonTubPMTHolder;
 
     // Copper Field Cage
     G4LogicalVolume* logic_CopperFCTub;
@@ -163,6 +169,7 @@ private:
 
     HTPCSensitiveDetector* GXeSensDet;
     HTPCSensitiveDetector* LXeSensDet;
+    HTPCPhotoDetSensitiveDetector* pPmtSD;
 
 };
 #endif

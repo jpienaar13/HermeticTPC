@@ -11,6 +11,8 @@
 #include <G4RotationMatrix.hh>
 #include <G4VisAttributes.hh>
 #include <G4Colour.hh>
+#include <G4OpBoundaryProcess.hh>
+#include "G4LogicalBorderSurface.hh"
 #include <globals.hh>
 #include <G4SystemOfUnits.hh>
 
@@ -31,6 +33,7 @@ using std::max;
 
 //#include "PurdueDetectorMessenger.hh"-> To be updated still
 #include "HTPCSensitiveDetector.hh"
+#include "HTPCPhotoDetSensitiveDetector.hh"
 #include "HTPCDetectorConstruction.hh"
 #include "G4PhysicalVolumeStore.hh"
 
@@ -206,6 +209,28 @@ void HTPCDetectorConstruction::DefineMaterials()
     Teflon->AddElement(C, 0.240183);
     Teflon->AddElement(F, 0.759817);
 
+    const G4int iNbEntries = 3;
+
+    G4double pdTeflonPhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
+    G4double pdTeflonRefractiveIndex[iNbEntries]  = {1.63, 1.61, 1.58};
+    G4double pdTeflonReflectivity[iNbEntries]     = {0.99, 0.99, 0.99};
+    G4double pdTeflonSpecularLobe[iNbEntries]     = {0.01, 0.01, 0.01};
+    G4double pdTeflonSpecularSpike[iNbEntries]    = {0.01, 0.01, 0.01};
+    G4double pdTeflonBackscatter[iNbEntries]      = {0.01, 0.01, 0.01};
+    G4double pdTeflonEfficiency[iNbEntries]       = {1.0, 1.0, 1.0};
+    G4double pdTeflonAbsorbtionLength[iNbEntries] = {0.1 * cm, 0.1 * cm, 0.1 * cm};
+
+    G4MaterialPropertiesTable *pTeflonPropertiesTable = new G4MaterialPropertiesTable();
+    pTeflonPropertiesTable->AddProperty("RINDEX", pdTeflonPhotonMomentum, pdTeflonRefractiveIndex, iNbEntries);
+    pTeflonPropertiesTable->AddProperty("REFLECTIVITY", pdTeflonPhotonMomentum, pdTeflonReflectivity, iNbEntries);
+    pTeflonPropertiesTable->AddProperty("SPECULARLOBECONSTANT", pdTeflonPhotonMomentum, pdTeflonSpecularLobe, iNbEntries);
+    pTeflonPropertiesTable->AddProperty("SPECULARSPIKECONSTANT", pdTeflonPhotonMomentum, pdTeflonSpecularSpike, iNbEntries);
+    pTeflonPropertiesTable->AddProperty("BACKSCATTERCONSTANT", pdTeflonPhotonMomentum, pdTeflonBackscatter, iNbEntries);
+    pTeflonPropertiesTable->AddProperty("EFFICIENCY", pdTeflonPhotonMomentum, pdTeflonEfficiency, iNbEntries);
+    pTeflonPropertiesTable->AddProperty("ABSLENGTH", pdTeflonPhotonMomentum, pdTeflonAbsorbtionLength, iNbEntries);
+    
+    Teflon->SetMaterialPropertiesTable(pTeflonPropertiesTable);
+
      //==== Photocathode Aluminium ====
     G4Material *PhotoCathodeAluminium = new G4Material(
         "PhotoCathodeAluminium", 
@@ -215,6 +240,17 @@ void HTPCDetectorConstruction::DefineMaterials()
     );
 
     PhotoCathodeAluminium->AddElement(Al, 1);
+
+    G4double pdPhotoCathodePhotonMomentum[iNbEntries]   = {6.91*eV, 6.98*eV, 7.05*eV};
+    G4double pdPhotoCathodeRefractiveIndex[iNbEntries]  = {1.50, 1.56, 1.60};
+    G4double pdPhotoCathodeAbsorbtionLength[iNbEntries] = {1.*nm, 1.*nm, 1.*nm};
+
+    G4MaterialPropertiesTable *pPhotoCathodePropertiesTable = new G4MaterialPropertiesTable();
+
+    pPhotoCathodePropertiesTable->AddProperty("RINDEX", pdPhotoCathodePhotonMomentum, pdPhotoCathodeRefractiveIndex, iNbEntries);
+    pPhotoCathodePropertiesTable->AddProperty("ABSLENGTH", pdPhotoCathodePhotonMomentum, pdPhotoCathodeAbsorbtionLength, iNbEntries);
+
+    PhotoCathodeAluminium->SetMaterialPropertiesTable(pPhotoCathodePropertiesTable);
 
     //==== PMT Ceramic ====
     G4Material *Ceramic = new G4Material(
@@ -258,6 +294,13 @@ void HTPCDetectorConstruction::DefineMaterials()
     Steel->AddElement(Fe, 0.88);
     Steel->AddElement(Co, 0.08);
 
+    G4double pdSteelPhotonMomentum[iNbEntries] = {6.91*eV, 6.98*eV, 7.05*eV};
+    G4double pdSteelReflectivity[iNbEntries]   = {0.15,    0.2,     0.15};
+    G4MaterialPropertiesTable *pSteelPropertiesTable = new G4MaterialPropertiesTable();
+
+    pSteelPropertiesTable->AddProperty("REFLECTIVITY", pdSteelPhotonMomentum, pdSteelReflectivity, iNbEntries);
+    Steel->SetMaterialPropertiesTable(pSteelPropertiesTable);
+
     //==== Vacuum ====
     G4Material *Vacuum = new G4Material("Vacuum", 
         1.e-20 * g / cm3, 
@@ -282,6 +325,17 @@ void HTPCDetectorConstruction::DefineMaterials()
     Quartz->AddElement(Si, 1);
     Quartz->AddElement(O, 2);
 
+    G4double pdQuartzPhotonMomentum[iNbEntries]   = {6.91*eV, 6.98*eV, 7.05*eV};
+    G4double pdQuartzRefractiveIndex[iNbEntries]  = {1.50,    1.56,    1.60};
+    G4double pdQuartzAbsorbtionLength[iNbEntries] = {30*m,    30*m,    30*m};
+
+    G4MaterialPropertiesTable *pQuartzPropertiesTable = new G4MaterialPropertiesTable();
+
+    pQuartzPropertiesTable->AddProperty("RINDEX", pdQuartzPhotonMomentum, pdQuartzRefractiveIndex, iNbEntries);
+    pQuartzPropertiesTable->AddProperty("ABSLENGTH", pdQuartzPhotonMomentum, pdQuartzAbsorbtionLength, iNbEntries);
+
+    Quartz->SetMaterialPropertiesTable(pQuartzPropertiesTable);
+
     //==== Liquid Xenon ====
     G4Material *LXe = new G4Material(
         "LXe", 
@@ -295,7 +349,7 @@ void HTPCDetectorConstruction::DefineMaterials()
     LXe->AddElement(Xe, 1);
 
     // Optical properties LXe
-    const G4int iNbEntries = 3;
+    
     G4double pdLXePhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
     G4double pdLXeScintillation[iNbEntries]    = {0.1, 1.0, 0.1};
     G4double pdLXeRefractiveIndex[iNbEntries]  = {1.63, 1.61, 1.58};
@@ -403,20 +457,41 @@ void HTPCDetectorConstruction::DefineMaterials()
     //pGXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
     GXe->SetMaterialPropertiesTable(pGXePropertiesTable);
 
-    G4double pdTeflonPhotonMomentum[iNbEntries]   = {6.91 * eV, 6.98 * eV, 7.05 * eV};
-    G4double pdTeflonRefractiveIndex[iNbEntries]  = {1.63, 1.61, 1.58};
-    G4double pdTeflonReflectivity[iNbEntries]     = {0.99, 0.99, 0.99};
-    G4double pdTeflonSpecularLobe[iNbEntries]     = {0.01, 0.01, 0.01};
-    G4double pdTeflonSpecularSpike[iNbEntries]    = {0.01, 0.01, 0.01};
-    G4double pdTeflonBackscatter[iNbEntries]      = {0.01, 0.01, 0.01};
-    G4double pdTeflonEfficiency[iNbEntries]       = {1.0, 1.0, 1.0};
-    G4double pdTeflonAbsorbtionLength[iNbEntries] = {0.1 * cm, 0.1 * cm, 0.1 * cm};
-
+    
     //==== Sapphire ====
     G4Material *Sapphire = new G4Material("Sapphire", 3.98 * g / cm3, 2, kStateSolid);
     Sapphire->AddElement(Al, 2);
     Sapphire->AddElement(O, 3);
-    
+
+
+    G4double pdSapphirePhotonMomentum[iNbEntries]   = {6.91*eV, 6.98*eV, 7.05*eV};
+    G4double pdSapphireRefractiveIndex[iNbEntries]  = {1.768,    1.768,    1.768};
+    G4double pdSapphireAbsorbtionLength[iNbEntries] = {30*m,    30*m,    30*m};
+    G4double pdSapphireReflectivity[iNbEntries]   = {0.05,    0.05,     0.05};
+    G4MaterialPropertiesTable *pSapphirePropertiesTable = new G4MaterialPropertiesTable();
+
+    pSapphirePropertiesTable->AddProperty("REFLECTIVITY", pdSapphirePhotonMomentum, pdSapphireReflectivity, iNbEntries);
+    pSapphirePropertiesTable->AddProperty("RINDEX", pdSapphirePhotonMomentum, pdSapphireRefractiveIndex, iNbEntries);
+    pSapphirePropertiesTable->AddProperty("ABSLENGTH", pdSapphirePhotonMomentum, pdSapphireAbsorbtionLength, iNbEntries);
+
+    Sapphire->SetMaterialPropertiesTable(pSapphirePropertiesTable);
+
+
+    //==== SapphireElectrodes ==== Top and Bottom Sapphire planes with Electrodes (This may change the optical properties)
+    G4Material *SapphireElectrodes = new G4Material("SapphireElectrodes", 3.98 * g / cm3, 2, kStateSolid);
+    SapphireElectrodes->AddElement(Al, 2);
+    SapphireElectrodes->AddElement(O, 3);
+    G4double pdSapphireElectrodesPhotonMomentum[iNbEntries]   = {6.91*eV, 6.98*eV, 7.05*eV};
+    G4double pdSapphireElectrodesRefractiveIndex[iNbEntries]  = {1.768,    1.768,    1.768};
+    G4double pdSapphireElectrodesAbsorbtionLength[iNbEntries] = {30*m,    30*m,    30*m};
+    G4double pdSapphireElectrodesReflectivity[iNbEntries]   = {0.05,    0.05,     0.05};
+    G4MaterialPropertiesTable *pSapphireElectrodesPropertiesTable = new G4MaterialPropertiesTable();
+    pSapphireElectrodesPropertiesTable->AddProperty("REFLECTIVITY", pdSapphireElectrodesPhotonMomentum, pdSapphireElectrodesReflectivity, iNbEntries);
+    pSapphireElectrodesPropertiesTable->AddProperty("RINDEX", pdSapphireElectrodesPhotonMomentum, pdSapphireElectrodesRefractiveIndex, iNbEntries);
+    pSapphireElectrodesPropertiesTable->AddProperty("ABSLENGTH", pdSapphireElectrodesPhotonMomentum, pdSapphireElectrodesAbsorbtionLength, iNbEntries);
+
+    SapphireElectrodes->SetMaterialPropertiesTable(pSapphireElectrodesPropertiesTable);
+
     //==== Copper ====
     G4Material *Copper = new G4Material("Copper", 8.92 * g / cm3, 1);
     Copper->AddElement(Cu, 1);
@@ -798,6 +873,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     G4Material* Teflon   = G4Material::GetMaterial("Teflon");
     G4Material* GXe      = G4Material::GetMaterial("GXe");
     G4Material* Sapphire = G4Material::GetMaterial("Sapphire");
+    G4Material* SapphireElectrodes = G4Material::GetMaterial("SapphireElectrodes");
     G4Material* Copper   = G4Material::GetMaterial("Copper");
     
     G4double kTol = GetGeometryParameter("kTol");
@@ -860,7 +936,7 @@ void HTPCDetectorConstruction::ConstructTPC()
     // GXeTeflonTub
     G4Tubs* solid_GXeTeflonTub = new G4Tubs(
         "solid_GXeTeflonTub",
-        0, // TPC_oD/2 - PTFE_thickness,
+        TPC_oD/2 - PTFE_thickness,
         TPC_oD/2,
         GXeTeflonTub_H/2,
         0.   *deg,
@@ -885,11 +961,20 @@ void HTPCDetectorConstruction::ConstructTPC()
         0,
         true
     );
+    // Create optical surface between GXe and PTFE
+    G4OpticalSurface *pPTFEOpticalSurface = new G4OpticalSurface("PTFEOpticalSurface", 
+		unified, ground, dielectric_dielectric, 0.1);
+		
+    pPTFEOpticalSurface->SetMaterialPropertiesTable(Teflon->GetMaterialPropertiesTable());
+
+    new G4LogicalBorderSurface("GXeTeflonSurface",
+        phys_GXeMedium, phys_GXeTeflonTub, pPTFEOpticalSurface);
+
 
     // LXeTeflonTub
     G4Tubs* solid_LXeTeflonTub = new G4Tubs(
         "solid_LXeTeflonTub",
-        0, //TPC_oD/2 - PTFE_thickness,
+        TPC_oD/2 - PTFE_thickness,
         TPC_oD/2,
         LXeTeflonTub_H/2,
         0.   *deg,
@@ -914,6 +999,9 @@ void HTPCDetectorConstruction::ConstructTPC()
         0,
         true
     );
+    //optical surface between LXe and PTFE
+    new G4LogicalBorderSurface("LXeTeflonSurface",
+        phys_LXeMedium, phys_LXeTeflonTub, pPTFEOpticalSurface);
 
     // VisAttributes
     auto col_Teflon = G4Colour(0.0, 0.0, 1.0, Teflon_Alpha);
@@ -1049,7 +1137,7 @@ void HTPCDetectorConstruction::ConstructTPC()
 
     logic_GXeSapphireCap = new G4LogicalVolume(
         solid_GXeSapphireCap,
-        Sapphire,
+        SapphireElectrodes,
         "logic_GXeSapphireCap"
     );
 
@@ -1065,6 +1153,23 @@ void HTPCDetectorConstruction::ConstructTPC()
         0,
         true
     );
+
+    // Create optical surface between GXe and Sapphire
+    G4OpticalSurface *pSapphireOpticalSurface = new G4OpticalSurface("SapphireOpticalSurface", 
+		unified, ground, dielectric_dielectric, 0.1);
+		
+    pSapphireOpticalSurface->SetMaterialPropertiesTable(Sapphire->GetMaterialPropertiesTable());
+
+    new G4LogicalBorderSurface("GXeSapphireSurface",
+        phys_GXeMedium, phys_GXeSapphireTub, pSapphireOpticalSurface);
+
+    G4OpticalSurface *pSapphireElectrodesOpticalSurface = new G4OpticalSurface("SapphireElectrodesOpticalSurface", 
+		unified, ground, dielectric_dielectric, 0.1);
+		
+    pSapphireElectrodesOpticalSurface->SetMaterialPropertiesTable(SapphireElectrodes->GetMaterialPropertiesTable());
+
+    new G4LogicalBorderSurface("GXeSapphireSurface",
+        phys_GXeMedium, phys_GXeSapphireCap, pSapphireElectrodesOpticalSurface);
 
     // LXeSapphireTub
     G4Tubs* solid_LXeSapphireTub = new G4Tubs(
@@ -1107,7 +1212,7 @@ void HTPCDetectorConstruction::ConstructTPC()
 
     logic_LXeSapphireCap = new G4LogicalVolume(
         solid_LXeSapphireCap,
-        Sapphire,
+        SapphireElectrodes,
         "logic_LXeSapphireCap"
     );
 
@@ -1123,6 +1228,14 @@ void HTPCDetectorConstruction::ConstructTPC()
         0,
         true
     );
+
+    // Create optical surface between LXe and Sapphire
+
+    new G4LogicalBorderSurface("LXeSapphireSurface",
+        phys_LXeMedium, phys_LXeSapphireTub, pSapphireOpticalSurface);
+
+    new G4LogicalBorderSurface("LXeSapphireSurface",
+        phys_LXeMedium, phys_LXeSapphireCap, pSapphireElectrodesOpticalSurface);
 
     // VisAttributes
     auto col_Sapphire = G4Colour(1., 1., 0., Sapphire_Alpha);
@@ -1207,7 +1320,7 @@ void HTPCDetectorConstruction::ConstructTPC()
         0.0,
         360.0 * deg); 
     //For now ignore holes in PMT Support PLate
-    /*
+    
     G4VSolid* solid_CopperPlate = solid_Plate;
     
     // Subtract PMT Ho;es
@@ -1230,9 +1343,9 @@ void HTPCDetectorConstruction::ConstructTPC()
                                    nullptr,
                                    PmtPosition);
     }
-    */
+    
     logic_TopCopperPlate = new G4LogicalVolume(
-        solid_Plate,
+        solid_CopperPlate,
         Copper,
         "logic_TopCopperPlate");
     
@@ -1246,7 +1359,7 @@ void HTPCDetectorConstruction::ConstructTPC()
                   0);
     
     logic_BotCopperPlate = new G4LogicalVolume(
-        solid_Plate,
+        solid_CopperPlate,
         Copper,
         "logic_BotCopperPlate");
     
@@ -1263,6 +1376,84 @@ void HTPCDetectorConstruction::ConstructTPC()
     logic_TopCopperPlate->SetVisAttributes(vis_Copper);
     logic_BotCopperPlate->SetVisAttributes(vis_Copper);
     logic_BotCopperPlate->SetVisAttributes(vis_Copper);
+
+
+
+
+ // ----- Teflon Tub PMT Holder ---------------------------------------
+
+// Add Teflon plates with holes for PMTs as a Part of the TPC construction
+G4Tubs* solid_TeflonPlate = new G4Tubs(
+        "solid_TeflonPlatePMTHolder",
+        0,
+        TPC_oD/2 - PTFE_thickness,
+        PTFE_thickness/2,
+        0.   *deg,
+        360. *deg
+    );
+    G4VSolid* solid_TeflonPlatePMTHolder = solid_TeflonPlate;
+    for (G4int iPMT = 0; iPMT < iNbPMTs; ++iPMT)
+    {
+        G4String name = "PMTHole_" + std::to_string(iPMT);
+
+        G4Tubs* holeSolid = new G4Tubs(
+            name,
+            0.0,
+            PmtHole_oD/2.+1*mm,
+            PTFE_thickness,
+            0.0,
+            360.0 * deg);
+
+        G4ThreeVector PmtPosition = GetPMTPosition(iPMT, iNbPMTs);
+        solid_TeflonPlatePMTHolder = new G4SubtractionSolid("solid_TeflonPlatePMTHolder_" + std::to_string(iPMT),
+                                   solid_TeflonPlatePMTHolder,
+                                   holeSolid,
+                                   nullptr,
+                                   PmtPosition);
+    }
+
+    logic_TeflonTubPMTHolder = new G4LogicalVolume(
+        solid_TeflonPlatePMTHolder,
+        Teflon,
+        "logic_TeflonTubPMTHolder");
+
+    
+
+   G4double z_GXeTeflonTubPMTHolder = (iCryostat_H/2) * (1-LiquidGasRatio) - GXeTeflonTub_H-PTFE_thickness/2.;
+    auto pos_GXeTeflonTubPMTHolder = G4ThreeVector(0., 0., - z_GXeTeflonTubPMTHolder);
+    phys_GXeTeflonTubPMTHolder = new G4PVPlacement(
+        0,
+        pos_GXeTeflonTubPMTHolder,
+        logic_TeflonTubPMTHolder,
+        "phys_GXeTeflonTubPMTHolder",
+        logic_GXeMedium,
+        false,
+        0,
+        true);
+
+
+    G4double z_LXeTeflonTubPMTHolder = (iCryostat_H/2) * (LiquidGasRatio) - LXeTeflonTub_H-PTFE_thickness/2.;
+    auto pos_LXeTeflonTubPMTHolder = G4ThreeVector(0., 0., + z_LXeTeflonTubPMTHolder);
+    phys_LXeTeflonTubPMTHolder = new G4PVPlacement(
+        0,
+        pos_LXeTeflonTubPMTHolder,
+        logic_TeflonTubPMTHolder,
+        "phys_LXeTeflonTubPMTHolder",
+        logic_LXeMedium,
+        false,
+        0,
+        true);
+    //optical surface between LXe and PTFE
+    new G4LogicalBorderSurface("LXeTeflonSurfacePMTHolder",
+        phys_LXeMedium, phys_LXeTeflonTubPMTHolder, pPTFEOpticalSurface);
+
+    new G4LogicalBorderSurface("GXeTeflonSurfacePMTHolder",
+        phys_GXeMedium, phys_GXeTeflonTubPMTHolder, pPTFEOpticalSurface);
+
+    // VisAttributes
+    logic_TeflonTubPMTHolder->SetVisAttributes(vis_Teflon);
+
+
 
 }
 
@@ -1569,6 +1760,13 @@ G4LogicalVolume *HTPCDetectorConstruction::ConstructPMT() {
       0
     );
 
+
+  //------------------------------- pmt sensitivity -------------------------------
+  G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
+
+  HTPCPhotoDetSensitiveDetector *pPmtSD = new HTPCPhotoDetSensitiveDetector("PmtSD");
+  pSDManager->AddNewDetector(pPmtSD);
+  m_pPMTPhotocathodeLogicalVolume->SetSensitiveDetector(pPmtSD);
   //---------------------------------- attributes
 
   // m_pPMTInnerVacuumLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);

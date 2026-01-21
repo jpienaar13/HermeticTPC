@@ -48,6 +48,17 @@ public:
     float m_fPrimaryCz;
     float m_fPrimaryE;
     float m_fPrimaryW;
+	// PMT hit details
+	vector<int> *m_pPhotoDetHitID;
+	vector<double> *m_pPhotoDetHitTime;
+	vector<float> *m_pPhotoDetHitEnergy;
+	vector<float> *m_pPhotoDetHitTheta;
+	vector<float> *m_pPhotoDetHitPhi;
+	vector<float> *m_pPhotoDetHitX;
+	vector<float> *m_pPhotoDetHitY;
+	vector<float> *m_pPhotoDetHitZ;
+	vector<int> *m_pPhotoDetHits;
+	int m_iNbPhotoDetHits;	
 };
 
 #endif

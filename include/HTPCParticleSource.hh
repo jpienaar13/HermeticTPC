@@ -7,6 +7,7 @@
 #include "generators/Xenon1tDecay0Generator.hh"
 #include "generators/Xenon1tMultiVertexGenerator.hh"
 #include "generators/Xenon1tAmBeGenerator.hh"
+#include "generators/Xenon1topticalPhotonGenerator.hh"
 
 #include "HTPCParticleSourceMessenger.hh"
 
@@ -37,6 +38,7 @@ class Xenon1tMuonGenerator;
 class Xenon1tDecay0Generator;
 class Xenon1tMultiVertexGenerator;
 class Xenon1tAmBeGenerator;
+class Xenon1topticalPhotonGenerator;
 
 class HTPCParticleSource : public G4VPrimaryGenerator
 {

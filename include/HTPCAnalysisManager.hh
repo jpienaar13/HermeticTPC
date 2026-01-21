@@ -34,6 +34,8 @@ public:
   void SetDataFilename(const G4String &hFilename) { m_hDataFilename = hFilename; }
   void SetNbEventsToSimulate(G4int iNbEventsToSimulate) { m_iNbEventsToSimulate = iNbEventsToSimulate;}
 
+  void SetPhotoDetHitsDetails(G4bool details) { m_PhotoDetHitsDetails = details; }
+
   void FillParticleInSave(G4int flag, G4int partPDGcode, G4ThreeVector pos, G4ThreeVector dir, G4float nrg, G4float time, G4int trackID);
 
 
@@ -42,6 +44,7 @@ private:
 
 private:
   G4int m_iDetectorHitsCollectionID;
+  G4int m_iPhotoDetHitsCollectionID;
 
   G4String m_hDataFilename;
   G4int m_iNbEventsToSimulate;
@@ -59,6 +62,7 @@ private:
 
   G4Timer *runTime;
   G4bool            writeEmptyEvents;
+  G4bool m_PhotoDetHitsDetails;
 };
 
 #endif // __XENON10PANALYSISMANAGER_H__

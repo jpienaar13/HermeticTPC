@@ -38,6 +38,15 @@ HTPCEventData::HTPCEventData()
     m_fPrimaryCy = 0.;
     m_fPrimaryCz = 0.;
 	m_fPrimaryE = 0.;
+	
+	m_pPhotoDetHitID = new vector<int>;
+	m_pPhotoDetHitTime = new vector<double>;
+	m_pPhotoDetHitEnergy = new vector<float>;
+	m_pPhotoDetHitTheta = new vector<float>;
+	m_pPhotoDetHitPhi = new vector<float>;
+	m_pPhotoDetHitX = new vector<float>;
+	m_pPhotoDetHitY = new vector<float>;
+	m_pPhotoDetHitZ = new vector<float>;
 
 }
 
@@ -60,6 +69,14 @@ HTPCEventData::~HTPCEventData()
 	delete m_pTime;
 
 	delete m_pPrimaryParticleType;
+	delete m_pPhotoDetHitID;
+	delete m_pPhotoDetHitTime;
+	delete m_pPhotoDetHitEnergy;
+	delete m_pPhotoDetHitTheta;
+	delete m_pPhotoDetHitPhi;
+	delete m_pPhotoDetHitX;
+	delete m_pPhotoDetHitY;
+	delete m_pPhotoDetHitZ;
 }
 
 void HTPCEventData::Clear()
@@ -97,5 +114,14 @@ void HTPCEventData::Clear()
     m_fPrimaryCx = 0.;
     m_fPrimaryCy = 0.;
     m_fPrimaryCz = 0.;
+
+	m_pPhotoDetHitID->clear();
+	m_pPhotoDetHitTime->clear();
+	m_pPhotoDetHitEnergy->clear();
+	m_pPhotoDetHitTheta->clear();
+	m_pPhotoDetHitPhi->clear();
+	m_pPhotoDetHitX->clear();
+	m_pPhotoDetHitY->clear();
+	m_pPhotoDetHitZ->clear();
 }
 

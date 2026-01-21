@@ -10,6 +10,7 @@
 #include <G4NistManager.hh>
 #include <G4ElementTable.hh>
 #include <G4Version.hh>
+#include <G4RunManager.hh>
 #include <G4SystemOfUnits.hh>
 #include <numeric>
 
@@ -22,13 +23,14 @@
 
 #include "HTPCDetectorConstruction.hh"
 #include "HTPCDetectorHit.hh"
+#include "HTPCPhotoDetHit.hh"
 #include "HTPCPrimaryGeneratorAction.hh"
 #include "HTPCEventData.hh"
 
 #include "HTPCAnalysisManager.hh"
 
 HTPCAnalysisManager::HTPCAnalysisManager(HTPCPrimaryGeneratorAction *pPrimaryGeneratorAction) :
-  m_iDetectorHitsCollectionID(-1), m_hDataFilename("events.root"), m_iNbEventsToSimulate(0),
+  m_iDetectorHitsCollectionID(-1), m_iPhotoDetHitsCollectionID(-1), m_hDataFilename("events.root"), m_iNbEventsToSimulate(0),
   m_pTreeFile(0), m_pTree(0), _events(0),
   m_pNbEventsToSimulateParameter(0), m_pPrimaryGeneratorAction(pPrimaryGeneratorAction),
   m_pEventData(0), plotPhysics(true), runTime(0),
@@ -49,6 +51,11 @@ HTPCAnalysisManager::BeginOfRun(const G4Run *)
   runTime->Start();
   // do we write empty events or not?
   writeEmptyEvents = m_pPrimaryGeneratorAction->GetWriteEmpty();
+
+  // Resize PMT hits vector
+  HTPCDetectorConstruction *det = (HTPCDetectorConstruction*) G4RunManager::GetRunManager()->GetUserDetectorConstruction();
+  int nPMTs = det->GetGeometryParameter("i_NbPMTS");
+  m_pEventData->m_pPMTHits->resize(nPMTs, 0);
 
   m_pTreeFile = new TFile(m_hDataFilename.c_str(), "RECREATE");//, "File containing event data for Xenon1T");
   // make tree structure
@@ -84,6 +91,8 @@ HTPCAnalysisManager::BeginOfRun(const G4Run *)
   m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
   m_pTree->Branch("time", "vector<float>", &m_pEventData->m_pTime);
 
+
+
   m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
   m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
   m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
@@ -96,6 +105,18 @@ HTPCAnalysisManager::BeginOfRun(const G4Run *)
   m_pTree->Branch("zp_fcd", &m_pEventData->m_fForcedPrimaryZ, "zp_fcd/F");
   m_pTree->Branch("e_pri",  &m_pEventData->m_fPrimaryE, "e_pri/F");
   m_pTree->Branch("w_pri",  &m_pEventData->m_fPrimaryW, "w_pri/F");
+
+  // Array of PmtHits, indexed by PMT ID
+  
+  m_pTree->Branch("photodethitID", "vector<int>", &m_pEventData->m_pPhotoDetHitID);
+  m_pTree->Branch("photodethitTime", "vector<double>", &m_pEventData->m_pPhotoDetHitTime);
+  m_pTree->Branch("photodethitEnergy", "vector<float>", &m_pEventData->m_pPhotoDetHitEnergy);
+  m_pTree->Branch("photodethitTheta", "vector<float>",&m_pEventData->m_pPhotoDetHitTheta);
+  m_pTree->Branch("photodethitPhi", "vector<float>", &m_pEventData->m_pPhotoDetHitPhi);
+  m_pTree->Branch("photodethitXp", "vector<float>", &m_pEventData->m_pPhotoDetHitX);
+  m_pTree->Branch("photodethitYp", "vector<float>", &m_pEventData->m_pPhotoDetHitY);
+  m_pTree->Branch("photodethitZp", "vector<float>", &m_pEventData->m_pPhotoDetHitZ);
+  
 
   m_pNbEventsToSimulateParameter = new TParameter<int>("nbevents", m_iNbEventsToSimulate);
   m_pNbEventsToSimulateParameter->Write();
@@ -129,6 +150,11 @@ HTPCAnalysisManager::BeginOfEvent(const G4Event *)
       m_iDetectorHitsCollectionID = pSDManager->GetCollectionID("HTPCDetectorHitsCollection");
     }
   //G4cout<<"The HC ID is "<<m_iDetectorHitsCollectionID<<G4endl;
+  if(m_iPhotoDetHitsCollectionID == -1)
+  {
+    G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
+    m_iPhotoDetHitsCollectionID = pSDManager->GetCollectionID("PhotoDetHitsCollection");
+  }
 }
 
 void
@@ -142,7 +168,9 @@ HTPCAnalysisManager::EndOfEvent(const G4Event *pEvent)
   //G4cout << pHCofThisEvent->GetNumberOfCollections() << G4endl;
   HTPCDetectorHitsCollection* pDetectorHitsCollection = 0;
 
+  HTPCPhotoDetHitsCollection* pPhotoDetHitsCollection = 0;
 
+  G4int iNbPMTHits = 0;
   G4int iNbDetectorHits = 0;
 
   //G4cout<<"pDetectorHitsCollection is "<<pDetectorHitsCollection<<G4endl;
@@ -155,6 +183,11 @@ HTPCAnalysisManager::EndOfEvent(const G4Event *pEvent)
 	  pDetectorHitsCollection = (HTPCDetectorHitsCollection *)(pHCofThisEvent->GetHC(m_iDetectorHitsCollectionID));
 	  iNbDetectorHits = (pDetectorHitsCollection)?(pDetectorHitsCollection->entries()):(0);
 	}
+      if(m_iPhotoDetHitsCollectionID != -1)
+  {
+    pPhotoDetHitsCollection = (HTPCPhotoDetHitsCollection *)(pHCofThisEvent->GetHC(m_iPhotoDetHitsCollectionID));
+    iNbPMTHits = (pPhotoDetHitsCollection)?(pPhotoDetHitsCollection->entries()):(0);
+  }
     }
 
   // G4cout<<"pDetectorHitsCollection is "<<pDetectorHitsCollection<<G4endl;
@@ -184,7 +217,7 @@ HTPCAnalysisManager::EndOfEvent(const G4Event *pEvent)
   G4int iNbSteps = 0;
   G4float fTotalEnergyDeposited = 0.;
 
-  if(iNbDetectorHits)
+  if(iNbDetectorHits || iNbPMTHits)
     {
       //  hits
       //G4cout << " I HAVE " << iNbDetectorHits << " HITS " << G4endl;
@@ -216,6 +249,34 @@ HTPCAnalysisManager::EndOfEvent(const G4Event *pEvent)
 	    }
 	  // G4cout <<"SUCCESS"<<G4endl;
 	}
+  // PhotoDet hits
+    for(G4int i=0; i<iNbPMTHits; i++)
+        {
+        (*(m_pEventData->m_pPMTHits))[(*pPhotoDetHitsCollection)[i]->GetPhotoDetNb()]++;
+            
+            
+        m_pEventData->m_pPhotoDetHitID->push_back((*pPhotoDetHitsCollection)[i]->GetPhotoDetNb());
+        m_pEventData->m_pPhotoDetHitTime->push_back((*pPhotoDetHitsCollection)[i]->GetTime() / second);
+
+        m_pEventData->m_pPhotoDetHitEnergy->push_back((*pPhotoDetHitsCollection)[i]->GetEnergy()/eV);
+        // G4cout <<  pEvent->GetEventID() << " - TIME " <<
+        // (*pPhotoDetHitsCollection)[i]->GetTime()/second << " - Energy " << (*pPhotoDetHitsCollection)[i]->GetEnergy()/eV << G4endl;
+
+        // m_pEventData->m_pTrackId->push_back((*pPhotoDetHitsCollection)[i]->GetTrackId());
+        m_pEventData->m_pPhotoDetHitX->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().x() / mm);
+        m_pEventData->m_pPhotoDetHitY->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().y() / mm);
+        m_pEventData->m_pPhotoDetHitZ->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().z() / mm);
+
+        G4ThreeVector direction =(*pPhotoDetHitsCollection)[i]->GetDirection();  // Normalized vector
+        m_pEventData->m_pPhotoDetHitTheta->push_back(std::acos(direction.z()));  // Direction.theta()
+        m_pEventData->m_pPhotoDetHitPhi->push_back(std::atan2(direction.y(), direction.x()));  // Direction.phi()
+        // m_pEventData->m_pPmtHitVolumeName->push_back((*pPhotoDetHitsCollection)[i]->GetVolumeName());
+
+        m_pEventData->m_pParticleType->push_back("opticalphoton");
+      
+        }
+        
+        m_pEventData->m_iNbPMTHits = iNbPMTHits;
     }
 
   // also write the header information + primary vertex of the empty events....
@@ -226,9 +287,9 @@ HTPCAnalysisManager::EndOfEvent(const G4Event *pEvent)
  if(writeEmptyEvents) {
     m_pTree->Fill(); // write all events to the tree
   } else {
-    if(fTotalEnergyDeposited > 0. || iNbDetectorHits > 0) m_pTree->Fill(); // only events with some activity are written to the tree
+    m_pTree->Fill(); // only events with some activity are written to the tree
   }
-
+//if(fTotalEnergyDeposited > 0. || iNbDetectorHits > 0 || iNbPMTHits > 0)
   m_pEventData->Clear();
   m_pTreeFile->cd();
 }

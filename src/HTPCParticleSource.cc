@@ -71,6 +71,11 @@ void HTPCParticleSource::SetGeneratorType(G4String genType)
       m_pGenerator = new Xenon1tAmBeGenerator();
       currentGenType = "ambe";
     }
+    else if (genType == "opticalphoton")
+    {
+      m_pGenerator = new Xenon1topticalPhotonGenerator();
+      currentGenType = "opticalphoton";
+    }
     else
     {
       G4cout << "HTPCParticleSource: ERROR - Unknown particle generator type [ "
