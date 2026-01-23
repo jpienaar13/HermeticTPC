@@ -1,0 +1,63 @@
+#!/bin/bash
+#SBATCH --job-name=combine
+#SBATCH --partition=normal
+#SBATCH --time=04:00:00
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 1
+#SBATCH --mem=8G
+#SBATCH --output=/home/l/l_alth03/logs/combine-%j.out
+#SBATCH --error=/home/l/l_alth03/logs/combine-%j.err
+#SBATCH --array=0-19
+
+# sbatch --array=0-19 /cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/HermeticTPC/combine.sub
+
+LOGSDIR="/home/l/l_alth03/logs"
+mkdir -p $LOGSDIR
+
+# Provide a container path to the singularity image with Geant4
+CONTAINER_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/software/container/xenonnt_mc_ms_20260112.sif"
+CONTAINER_BIND="--bind /cloud/wwu1/p_agweinheimer/AGW_LowRad:/cloud/wwu1/p_agweinheimer/AGW_LowRad --bind /scratch/tmp/$USER:/scratch/tmp/$USER"
+
+ml Singularity
+
+SCRIPTDIR="/cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/HermeticTPC"
+SIMULATION_VERSION="20260116_HermeticTPC"
+
+MACROS=(
+    "run_Copper_Th232"
+    "run_Copper_U238"
+    "run_Cryostat_Th232"
+    "run_Cryostat_U238"
+    "run_PMT_Th232"
+    "run_PMT_U238"
+    "run_Sapphire_Th232"
+    "run_Sapphire_U238"
+    "run_Teflon_Th232"
+    "run_Teflon_U238"
+)
+
+# Either do fuse or parquet combination depending on the array index
+# If index < length of MACROS, do fuse combination for that macro
+# If index >= length of MACROS, do parquet combination for that macro
+INDEX=$SLURM_ARRAY_TASK_ID
+NMACROS=${#MACROS[@]}
+
+echo "Array index: $INDEX"
+echo "Number of macros: $NMACROS"
+
+if [ $INDEX -lt $NMACROS ]; then
+    MACRO=${MACROS[$INDEX]}
+    echo "Combining FUSE output for macro: $MACRO"
+    singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "python $SCRIPTDIR/combine_fuse_output.py --config_file /cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/software/$SIMULATION_VERSION/analysis/fuse_files/XENONnT_public_config.json -o /scratch/tmp/l_alth03/$SIMULATION_VERSION/${MACRO}_fuse.h5 -i /scratch/tmp/l_alth03/$SIMULATION_VERSION/fuse_data -m $MACRO"
+else
+    MACRO_INDEX=$((INDEX - NMACROS))
+    MACRO=${MACROS[$MACRO_INDEX]}
+    echo "Combining parquet output for macro: $MACRO"
+    singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "python $SCRIPTDIR/combine_parquet_output.py -o /scratch/tmp/l_alth03/$SIMULATION_VERSION/${MACRO}_parquet.h5 -i /scratch/tmp/l_alth03/$SIMULATION_VERSION/parquet -m $MACRO"
+fi
+
+#echo "Combining fuse output files..."
+#singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "python $SCRIPTDIR/combine_fuse_output.py --config_file /cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/software/$SIMULATION_VERSION/analysis/fuse_files/XENONnT_public_config.json -o /scratch/tmp/l_alth03/$SIMULATION_VERSION/combined_fuse_output.h5 -i /scratch/tmp/l_alth03/$SIMULATION_VERSION/fuse_data"
+
+#echo "Combining parquet output files..."
+#singularity exec $CONTAINER_BIND $CONTAINER_PATH /bin/bash -c "python $SCRIPTDIR/combine_parquet_output.py -o /scratch/tmp/l_alth03/$SIMULATION_VERSION/combined_parquet_output.h5 -i /scratch/tmp/l_alth03/$SIMULATION_VERSION/parquet"

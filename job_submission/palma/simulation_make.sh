@@ -1,8 +1,8 @@
 CONTAINER_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/software/container/xenonnt_mc_ms_20260112.sif"
-CONTAINER_BIND="--bind /cloud/wwu1/p_agweinheimer/AGW_LowRad:/cloud/wwu1/p_agweinheimer/AGW_LowRad --bind /scratch/tmp/$USER:/SCRATCH"
+CONTAINER_BIND="--bind /cloud/wwu1/p_agweinheimer/AGW_LowRad:/cloud/wwu1/p_agweinheimer/AGW_LowRad --bind /scratch/tmp/$USER:/scratch/tmp/$USER"
 
 SIMULATION_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/software"
-SIMULATION_VERSION="20251205_HermeticTPC"
+SIMULATION_VERSION="20260116_HermeticTPC"
 
 echo "Using container: $CONTAINER_PATH"
 echo "Using simulation: $SIMULATION_VERSION"

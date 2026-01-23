@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=simulation
 #SBATCH --partition=normal
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 1
-#SBATCH --mem=8G
+#SBATCH --mem=12G
 #SBATCH --output=/home/l/l_alth03/logs/simulation-%j.out
 #SBATCH --error=/home/l/l_alth03/logs/simulation-%j.err
 #SBATCH --array=0-0
@@ -17,23 +17,57 @@
 # To submit the job array, use:
 # sbatch --array=0-2 simulation.sub
 
+# If you want to start the run numbers from a specific value, use the --start-from option.
+# For example, --start-from 100 will start the run numbers from 100.
+# sbatch --array=0-2 simulation.sub --start-from 100
+
+# sbatch --array=0-399 ~/l_alth03/simulations/HermeticTPC/simulation.sub
+# sbatch --array=0-999 ~/l_alth03/simulations/HermeticTPC/simulation.sub
+# sbatch --array=1000-1999 ~/l_alth03/simulations/HermeticTPC/simulation.sub
+
+# sbatch --array=0-999 ~/l_alth03/simulations/HermeticTPC/simulation.sub --start-from 200
+
 # make logs directory if needed
 LOGSDIR="/home/l/l_alth03/logs"
 mkdir -p $LOGSDIR
 
 # Simulation settings
 SIMULATION_PATH="/cloud/wwu1/p_agweinheimer/AGW_LowRad/home/l_alth03/simulations/software"
-SIMULATION_VERSION="20251205_HermeticTPC"
+SIMULATION_VERSION="20260116_HermeticTPC"
 SIMULATION_binary="hermeticTPC"
 
 # Read macros from folder als list of files
 MACROS=($(ls $SIMULATION_PATH/$SIMULATION_VERSION/macros/*_neutron.mac))
 
-# Manually override macros (uncomment to use)
-MACROS=(
-    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_Cryostat_U238_neutron.mac"
-    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_PMT_U238_neutron.mac"
+# Remove unwanted macros (uncomment to use)
+# such that it can run with 8G memory
+UNWANTED_MACROS=(
+    "run_Cryostat_U238_neutron.mac"
+    "run_PMT_U238_neutron.mac"
+#    "run_Sapphire_Th232_neutron.mac"
+#    "run_Sapphire_U238_neutron.mac"
 )
+for unwanted in "${UNWANTED_MACROS[@]}"; do
+    for i in "${!MACROS[@]}"; do
+        if [[ "$(basename "${MACROS[i]}")" == "$unwanted" ]]; then
+            unset 'MACROS[i]'
+        fi
+    done
+done
+MACROS=("${MACROS[@]}")  # Re-index array after unset
+
+# Manually override macros (uncomment to use)
+# sbatch --array=0-999 ~/l_alth03/simulations/HermeticTPC/simulation.sub --start-from 200
+#MACROS=(
+#    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_Cryostat_U238_neutron.mac"
+#    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_PMT_U238_neutron.mac"
+#)
+
+# To be run with 16G memory
+#MACROS=(
+#    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_Sapphire_Th232_neutron.mac"
+#    "$SIMULATION_PATH/$SIMULATION_VERSION/macros/run_Sapphire_U238_neutron.mac"
+#)
 
 NMACROS=${#MACROS[@]}
 echo "Found $NMACROS macros in $SIMULATION_PATH/$SIMULATION_VERSION/macros:"
@@ -110,6 +144,19 @@ for i in $loop_range; do
     if [ "$test_mode" == false ]; then
         ml Singularity
 
+        # Clean temp folder if command failed previously
+        FUSE_OUTPUT_SUBDIR=$(ls -d $GEANT4_OUTPUT_DIR/fuse_data/${MACRO_BASENAME}_${RUNNUMBER}-*_temp 2>/dev/null)
+        if [ -n "$FUSE_OUTPUT_SUBDIR" ]; then
+            echo "Fuse processing failed. Cleaning up temp folder $FUSE_OUTPUT_SUBDIR."
+            rm -rf "$FUSE_OUTPUT_SUBDIR"
+        fi
+
+        FUSE_OUTPUT_SUBDIR=$(ls -d $GEANT4_OUTPUT_DIR/fuse_data/${MACRO_BASENAME}_${RUNNUMBER}-* 2>/dev/null)
+        if [ -f "$GEANT4_OUTPUT_DIR/parquet/$PARQUET_OUTPUT_FILE" ] && [ -n "$FUSE_OUTPUT_SUBDIR" ]; then
+            echo "Both parquet file and fuse output for ${MACRO_BASENAME}_${RUNNUMBER} already exist. Skipping ..."
+            continue
+        fi
+
         # Check if output file already exists
         if [ ! -f "$GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE" ]; then
             # Run the command in the singularity container
@@ -118,9 +165,6 @@ for i in $loop_range; do
         else
             echo "Output file $GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE already exists. Skipping simulation."
         fi
-
-        # Wait 5 seconds to ensure file system consistency
-        sleep 2
 
         # Check if output file was created
         if [ -f "$GEANT4_OUTPUT_DIR/$GEANT4_OUTPUT_FILE" ]; then
