@@ -13,6 +13,7 @@
 #include <G4Colour.hh>
 #include <globals.hh>
 #include <G4SystemOfUnits.hh>
+#include "G4UnitsTable.hh"   // <-- G4BestUnit lives here
 
 #include <vector>
 #include <numeric>
@@ -453,7 +454,7 @@ G4VPhysicalVolume* HTPCDetectorConstruction::Construct()
     ConstructCryostats();
     ConstructMedia();
     ConstructTPC();
-
+    GetComponentMasses();
     return phys_Lab;
 }
 
@@ -1693,6 +1694,48 @@ void HTPCDetectorConstruction::ResetPMTCache()
     G4cout<<"PMT Cache size now "<<fCachedPMTPositions.size()<<G4endl;
 }
 
+void HTPCDetectorConstruction::GetComponentMasses()
+{
+     auto GetShellMass = [](G4LogicalVolume* lv) -> G4double
+    {
+        if (!lv) return 0.0;
+        auto* mat = lv->GetMaterial();
+        return lv->GetMass(/*forced=*/true, /*propagate=*/false, mat);
+    };
+
+    G4cout << " ---  " << G4endl;
+    G4cout << "Detector Component Masses:" << G4endl; 
+
+    G4double oCryostat_mass = GetShellMass(logic_oCryostat);
+    G4cout << "oCryostat shell mass = " << G4BestUnit(oCryostat_mass, "Mass") << G4endl;
+
+    G4double iCryostat_mass = GetShellMass(logic_iCryostat); 
+    G4cout << "iCryostat shell mass = " << G4BestUnit(iCryostat_mass, "Mass") << G4endl;
+
+    G4double GXeTeflonTub_mass = GetShellMass(logic_GXeTeflonTub); 
+    G4double LXeTeflonTub_mass = GetShellMass(logic_LXeTeflonTub);
+    G4double TeflonTub_mass    = LXeTeflonTub_mass + GXeTeflonTub_mass;
+    G4cout << "TeflonTub mass = " << G4BestUnit(TeflonTub_mass, "Mass") << G4endl;
+
+    G4double LXeMedium_mass = GetShellMass(logic_LXeMedium);
+    G4double LXeActive_mass = GetShellMass(logic_LXeActive);
+    G4double TotalLXe_mass  = LXeMedium_mass + LXeActive_mass;
+    G4cout << "Total LXe mass = " << G4BestUnit(TotalLXe_mass, "Mass") << G4endl;
+    G4cout << "Active LXe mass = " << G4BestUnit(LXeActive_mass, "Mass") << G4endl;
+
+    G4double GXeSapphireTub_mass = GetShellMass(logic_GXeSapphireTub);    
+    G4double GXeSapphireCap_mass = GetShellMass(logic_GXeSapphireCap);    
+    G4double LXeSapphireTub_mass = GetShellMass(logic_LXeSapphireTub);    
+    G4double LXeSapphireCap_mass = GetShellMass(logic_LXeSapphireCap);    
+    G4double TotalSapphire_mass  = GXeSapphireTub_mass + GXeSapphireCap_mass + LXeSapphireTub_mass + LXeSapphireCap_mass;
+    G4cout << "Total Sapphire mass = " << G4BestUnit(TotalSapphire_mass, "Mass") << G4endl;
+
+    G4double CopperFCTub_mass    = GetShellMass(logic_CopperFCTub);
+    G4double TopCopperPlate_mass = GetShellMass(logic_TopCopperPlate);
+    G4double BotCopperPlate_mass = GetShellMass(logic_BotCopperPlate);
+    G4double TotalCopper_mass    = CopperFCTub_mass + TopCopperPlate_mass + BotCopperPlate_mass;
+    G4cout << "Total Copper mass" << G4BestUnit(TotalCopper_mass, "Mass") << G4endl; 
+}
 
 /* ----------------------------------------------------------------------- */
 
