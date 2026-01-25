@@ -1734,7 +1734,7 @@ void HTPCDetectorConstruction::GetComponentMasses()
     G4double TopCopperPlate_mass = GetShellMass(logic_TopCopperPlate);
     G4double BotCopperPlate_mass = GetShellMass(logic_BotCopperPlate);
     G4double TotalCopper_mass    = CopperFCTub_mass + TopCopperPlate_mass + BotCopperPlate_mass;
-    G4cout << "Total Copper mass" << G4BestUnit(TotalCopper_mass, "Mass") << G4endl; 
+    G4cout << "Total Copper mass = " << G4BestUnit(TotalCopper_mass, "Mass") << G4endl; 
 }
 
 /* ----------------------------------------------------------------------- */
