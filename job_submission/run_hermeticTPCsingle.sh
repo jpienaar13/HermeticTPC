@@ -4,11 +4,11 @@
 #PBS -m n
 #PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=1:mem=2500mb
-#PBS -l io=1
+#PBS -l io=0.5
 #PBS -j oe
-#PBS -o /storage/xenon/{{USER}}/hermeticTPC/BigStats_01/log/{{BASENAME}}.log
+#PBS -o /srv01/xenon/{{USER}}/HermeticTPC/logs/{{BASENAME}}.log
 
-COMPONENT=$"Sapphire"
+COMPONENT=$"Teflon"
 ISOTOPE=$"Co60"
 
 # Load environment

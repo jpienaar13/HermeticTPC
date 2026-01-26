@@ -66,12 +66,12 @@ G4ClassificationOfNewTrack HTPCStackingAction::ClassifyNewTrack(
         pTrack->GetParentID() > 0 &&
         pTrack->GetDefinition()->GetPDGLifeTime() > MaxLifeTime) {
         hTrackClassification = fPostpone;
-        /*
+        
         G4cout << "Postponed " << pTrack->GetDefinition()->GetParticleName()
                << " in event "
                << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()
                << G4endl;
-        */
+        
     }
   }
 
