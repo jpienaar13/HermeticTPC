@@ -1,36 +1,52 @@
 """
 Material properties, volumes, and activity concentrations for background estimation.
-
-This module contains:
-- Volume and density data for detector components
-- LXe properties
-- Activity concentrations from CRESST, DARWIN, and XENONnT experiments
-- Neutron yield data for various materials
-- Material name mapping utilities
 """
 
-# Detector component volumes and densities
-volumes = {
-    "PMT": None,  # PmtTpcTop* -> Top and Bottom PMTs
-    "Cryostat": {"volume": 1.5662e+06, "density": 7.7, "confinement": "phys_oCryostat phys_iCryostat"},
-    "Teflon": {"volume": 130301, "density": 2.2, "confinement": "phys_GXeTeflonTub phys_LXeTeflonTub"},
-    "Copper": {"volume": 56804.8, "density": 8.92, "confinement": "phys_CopperFCTub"},
-    "Sapphire": {"volume": 63877.6, "density": 3.98, "confinement": "phys_GXeSapphireTub phys_GXeSapphireCap phys_LXeSapphireTub phys_LXeSapphireCap"},
+import numpy as np
+
+# General Geant4 related values
+G4_TPC = {
+    "radius": 1500, # mm
+    "top": 1365, # mm
+    "bottom": -1682, # mm
+}
+G4_TPC["height"] = G4_TPC["top"] - G4_TPC["bottom"]
+G4_TPC["center_point"] = [0, 0, G4_TPC["top"]-(G4_TPC["top"] - G4_TPC["bottom"]) / 2]
+G4_TPC["mass"] = G4_TPC["height"]/10 * np.pi * (G4_TPC["radius"]/10)**2 * 2.862 / 1000  # kg, using LXe density
+
+# Detector component volumes and densities from the Geant4 simulation
+# Run the simulation for any specific confinement and extract the values from
+# the Geant4 log. Units: volume in cm3, density in g/cm3
+# Updated: 16.01.2025, Lutz
+G4_components = {
+    # LXe properties from Geant4
+    "LXe": {"density": 2.862,  # g/cm3
+            "temperature": 177.05,  # K
+            "pressure": 1.5  # bar
+            },
+    "PMT": {},  # PmtTpcTop* -> Top and Bottom PMTs
+    "Cryostat": {"volume": 1.5662e+06, 
+                 "density": 7.7, 
+                 "confinement": "phys_oCryostat phys_iCryostat"},
+    "Teflon": {"volume": 130301, 
+               "density": 2.2, 
+               "confinement": "phys_GXeTeflonTub phys_LXeTeflonTub"},
+    "Copper": {"volume": 56804.8, 
+               "density": 8.92, 
+               "confinement": "phys_CopperFCTub"},
+    "Sapphire": {"volume": 63877.6, 
+                 "density": 3.98, 
+                 "confinement": "phys_GXeSapphireTub phys_GXeSapphireCap phys_LXeSapphireTub phys_LXeSapphireCap"},
 }
 
-# Calculate masses from volume and density
-scalings = {}
-for k, val in volumes.items():
-    if val is not None:
-        scalings[k] = val["volume"] * val["density"] / 1000  # convert to kg
-scalings["PMT"] = 2 * 1184  # number of PMTs
+# scaling in kg or unit number
+for k, val in G4_components.items():
+    if (val is not None) and ("volume" in val) and ("density" in val):
+        # Calculate masses from volume and density
+        G4_components[k]["scaling"] = val["volume"] * val["density"] / 1000  # convert to kg
+G4_components["PMT"]["scaling"] = 2 * 1184  # number of PMTs
 
-# Liquid xenon properties
-LXe = {
-    "density": 2.862,  # g/cm3
-    "temperature": 177.05,  # K
-    "pressure": 1.5  # bar
-}
+## Neutron source activities in detector materials
 
 # List of neutron source isotopes
 neutron_sources = ["U235", "U238", "Th228", "Th232", "Ra226"]
@@ -109,20 +125,9 @@ nyield = {
     "copper": {"U238": 1.1e-6, "U235": 3.3e-8, "Ra226": 2.5e-8, "Th232": 3.0e-11, "Th228": 3.6e-7,},
 }
 
-
 def map_material_name(sim_material):
     """
-    Map material names between our simulation and the neutron yield dictionary.
-    
-    Parameters
-    ----------
-    sim_material : str
-        Material name from simulation
-        
-    Returns
-    -------
-    str or None
-        Corresponding material name in neutron yield dictionary, or None if not found
+    Map material names between simulation and the neutron yield dictionary.
     """
     mapping = {
         "PMT": "quartz",
@@ -132,3 +137,13 @@ def map_material_name(sim_material):
         "Sapphire": "Al2O3",
     }
     return mapping.get(sim_material, None)
+
+def get_neutron_yield(sim_material, isotope):
+    """
+    Get the neutron yield for a given simulation material and isotope.
+    """
+    mat_name = map_material_name(sim_material)
+    if mat_name and mat_name in nyield and isotope in nyield[mat_name]:
+        return nyield[mat_name][isotope]
+    else:
+        return None
