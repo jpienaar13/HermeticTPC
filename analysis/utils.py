@@ -1,0 +1,237 @@
+"""
+Material properties, volumes, and activity concentrations for background estimation.
+"""
+
+import numpy as np
+
+# General Geant4 related values
+G4_TPC = {
+    "radius": 1500, # mm
+    "top": 1365, # mm
+    "bottom": -1682, # mm
+}
+G4_TPC["height"] = G4_TPC["top"] - G4_TPC["bottom"]
+G4_TPC["center_point"] = [0, 0, G4_TPC["top"]-(G4_TPC["top"] - G4_TPC["bottom"]) / 2]
+G4_TPC["mass"] = G4_TPC["height"]/10 * np.pi * (G4_TPC["radius"]/10)**2 * 2.862 / 1000  # kg, using LXe density
+
+# Detector component volumes and densities from the Geant4 simulation
+# Run the simulation for any specific confinement and extract the values from
+# the Geant4 log. Units: volume in cm3, density in g/cm3
+# Updated: 16.01.2025, Lutz
+G4_components = {
+    # LXe properties from Geant4
+    "LXe": {"density": 2.862,  # g/cm3
+            "temperature": 177.05,  # K
+            "pressure": 1.5  # bar
+            },
+    "PMT": {},  # PmtTpcTop* -> Top and Bottom PMTs
+    "Cryostat": {"volume": 1.5662e+06, 
+                 "density": 7.7, 
+                 "confinement": "phys_oCryostat phys_iCryostat"},
+    "Teflon": {"volume": 130301, 
+               "density": 2.2, 
+               "confinement": "phys_GXeTeflonTub phys_LXeTeflonTub"},
+    "Copper": {"volume": 56804.8, 
+               "density": 8.92, 
+               "confinement": "phys_CopperFCTub"},
+    "Sapphire": {"volume": 63877.6, 
+                 "density": 3.98, 
+                 "confinement": "phys_GXeSapphireTub phys_GXeSapphireCap phys_LXeSapphireTub phys_LXeSapphireCap"},
+}
+
+# scaling in kg or unit number
+for k, val in G4_components.items():
+    if (val is not None) and ("volume" in val) and ("density" in val):
+        # Calculate masses from volume and density
+        G4_components[k]["scaling"] = val["volume"] * val["density"] / 1000  # convert to kg
+G4_components["PMT"]["scaling"] = 2 * 1184  # number of PMTs
+
+## Neutron source activities in detector materials
+
+# List of neutron source isotopes
+neutron_sources = ["U235", "U238", "Th228", "Th232", "Ra226"]
+
+# List of gamma source isotopes
+all_sources = ["U238", "U235", "Th228", "Th232", "Ra226", "Co60", "K40", "Cs137"]
+
+################################################################
+# Sapphire                                                     #
+################################################################
+# Average and convert ppb to mBq/kg
+# 1 mBq/kg 238U = 81 ppt U
+# 1 mBq/kg 232Th = 246 ppt Th
+# 1 mBq/kg 40K = 32.3 ppb K 
+
+# https://www.sciencedirect.com/science/article/pii/0168900295010955
+# SCT and SC are two suppliers of sapphire crystals for CRESST
+activity_CRESST = {
+    "Sapphire_SCT": {"Unit": "ppb", "U": 0.04, "Th": 0.033, "K": 900,},
+    "Sapphire_CS": {"Unit": "ppb", "U": 0.02, "Th": 0.0023, "K": 1800,},
+}
+activity_CRESST["Sapphire"] = {"Unit": "mBq/kg"}
+for isotope in ["U", "Th", "K"]:
+    activity_CRESST["Sapphire"][isotope] = 0.5 * (
+        activity_CRESST["Sapphire_SCT"][isotope] + activity_CRESST["Sapphire_CS"][isotope]
+    )
+activity_CRESST["Sapphire"]["U238"] = activity_CRESST["Sapphire"].pop("U") / 81e-3
+activity_CRESST["Sapphire"]["Th232"] = activity_CRESST["Sapphire"].pop("Th") / 246e-3
+activity_CRESST["Sapphire"]["K40"] = activity_CRESST["Sapphire"].pop("K") / 32.3
+
+#arxiv:0709.4524
+#EXO200 Screening Values, reccomend inplace of above as CRESST K40 number seems suspect
+activity_EXO200 = {
+    "Sapphire_SaintGobain": {"Unit": "ppb", "U": 0.025, "Th": 0.030, "K": 6.8},
+}
+activity_EXO200["Sapphire"] = {"Unit": "mBq/kg"}
+activity_EXO200["Sapphire"]["U238"] = activity_EXO200["Sapphire_SaintGobain"].pop("U") / 81e-3
+activity_EXO200["Sapphire"]["Th232"] = activity_EXO200["Sapphire_SaintGobain"].pop("Th") / 246e-3
+activity_EXO200["Sapphire"]["K40"] = activity_EXO200["Sapphire_SaintGobain"].pop("K") / 32.3
+
+# Default Sapphire
+activity_Sapphire ={}
+activity_default = activity_EXO200
+activity_Sapphire['Unit'] = activity_default["Sapphire"]['Unit']
+activity_Sapphire['Sapphire']={}
+for isotope in ["U238", "Th232", "K40"]:
+    activity_Sapphire["Sapphire"][isotope] = activity_default["Sapphire"][isotope] 
+#Remaining values taken from highest PMT Stem value in XENONnT screening paper (Also made from Al2O3)
+#arxiv:2112.05629
+activity_Sapphire["Sapphire"]["Co60"] = 0.988
+activity_Sapphire["Sapphire"]["Cs137"] =0.114
+activity_Sapphire["Sapphire"]["Ra226"] = 0.290
+activity_Sapphire["Sapphire"]["Th228"] =0.120
+activity_Sapphire["Sapphire"]["U235"] =0.130
+
+#--------------------------------------------------------------#
+
+################################################################
+# XENONnT Screening Paper                                      #
+################################################################
+#Value taken from average of screening results in XENONnT Screening Paper
+#arxiv:2112.05629
+activity_XENONnTScreening = {
+    "PMT": {"Unit": "mBq/unit", "U238": 9.15, "U235": 0.425,  "Ra226": 0.435, "Th232": 0.452, 
+             "Th228": 0.379, "K40": 14.1, "Co60": 0.990, "Cs137": 0.115}
+}
+
+#--------------------------------------------------------------#
+
+################################################################
+# XENONnT Sensitivity Paper                                    #
+################################################################
+#Value taken from average of screening results in XENONnT Screening Paper
+#arxiv:2007.08796
+activity_XENONnTSensitivity = {
+    "Cryostat_vessels": {"Unit": "mBq/kg", "U238": 3.20, "U235": 0.370,  "Ra226": 0.370, "Th232": 0.290, 
+             "Th228": 0.450, "K40": 2.1, "Co60": 2.5, "Cs137": 0.41},
+    "Cryostat_flanges": {"Unit": "mBq/kg", "U238": 1.40, "U235": 0.060,  "Ra226": 4, "Th232": 0.210, 
+             "Th228": 4.50, "K40": 5.6, "Co60": 14.1, "Cs137": 1.5},
+    "PTFE": {"Unit": "mBq/kg", "U238": 0.120, "U235": 0.06, "Ra226": 0.10, "Th232": 0.11, "Th228": 0.06,
+             "K40": 2.40, "Co60": 0.053, "Cs137": 0.038},
+    "Copper": {"Unit": "mBq/kg", "U238": 0.690, "U235": 0.280, "Ra226": 0.033, "Th232": 0.027, "Th228": 0.023,
+             "K40": 0.290, "Co60": 0.110, "Cs137": 0.016},
+}
+# Calculate Cryostat as average of Inner and Outer Cryostat
+vessel_mass = 1120
+flange_mass = 730
+activity_XENONnTSensitivity["Cryostat"] = {}
+activity_XENONnTSensitivity["Cryostat"]['Unit'] = "mBq/kg"
+for isotope in all_sources:
+    activity_XENONnTSensitivity["Cryostat"][isotope] = (
+        vessel_mass*activity_XENONnTSensitivity["Cryostat_vessels"][isotope] + flange_mass*activity_XENONnTSensitivity["Cryostat_flanges"][isotope])/(vessel_mass+flange_mass)
+
+#--------------------------------------------------------------#
+
+################################################################
+# DARWIN Sensitivity Paper                                     #
+################################################################
+# Material activity concentrations/levels from DARWIN
+# https://arxiv.org/pdf/2003.13407
+# Some components have upper limits only, check the paper
+activity_DARWIN = {
+    "Titanium": {"Unit": "mBq/kg", "U238": 1.6, "Ra226": 0.09, "Th232": 0.28, "Th228": 0.25, "Co60": 0.02, "TI44": 1.16,},
+    "PTFE": {"Unit": "mBq/kg", "U238": 1.2, "Ra226": 0.07, "Th232": 0.07, "Th228": 0.06, "Co60": 0.027,},
+    "Copper": {"Unit": "mBq/kg", "U238": 1.0, "Ra226": 0.035, "Th232": 0.033, "Th228": 0.026, "Co60": 0.019,},
+    "PMT": {"Unit": "mBq/unit", "U238": 8.0, "Ra226": 0.6, "Th232": 0.7, "Th228": 0.6, "Co60": 0.84,},
+    "Electronics": {"Unit": "mBq/unit", "U238": 1.10, "Ra226": 0.34, "Th232": 0.16, "Th228": 0.16, "Co60": 0.008,},
+}
+
+#--------------------------------------------------------------#
+
+################################################################
+# XENONnT Internal                                             #
+################################################################
+# Material activity concentrations/levels from XENONnT
+# In addition to DARWIN materials to include Cirlex, Quartz, Kovar, Steel, Al2O3
+# Values from internal note, adjusted for highER fit result: [xenon:xenonnt:analysis:sr0_1_nr_background]
+activity_XENONnT = {
+    "PMT_Stem": {"Material": "Al2O3", "Unit": "mBq/unit", "U235": 0.28, "U238": 1.37, "Th228": 0.5, "Th232": 0.17, "Ra226": 0.26,},
+    "PMT_Base": {"Material": "cirlex", "Unit": "mBq/unit", "U235": 0.18, "U238": 0.47, "Th228": 0.45, "Th232": 0.15, "Ra226": 0.32,},
+    "PMT_Window": {"Material": "quartz", "Unit": "mBq/unit", "U235": 0.06, "U238": 0.69, "Th228": 0.06, "Th232": 0.02, "Ra226": 0.07,},
+    "PMT_Body": {"Material": "kovar", "Unit": "mBq/unit", "U235": 0.02, "U238": 0.08, "Th228": 0.81, "Th232": 0.04, "Ra226": 0.31,},
+    "PMT_Shell": {"Material": "steel", "Unit": "mBq/unit", "U235": 0.03, "U238": 0.15, "Th228": 0.11, "Th232": 0.03, "Ra226": 0.07,},
+    "TPC_Walls": {"Material": "PTFE", "Unit": "mBq/kg", "U235": 0.07, "U238": 0.13, "Th228": 0.06, "Th232": 0.05, "Ra226": 0.14,},
+    "InnerCryostat_Shell": {"Material": "steel", "Unit": "mBq/kg", "U235": 2.6, "U238": 8.81, "Th228": 1.27, "Th232": 1.15, "Ra226": 3.10,},
+    "OuterCryostat_Shell": {"Material": "steel", "Unit": "mBq/kg", "U235": 2.19, "U238": 16.34, "Th228": 0.83, "Th232": 1.77, "Ra226": 2.70,},
+}
+
+# Calculate Cryostat as average of Inner and Outer Cryostat
+activity_XENONnT["Cryostat"] = {}
+for isotope in neutron_sources:
+    activity_XENONnT["Cryostat"][isotope] = 0.5 * (
+        activity_XENONnT["InnerCryostat_Shell"][isotope] + activity_XENONnT["OuterCryostat_Shell"][isotope]
+    )
+
+#--------------------------------------------------------------#
+
+################################################################
+# Deafult Activity                                             #
+################################################################
+
+# Combined activity data for detector components
+activity = {
+    "PMT": activity_XENONnTScreening["PMT"],
+    "Cryostat": activity_XENONnTSensitivity["Cryostat"],
+    "Teflon": activity_XENONnTSensitivity["PTFE"],
+    "Copper": activity_XENONnTSensitivity["Copper"],
+    "Sapphire": activity_Sapphire,
+}
+
+#--------------------------------------------------------------#
+
+# Neutron yield, [neutrons/decay]
+# from https://xe1t-wiki.lngs.infn.it/doku.php?id=xenon:xenonnt_sr0:neutron_background_updated_template
+# from https://github.com/XENONnT/nton/blob/neutron_sim/nton/background/neutron_background/neutron_prediction.py
+# Main source: https://arxiv.org/pdf/1512.07501
+nyield = {
+    "Al2O3": {"U238": 1.2e-6, "U235": 1.3e-5, "Ra226": 6.0e-6, "Th232": 9.2e-9, "Th228": 1.4e-5,},
+    "cirlex": {"U238": 1.3e-6, "U235": 2.2e-6, "Ra226": 3.5e-6, "Th232": 4.1e-8, "Th228": 2.4e-6,},
+    "quartz": {"U238": 1.2e-6, "U235": 1.9e-6, "Ra226": 8.8e-7, "Th232": 6.8e-9, "Th228": 1.9e-6,},
+    "kovar": {"U238": 1.1e-6, "U235": 1.3e-7, "Ra226": 1.2e-7, "Th232": 3.0e-11, "Th228": 1.0e-6,},
+    "steel": {"U238": 1.1e-6, "U235": 4.1e-7, "Ra226": 3.1e-7, "Th232": 1.8e-9, "Th228": 2.0e-6,},
+    "PTFE": {"U238": 7.4e-6, "U235": 1.3e-4, "Ra226": 5.5e-5, "Th232": 7.3e-7, "Th228": 1.0e-4,},
+    "copper": {"U238": 1.1e-6, "U235": 3.3e-8, "Ra226": 2.5e-8, "Th232": 3.0e-11, "Th228": 3.6e-7,},
+}
+
+def map_material_name(sim_material):
+    """
+    Map material names between simulation and the neutron yield dictionary.
+    """
+    mapping = {
+        "PMT": "quartz",
+        "Cryostat": "steel",
+        "Teflon": "PTFE",
+        "Copper": "copper",
+        "Sapphire": "Al2O3",
+    }
+    return mapping.get(sim_material, None)
+
+def get_neutron_yield(sim_material, isotope):
+    """
+    Get the neutron yield for a given simulation material and isotope.
+    """
+    mat_name = map_material_name(sim_material)
+    if mat_name and mat_name in nyield and isotope in nyield[mat_name]:
+        return nyield[mat_name][isotope]
+    else:
+        return None
