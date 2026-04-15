@@ -194,7 +194,7 @@ activity = {
     "Cryostat": activity_XENONnTSensitivity["Cryostat"],
     "Teflon": activity_XENONnTSensitivity["PTFE"],
     "Copper": activity_XENONnTSensitivity["Copper"],
-    "Sapphire": activity_Sapphire,
+    "Sapphire": activity_Sapphire['Sapphire'],
 }
 
 #--------------------------------------------------------------#
