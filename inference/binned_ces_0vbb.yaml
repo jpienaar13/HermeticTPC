@@ -1,0 +1,104 @@
+parameter_definition:
+  livetime:
+    nominal_value: 365.0
+    ptype: livetime
+    fittable: false
+    description: Livetime in day
+
+  bkg_rate_multiplier:
+    nominal_value: 2.727209427320812
+    ptype: rate
+    fittable: true
+    fit_limits: [0, 5]
+    parameter_interval_bounds: [0, 10]
+    fit_guess: 2.5
+
+  xe136_rate_multiplier:
+    nominal_value: 2615.084117115861
+    ptype: rate
+    fittable: true
+    fit_limits: [2000, 3000]
+    parameter_interval_bounds: [1000, 4000]
+    fit_guess: 2615.084117115861
+    
+  signal_rate_multiplier:
+    nominal_value: 2.764243910170414
+    ptype: rate
+    fittable: true
+    fit_limits: [0.00, 3.5]
+    parameter_interval_bounds: [0.000, 5]
+    fit_guess: 2
+
+  smearing_a:
+    nominal_value: 24.8
+    ptype: shape
+    uncertainty: 0.1
+    relative_uncertainty: false
+    fittable: false
+    blueice_anchors: [24.8]
+    fit_limits: [20, 30]
+    description: smearing shaping parameter
+
+  smearing_b:
+    nominal_value: 1.429
+    ptype: shape
+    uncertainty: 0.05
+    relative_uncertainty: false
+    fittable: false
+    blueice_anchors: [1.429]
+    fit_limits: [1.2, 1.6]
+    description: smearing shaping parameter
+
+  efficiency_constant:
+    nominal_value: 1.0
+    ptype: shape
+    uncertainty: 0.05
+    relative_uncertainty: false
+    fittable: false
+    blueice_anchors: [0.9, 1.1]
+
+likelihood_config:
+  template_folder:
+    - /srv01/xenon/jacquesp/alea/alea/examples/templates
+
+  likelihood_terms:
+    - name: hermetic_tpc
+      default_source_class: alea.ces_source.CESTemplateSource
+      likelihood_type: blueice.likelihood.BinnedLogLikelihood
+      analysis_space:
+        - ces: np.arange(2000, 3000, 1)
+
+      apply_efficiency: false
+      efficiency_model: constant
+      efficiency_parameters:
+        - efficiency_constant
+
+      apply_smearing: false
+      smearing_model: gaussian
+      smearing_parameters:
+        - smearing_a
+        - smearing_b
+
+      apply_bias: false
+      livetime_parameter: livetime
+      slice_args: {}
+      source_wise_interpolation: false
+
+      sources:
+        - name: bkg
+          histname: bkg_template
+          parameters:
+            - bkg_rate_multiplier
+          template_filename: bkg_template.ii.h5
+
+        - name: xe136
+          histname: xe136_2vbb_template
+          parameters:
+            - xe136_rate_multiplier
+          template_filename: xe136_2vbb_template.ii.h5
+
+        - name: signal
+          histname: xe136_0vbb_template
+          parameters:
+            - signal_rate_multiplier
+          template_filename: xe136_0vbb_template.ii.h5
