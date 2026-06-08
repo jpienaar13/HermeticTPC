@@ -7,6 +7,56 @@ import h5py
 from scipy.signal import savgol_filter
 from scipy.interpolate import PchipInterpolator
 
+from numpy import pi, sqrt, exp, zeros, size, shape, array, append, flipud, gradient
+from numpy import trapz, interp, loadtxt, log10, log, savetxt, vstack, transpose
+from numpy import ravel,tile,mean,inf,nan,amin,amax
+from scipy.ndimage.filters import gaussian_filter1d
+from matplotlib.colors import LinearSegmentedColormap
+import cmasher as cmr
+
+def Floor_2D(data,filt=True,filt_width=3,Ex_crit=1e10):
+    sig = data[1:,0]
+    m = data[0,1:]
+    n = size(m)
+    ns = size(sig)
+    Ex = flipud(transpose(data[1:,1:].T))
+    Ex[Ex>Ex_crit] = nan
+    Exmin = amin(Ex[Ex>0])
+    Ex[Ex==0] = Exmin
+    DY = zeros(shape=shape(Ex))
+    for j in range(0,n):
+        y = log10(Ex[:,j])
+        if filt:
+            y = gaussian_filter1d(gaussian_filter1d(y,sigma=3),filt_width)
+            dy = gradient(y,log10(sig[2])-log10(sig[1]))
+            dy = gaussian_filter1d(dy,filt_width)
+        else:
+            dy = gradient(y,log10(sig[2])-log10(sig[1]))
+
+        DY[:,j] = dy
+    NUFLOOR = zeros(shape=n)
+    #for j in range(0,n):
+    #    DY[:,j] = gaussian_filter1d(DY[:,j],filt_width)
+    for j in range(0,n):
+        for i in range(0,ns):
+            if DY[ns-1-i,j]<=-2.0:
+                i0 = ns-1-i
+                i1 = i0+10
+                NUFLOOR[j] = 10.0**interp(-2,DY[i0:i1+1,j],log10(sig[i0:i1+1]))
+                DY[ns-1-i:-1,j] = nan
+                break
+    DY = -DY
+    DY[DY<2] = 2
+    return m,sig,NUFLOOR,DY
+
+import matplotlib.patheffects as pe
+def line_background(lw,col):
+    return [pe.Stroke(linewidth=lw, foreground=col), pe.Normal()]
+
+data = loadtxt('data/DLNuFloorXe_detailed_SI.txt')
+Ex = flipud(data[1:,1:])
+m,sig,NUFLOOR,DY = Floor_2D(data)
+
 fig, (ax0, ax1) = plt.subplots(
     1, 2,
     figsize=(14, 6),
@@ -369,12 +419,33 @@ with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
                 va="center",
             )
 
+vmax = 11
+vmin = 2
+
+interval = np.linspace(0.12,0.9)
+colors = cmr.pride(interval)
+cmap = LinearSegmentedColormap.from_list('name', colors)
+
+scale = 2.5
+
+ax1 = plt.gca()
+ax1.text(1e3,5e-49/scale,'Atmospheric',color='w',alpha=0.85,fontsize=18,rotation=0)
+ax1.text(30,2e-50/scale,'DSNB',color='w',alpha=0.85,fontsize=18,rotation=0)
+ax1.text(5,4e-48/scale,r'$hep$',color='w',alpha=0.85,fontsize=18,rotation=0)
+ax1.text(3.5,4.5e-46/scale,r'$^8$B',color='w',alpha=0.99,fontsize=18,rotation=0)
+
+ax1 = plt.gca()
+col_min = cmap(0.0)
+cnt = ax1.contourf(m,sig/scale,DY,levels=np.linspace(2,15,100),vmin=2.3,vmax=vmax,cmap=cmap,zorder=-100)
+for c in cnt.collections: c.set_edgecolor("face")
+ax1.plot(m,NUFLOOR,'-',color='black',lw=3,zorder=1)
+ax1.fill_between(m,NUFLOOR,y2=1e-99,color=col_min,zorder=-1000)
 
 ax1.set_xscale("log")
 ax1.set_yscale("log")
 
-ax1.set_xlim(10, 1e4)
-ax1.set_ylim(8e-50, 1e-46)
+ax1.set_xlim(3.5, 1e4)
+ax1.set_ylim(8e-50, 5e-46)
 
 ax1.set_xlabel("DM mass [GeV/c$^2$]")
 ax1.set_ylabel(r"SI DM-nucleon cross section [cm$^2$]")
