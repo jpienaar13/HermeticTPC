@@ -431,7 +431,7 @@ scale = 2.5
 
 ax1 = plt.gca()
 ax1.text(1e3,5e-49/scale,'Atmospheric',color='k',alpha=0.85,fontsize=18,rotation=0)
-ax1.text(30,2e-50/scale,'DSNB',color='k',alpha=0.85,fontsize=18,rotation=0)
+#ax1.text(30,2e-50/scale,'DSNB',color='k',alpha=0.85,fontsize=18,rotation=0)
 ax1.text(5,4e-48/scale,r'$hep$',color='k',alpha=0.85,fontsize=18,rotation=0)
 ax1.text(3.5,4.5e-46/scale,r'$^8$B',color='k',alpha=0.99,fontsize=18,rotation=0)
 
