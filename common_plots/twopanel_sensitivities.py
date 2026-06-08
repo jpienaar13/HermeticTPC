@@ -423,23 +423,23 @@ with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
 vmax = 11
 vmin = 2
 
-interval = np.linspace(0.12,0.9)
-colors = cmr.pride(interval)
+interval = np.linspace(0.175,0.8)
+colors = cmr.ocean_r(interval)
 cmap = LinearSegmentedColormap.from_list('name', colors)
 
 scale = 2.5
 
 ax1 = plt.gca()
-ax1.text(1e3,5e-49/scale,'Atmospheric',color='w',alpha=0.85,fontsize=18,rotation=0)
-ax1.text(30,2e-50/scale,'DSNB',color='w',alpha=0.85,fontsize=18,rotation=0)
-ax1.text(5,4e-48/scale,r'$hep$',color='w',alpha=0.85,fontsize=18,rotation=0)
-ax1.text(3.5,4.5e-46/scale,r'$^8$B',color='w',alpha=0.99,fontsize=18,rotation=0)
+ax1.text(1e3,5e-49/scale,'Atmospheric',color='k',alpha=0.85,fontsize=18,rotation=0)
+ax1.text(30,2e-50/scale,'DSNB',color='k',alpha=0.85,fontsize=18,rotation=0)
+ax1.text(5,4e-48/scale,r'$hep$',color='k',alpha=0.85,fontsize=18,rotation=0)
+ax1.text(3.5,4.5e-46/scale,r'$^8$B',color='k',alpha=0.99,fontsize=18,rotation=0)
 
 ax1 = plt.gca()
 col_min = cmap(0.0)
 cnt = ax1.contourf(m,sig/scale,DY,levels=np.linspace(2,15,100),vmin=2.3,vmax=vmax,cmap=cmap,zorder=-100)
 for c in cnt.collections: c.set_edgecolor("face")
-ax1.plot(m,NUFLOOR/scale,'-',color='black',lw=3,zorder=1)
+#ax1.plot(m,NUFLOOR/scale,'-',color='gray',lw=1,zorder=1)
 ax1.fill_between(m,NUFLOOR/scale,y2=1e-99,color=col_min,zorder=-1000)
 
 ax1.set_xscale("log")
