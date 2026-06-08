@@ -12,6 +12,7 @@ from numpy import trapz, interp, loadtxt, log10, log, savetxt, vstack, transpose
 from numpy import ravel,tile,mean,inf,nan,amin,amax
 from scipy.ndimage.filters import gaussian_filter1d
 from matplotlib.colors import LinearSegmentedColormap
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import cmasher as cmr
 
 def Floor_2D(data,filt=True,filt_width=3,Ex_crit=1e10):
@@ -438,8 +439,8 @@ ax1 = plt.gca()
 col_min = cmap(0.0)
 cnt = ax1.contourf(m,sig/scale,DY,levels=np.linspace(2,15,100),vmin=2.3,vmax=vmax,cmap=cmap,zorder=-100)
 for c in cnt.collections: c.set_edgecolor("face")
-ax1.plot(m,NUFLOOR,'-',color='black',lw=3,zorder=1)
-ax1.fill_between(m,NUFLOOR,y2=1e-99,color=col_min,zorder=-1000)
+ax1.plot(m,NUFLOOR/scale,'-',color='black',lw=3,zorder=1)
+ax1.fill_between(m,NUFLOOR/scale,y2=1e-99,color=col_min,zorder=-1000)
 
 ax1.set_xscale("log")
 ax1.set_yscale("log")
@@ -450,6 +451,12 @@ ax1.set_ylim(8e-50, 5e-46)
 ax1.set_xlabel("DM mass [GeV/c$^2$]")
 ax1.set_ylabel(r"SI DM-nucleon cross section [cm$^2$]")
 
+im = ax1.pcolormesh(-m,sig,DY,vmin=vmin,vmax=vmax,cmap=cmap,rasterized=True)
+cb_ax = inset_axes(ax1, width="50%", height="5%", loc="upper right", borderpad=0.6)
+cbar = fig.colorbar(im, cax=cb_ax, orientation="horizontal", extend="both", extendfrac=0.03)
+cbar.ax.tick_params(labelsize=8)
+cbar.set_label("Gradient of discovery limit, $n = -({\\rm d}\ln\sigma/{\\rm d}\ln N)^{-1}$", fontsize=9, rotation=0, labelpad=2)
+cbar.ax.tick_params(which='major',direction='in',width=2,length=13,right=True,top=True)
 
 # Optional panel labels
 #ax0.text(0.03, 0.95, "(a)", transform=ax0.transAxes, fontsize=14, fontweight="bold", va="top")
