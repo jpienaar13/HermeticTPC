@@ -288,7 +288,7 @@ ax0.tick_params(which="major", length=5)
 ax0.tick_params(which="minor", length=2.5)
 
 ax0.set_xlabel("Exposure [years]")
-ax0.set_ylabel(r"$T^{0\nu\beta\beta}_{1/2}$ exclusion limit (90% CL) [yr]")
+ax0.set_ylabel(r"$T^{0\nu\beta\beta}_{1/2}$ exclusion limit (90% CL) [years]")
 ax0.set_ylim(0.5e27, 3e28)
 ax0.set_xlim(0.25, 12)
 
