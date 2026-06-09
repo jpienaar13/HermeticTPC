@@ -377,6 +377,12 @@ ul_labels = {
 plt.plot(df_xlzd["mass_1000"].values, df_xlzd["sigma_1000"].values, 
          label="XLZD (1000 ty)", color="black", ls="-", lw=3)
 
+lz = pd.read_csv("./data/Fig5_SpinIndependentLimitAndSensitivity.txt", sep='\t', comment="#", header=None, skiprows=1,
+            names=["mass", "limit", "-2sigma", "-1sigma", "median", "1sigma", "2sigma", "median_3sigma_discovery"])
+
+plt.fill_between(lz["mass"].values, 5e-46, lz["-1sigma"].values, color="gray", 
+                 alpha=0.3, lw=0)
+
 with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
     keys = ["sapphire_enriched_cut_max", "sapphire_enriched_cut_30p_max", "nominal_max"]
 
@@ -438,6 +444,18 @@ ax1.text(
     1.3e-48,
     "XLZD Nominal",
     color="black",
+    fontsize=15,
+    fontweight="bold",
+    rotation=38,
+    ha="left",
+    va="center",
+)
+
+ax1.text(
+    masses[idx],
+    7.3e-47,
+    "Excluded",
+    color="gray",
     fontsize=15,
     fontweight="bold",
     rotation=38,
