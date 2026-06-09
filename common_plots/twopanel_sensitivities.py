@@ -6,6 +6,7 @@ from matplotlib.ticker import LogLocator
 import h5py
 from scipy.signal import savgol_filter
 from scipy.interpolate import PchipInterpolator
+import pandas as pd
 
 from numpy import pi, sqrt, exp, zeros, size, shape, array, append, flipud, gradient
 from numpy import trapz, interp, loadtxt, log10, log, savetxt, vstack, transpose
@@ -14,6 +15,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import cmasher as cmr
+from scipy.interpolate import UnivariateSpline
 
 def Floor_2D(data,filt=True,filt_width=3,Ex_crit=1e10):
     sig = data[1:,0]
@@ -350,63 +352,74 @@ ax0.set_xlim(0.25, 12)
 # Panel 2: WIMP sensitivity
 # ============================================================
 
+df_xlzd = pd.read_csv("./data/XLZD_design_book.csv", 
+                      names=["mass_200", "sigma_200", "mass_1000", "sigma_1000"])
+
+
 label_map = {
-    "nominal": "60 t Nominal",
-    "sapphire_enriched_cut": "H-TPC",
-    "sapphire_enriched_cut_30p": "H-TPC, 30%"
+    "nominal_max": "48 t Nominal",
+    "sapphire_enriched_cut_max": "H-TPC Nominal",
+    "sapphire_enriched_cut_30p_max": "H-TPC 30% abs."
 }
 
 colors = {
-    "nominal": "green",
-    "sapphire_enriched_cut": "black",
-    "sapphire_enriched_cut_30p": "tab:red",
+    "nominal_max": "orange",
+    "sapphire_enriched_cut_max": "green",
+    "sapphire_enriched_cut_30p_max": "tab:red",
 }
 
 ul_labels = {
-    "nominal": 2.9e-48,
-    "sapphire_enriched_cut": 3.65e-48,
-    "sapphire_enriched_cut_30p": 8e-48,
+    "nominal_max": 8.5e-48,
+    "sapphire_enriched_cut_max": 2.2e-48,
+    "sapphire_enriched_cut_30p_max": 1.75e-47,
 }
 
+plt.plot(df_xlzd["mass_1000"].values, df_xlzd["sigma_1000"].values, 
+         label="XLZD (1000 ty)", color="black", ls="-", lw=3)
+
 with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
-    keys = ["nominal", "sapphire_enriched_cut", "sapphire_enriched_cut_30p"]
+    keys = ["sapphire_enriched_cut_max", "sapphire_enriched_cut_30p_max", "nominal_max"]
 
     for key in keys:
         if key in hdf:
             masses, ul_median = hdf[key][:]
 
             # First interpolate
-            interp = PchipInterpolator(
-                np.log10(masses),
-                np.log10(ul_median)
-            )
+            #interp = PchipInterpolator(
+            #    np.log10(masses),
+            #    np.log10(ul_median)
+            #)
 
             masses_dense = np.logspace(
-                np.log10(masses.min()),
+                np.log10(6),
                 np.log10(masses.max()),
                 1000
             )
 
-            log_ul_dense = interp(np.log10(masses_dense))
+            #log_ul_dense = interp(np.log10(masses_dense))
 
             # Then smooth
-            log_ul_dense = savgol_filter(
-                log_ul_dense,
-                window_length=151,
-                polyorder=1
-            )
+            #log_ul_dense = savgol_filter(
+            #    log_ul_dense,
+            #    window_length=151,
+            #    polyorder=1
+            #)
 
-            ul_dense = 10**log_ul_dense
+            #ul_dense = 10**log_ul_dense
+
+            spl = UnivariateSpline(np.log10(masses), np.log10(ul_median), k=3, s=0.01)
+            ul_dense = 10**spl(np.log10(masses_dense))
 
             ax1.plot(
                 masses_dense,
                 ul_dense,
                 color=colors[key],
-                lw=2,
+                lw=3,
+                ls="-" if not "nominal" in key else (0, (5, 5)),
             )
 
             # place label at x ~ 500 GeV
-            idx = np.argmin(np.abs(masses - 500))
+            idx = np.argmin(np.abs(masses - 1000))
 
             ax1.text(
                 masses[idx],
@@ -415,10 +428,22 @@ with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
                 color=colors[key],
                 fontsize=15,
                 fontweight="bold",
-                rotation=40,
+                rotation=38,
                 ha="left",
                 va="center",
             )
+
+ax1.text(
+    masses[idx],
+    1.3e-48,
+    "XLZD Nominal",
+    color="black",
+    fontsize=15,
+    fontweight="bold",
+    rotation=38,
+    ha="left",
+    va="center",
+)
 
 vmax = 11
 vmin = 2
@@ -445,7 +470,7 @@ ax1.fill_between(m,NUFLOOR/scale,y2=1e-99,color=col_min,zorder=-1000)
 ax1.set_xscale("log")
 ax1.set_yscale("log")
 
-ax1.set_xlim(3.5, 1e4)
+ax1.set_xlim(3.5, 9e3)
 ax1.set_ylim(8e-50, 5e-46)
 
 ax1.set_xlabel("DM mass [GeV/c$^2$]")
