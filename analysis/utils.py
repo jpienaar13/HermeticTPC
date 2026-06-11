@@ -80,7 +80,7 @@ activity_CRESST["Sapphire"]["K40"] = activity_CRESST["Sapphire"].pop("K") / 32.3
 #arxiv:0709.4524
 #EXO200 Screening Values, reccomend inplace of above as CRESST K40 number seems suspect
 activity_EXO200 = {
-    "Sapphire_SaintGobain": {"Unit": "ppb", "U": 0.025, "Th": 0.030, "K": 6.8},
+    "Sapphire_SaintGobain": {"Unit": "ppb", "U": 0.0023, "Th": 0.00026, "K": 6.8},
 }
 activity_EXO200["Sapphire"] = {"Unit": "mBq/kg"}
 activity_EXO200["Sapphire"]["U238"] = activity_EXO200["Sapphire_SaintGobain"].pop("U") / 81e-3
@@ -110,7 +110,7 @@ activity_Sapphire["Sapphire"]["U235"] =0.130
 #Value taken from average of screening results in XENONnT Screening Paper
 #arxiv:2112.05629
 activity_XENONnTScreening = {
-    "PMT": {"Unit": "mBq/unit", "U238": 9.15, "U235": 0.425,  "Ra226": 0.435, "Th232": 0.452, 
+    "PMT": {"Unit": "mBq/unit", "U238": 2.00, "U235": 0.425,  "Ra226": 0.435, "Th232": 0.452, 
              "Th228": 0.379, "K40": 14.1, "Co60": 0.990, "Cs137": 0.115}
 }
 
