@@ -62,7 +62,7 @@ m,sig,NUFLOOR,DY = Floor_2D(data)
 
 fig, (ax0, ax1) = plt.subplots(
     1, 2,
-    figsize=(14, 6),
+    figsize=(12, 5),
     constrained_layout=True
 )
 
@@ -357,21 +357,21 @@ df_xlzd = pd.read_csv("./data/XLZD_design_book.csv",
 
 
 label_map = {
-    "nominal_max": "48 t Nominal",
-    "sapphire_enriched_cut_max": "H-TPC Nominal",
-    "sapphire_enriched_cut_30p_max": "H-TPC 30% abs."
+    "nominal_max": "XLZD (60 t)",
+    "sapphire_enriched_cut_max": "H-TPC (5 t)",
+    "sapphire_enriched_cut_10p_max": "H-TPC 10% abs."
 }
 
 colors = {
     "nominal_max": "orange",
     "sapphire_enriched_cut_max": "green",
-    "sapphire_enriched_cut_30p_max": "tab:red",
+    "sapphire_enriched_cut_10p_max": "tab:red",
 }
 
 ul_labels = {
-    "nominal_max": 8.5e-48,
-    "sapphire_enriched_cut_max": 2.2e-48,
-    "sapphire_enriched_cut_30p_max": 1.75e-47,
+    "nominal_max": 6e-48,
+    "sapphire_enriched_cut_max": 1.1e-48,
+    "sapphire_enriched_cut_10p_max": 1.75e-47,
 }
 
 plt.plot(df_xlzd["mass_1000"].values, df_xlzd["sigma_1000"].values, 
@@ -384,7 +384,7 @@ plt.fill_between(lz["mass"].values, 5e-46, lz["-1sigma"].values, color="gray",
                  alpha=0.3, lw=0)
 
 with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
-    keys = ["sapphire_enriched_cut_max", "sapphire_enriched_cut_30p_max", "nominal_max"]
+    keys = ["sapphire_enriched_cut_max", "nominal_max"]
 
     for key in keys:
         if key in hdf:
@@ -425,7 +425,10 @@ with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
             )
 
             # place label at x ~ 500 GeV
-            idx = np.argmin(np.abs(masses - 1000))
+            if key == "sapphire_enriched_cut_max":
+                idx = np.argmin(np.abs(masses - 200))
+            else:
+                idx = np.argmin(np.abs(masses - 1000))
 
             ax1.text(
                 masses[idx],
@@ -434,19 +437,19 @@ with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
                 color=colors[key],
                 fontsize=15,
                 fontweight="bold",
-                rotation=38,
+                rotation=37,
                 ha="left",
                 va="center",
             )
 
 ax1.text(
     masses[idx],
-    1.3e-48,
-    "XLZD Nominal",
+    1.9e-48,
+    "XLZD (2024)",
     color="black",
     fontsize=15,
     fontweight="bold",
-    rotation=38,
+    rotation=37,
     ha="left",
     va="center",
 )
@@ -505,4 +508,5 @@ cbar.ax.tick_params(which='major',direction='in',width=2,length=13,right=True,to
 #ax0.text(0.03, 0.95, "(a)", transform=ax0.transAxes, fontsize=14, fontweight="bold", va="top")
 #ax1.text(0.03, 0.95, "(b)", transform=ax1.transAxes, fontsize=14, fontweight="bold", va="top")
 
+plt.savefig("combined_sensitivities.png", bbox_inches="tight", dpi=300)
 plt.show()
