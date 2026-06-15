@@ -363,8 +363,8 @@ label_map = {
 }
 
 colors = {
-    "nominal_max": "orange",
-    "sapphire_enriched_cut_max": "green",
+    "nominal_max": "green",
+    "sapphire_enriched_cut_max": "black",
     "sapphire_enriched_cut_10p_max": "tab:red",
 }
 
@@ -375,7 +375,7 @@ ul_labels = {
 }
 
 plt.plot(df_xlzd["mass_1000"].values, df_xlzd["sigma_1000"].values, 
-         label="XLZD (1000 ty)", color="black", ls="-", lw=3)
+         label="XLZD (1000 ty)", color="orange", ls="-", lw=2)
 
 lz = pd.read_csv("./data/Fig5_SpinIndependentLimitAndSensitivity.txt", sep='\t', comment="#", header=None, skiprows=1,
             names=["mass", "limit", "-2sigma", "-1sigma", "median", "1sigma", "2sigma", "median_3sigma_discovery"])
@@ -446,7 +446,7 @@ ax1.text(
     masses[idx],
     1.9e-48,
     "XLZD (2024)",
-    color="black",
+    color="orange",
     fontsize=15,
     fontweight="bold",
     rotation=37,
