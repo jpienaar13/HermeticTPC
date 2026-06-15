@@ -190,6 +190,7 @@ ax0.annotate(
     textcoords="offset points",
     fontsize=15,
     fontweight="bold",
+    color="blue",
 )
 
 # KamLAND2-Zen target: ~2e27 yr in 10 years
@@ -228,7 +229,7 @@ ax0.scatter(
     marker="^",
     s=120,
     facecolors="white",
-    edgecolors="orange",
+    edgecolors="darkred",
     linewidths=2,
     zorder=10,
     label="NEXT-HD projection",
@@ -241,7 +242,7 @@ ax0.annotate(
     textcoords="offset points",
     fontsize=15,
     fontweight="bold",
-    color="orange",
+    color="darkred",
 )
 
 # -----------------------------
