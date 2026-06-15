@@ -310,12 +310,12 @@ ax0.fill_between(
 
 ax0.text(
     9, 1.65e28,
-    "H-TPC (5 t)",
+    "HERETIX (5 t)",
     ha="center",
     va="center",
     fontsize=15,
     fontweight="bold",
-    rotation=8,
+    rotation=9.5,
     alpha=0.8,
 )
 
@@ -357,25 +357,25 @@ df_xlzd = pd.read_csv("./data/XLZD_design_book.csv",
 
 
 label_map = {
-    "nominal_max": "XLZD (60 t)",
-    "sapphire_enriched_cut_max": "H-TPC (5 t)",
-    "sapphire_enriched_cut_10p_max": "H-TPC 10% abs."
+    "nominal_max": "XLZD (20.3 years)",
+    "sapphire_enriched_cut_max": "HERETIX (23.2 years)",
+    "sapphire_enriched_cut_10p_max": "HERETIX 10% abs."
 }
 
 colors = {
-    "nominal_max": "green",
+    "nominal_max": "orange",
     "sapphire_enriched_cut_max": "black",
     "sapphire_enriched_cut_10p_max": "tab:red",
 }
 
 ul_labels = {
-    "nominal_max": 6e-48,
-    "sapphire_enriched_cut_max": 1.1e-48,
+    "nominal_max": 4.6e-48,
+    "sapphire_enriched_cut_max": 5.0e-49,
     "sapphire_enriched_cut_10p_max": 1.75e-47,
 }
 
 plt.plot(df_xlzd["mass_1000"].values, df_xlzd["sigma_1000"].values, 
-         label="XLZD (1000 ty)", color="orange", ls="-", lw=2)
+         label="XLZD (1000 ty)", color="green", ls="-", lw=2)
 
 lz = pd.read_csv("./data/Fig5_SpinIndependentLimitAndSensitivity.txt", sep='\t', comment="#", header=None, skiprows=1,
             names=["mass", "limit", "-2sigma", "-1sigma", "median", "1sigma", "2sigma", "median_3sigma_discovery"])
@@ -383,18 +383,16 @@ lz = pd.read_csv("./data/Fig5_SpinIndependentLimitAndSensitivity.txt", sep='\t',
 plt.fill_between(lz["mass"].values, 5e-46, lz["-1sigma"].values, color="gray", 
                  alpha=0.3, lw=0)
 
+data = {"nominal_max": {},
+        "sapphire_enriched_cut_max": {},
+        "sapphire_enriched_cut_10p_max": {},
+}
 with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
-    keys = ["sapphire_enriched_cut_max", "nominal_max"]
-
-    for key in keys:
+    for key in data.keys():
         if key in hdf:
             masses, ul_median = hdf[key][:]
-
-            # First interpolate
-            #interp = PchipInterpolator(
-            #    np.log10(masses),
-            #    np.log10(ul_median)
-            #)
+            data[key]["masses"] = masses
+            data[key]["ul_median"] = ul_median
 
             masses_dense = np.logspace(
                 np.log10(6),
@@ -402,52 +400,61 @@ with h5py.File("data/sens_plot_data.hdf5", "r") as hdf:
                 1000
             )
 
-            #log_ul_dense = interp(np.log10(masses_dense))
-
-            # Then smooth
-            #log_ul_dense = savgol_filter(
-            #    log_ul_dense,
-            #    window_length=151,
-            #    polyorder=1
-            #)
-
-            #ul_dense = 10**log_ul_dense
-
             spl = UnivariateSpline(np.log10(masses), np.log10(ul_median), k=3, s=0.01)
             ul_dense = 10**spl(np.log10(masses_dense))
 
-            ax1.plot(
-                masses_dense,
-                ul_dense,
-                color=colors[key],
-                lw=3,
-                ls="-" if not "nominal" in key else (0, (5, 5)),
-            )
+            data[key]["masses_dense"] = masses_dense
+            data[key]["ul_dense"] = ul_dense
 
-            # place label at x ~ 500 GeV
-            if key == "sapphire_enriched_cut_max":
-                idx = np.argmin(np.abs(masses - 200))
-            else:
-                idx = np.argmin(np.abs(masses - 1000))
+# fill between sapphire_enriched_cut_max and sapphire_enriched_cut_10p_max
+#if "sapphire_enriched_cut_max" in data.keys() and "sapphire_enriched_cut_10p_max" in data.keys():
+#    ax1.fill_between(
+#        data["sapphire_enriched_cut_max"]["masses_dense"],
+#        data["sapphire_enriched_cut_max"]["ul_dense"],
+#        data["sapphire_enriched_cut_10p_max"]["ul_dense"],
+#        color="red",
+#        alpha=1,
+#        zorder=0,
+#        label="HERETIX band",
+#    )
 
-            ax1.text(
-                masses[idx],
-                ul_labels[key],
-                label_map[key],
-                color=colors[key],
-                fontsize=15,
-                fontweight="bold",
-                rotation=37,
-                ha="left",
-                va="center",
-            )
+keys = ["sapphire_enriched_cut_max", "nominal_max"]
+
+for key in keys:
+    if key in data.keys():
+
+        ax1.plot(
+            data[key]["masses_dense"],
+            data[key]["ul_dense"],
+            color=colors[key],
+            lw=3,
+            ls="-" if not "nominal" in key else (0, (5, 5)),
+        )
+
+        # place label at x ~ 500 GeV
+        if key == "sapphire_enriched_cut_max":
+            idx = np.argmin(np.abs(data[key]["masses"] - 50))
+        else:
+            idx = np.argmin(np.abs(data[key]["masses"] - 600))
+
+        ax1.text(
+            data[key]["masses"][idx],
+            ul_labels[key],
+            label_map[key],
+            color=colors[key],
+            fontsize=13,
+            fontweight="bold",
+            rotation=38 if key != "sapphire_enriched_cut_max" else 35,
+            ha="left",
+            va="center",
+        )
 
 ax1.text(
     masses[idx],
-    1.9e-48,
-    "XLZD (2024)",
-    color="orange",
-    fontsize=15,
+    1.1e-48,
+    "XLZD (60 t)",
+    color="green",
+    fontsize=13,
     fontweight="bold",
     rotation=37,
     ha="left",
