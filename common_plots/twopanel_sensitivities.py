@@ -62,7 +62,7 @@ m,sig,NUFLOOR,DY = Floor_2D(data)
 
 fig, (ax0, ax1) = plt.subplots(
     1, 2,
-    figsize=(12, 5),
+    figsize=(14, 6),
     constrained_layout=True
 )
 
@@ -72,96 +72,103 @@ fig, (ax0, ax1) = plt.subplots(
 
 enrichment = 0.9
 
-def half_life_from_events(
+def half_life_from_events_mv(
     Nsig,
-    mass_kg=1000,
-    livetime_yr=1,
+    mass_kg,
+    livetime_yr,
     enrichment=0.90,
     efficiency=1.0,
 ):
-    NA = 6.02214076e23  # mol^-1
-    m136_g_per_mol = 135.907214  # Xe-136 molar mass
+    NA = 6.02214076e23
+    m136_g_per_mol = 135.907214
 
     mass_g = mass_kg * 1000
-
     N_xe136 = mass_g * enrichment / m136_g_per_mol * NA
 
-    T12 = np.log(2) * N_xe136 * efficiency * livetime_yr / Nsig
+    return np.log(2) * N_xe136 * efficiency * livetime_yr / Nsig
 
-    return T12
+def load_limit_band(
+    path,
+    total_mass_tonnes,
+    enrichment=0.9,
+    spline_s=1e68,
+):
+    with open(path, "rb") as f:
+        limits = pickle.load(f)
+
+    years = np.array(sorted(limits.keys()))
+
+    out = {"years": years}
+
+    for key in ["median", "p16", "p84", "p025", "p975"]:
+        mu90 = np.array([limits[x][key] for x in years])
+
+        # mu90 is events / tonne / year
+        Nsig90 = mu90 * total_mass_tonnes * years
+
+        hl = half_life_from_events_mv(
+            Nsig90,
+            mass_kg=total_mass_tonnes * 1000,
+            livetime_yr=years,
+            enrichment=enrichment,
+        )
+
+        out[key] = hl
+
+        spl = UnivariateSpline(
+            years,
+            hl,
+            w=1 / years,
+            s=spline_s,
+        )
+        out[f"{key}_smooth"] = spl(years_smooth)
+
+    return out
 
 # -----------------------------
 # HTPC Scenarios
 # -----------------------------
-with open("data/limits_by_livetime_newoptimal.pkl", "rb") as f:
-    limits_1p5_noptimal = pickle.load(f)
 
-exposure_1p5_noptimal = np.array(sorted(limits_1p5_noptimal.keys()))   # actually tonne-years
-years_1p5_noptimal = exposure_1p5_noptimal / 1.64
+mass_vol1 = 1.627
+mass_vol2 = 1.16
+total_mass_tonnes = mass_vol1 + mass_vol2
+years_smooth = np.linspace(0, 12, 400)
 
-median_1p5_noptimal = np.array([limits_1p5_noptimal[x]["median"] for x in exposure_1p5_noptimal])
-hl_1p5_noptimal = half_life_from_events(median_1p5_noptimal, enrichment=enrichment)
+band_2vol_2p6 = load_limit_band(
+    "data/limits_by_livetime_twovolume_2p6.pkl",
+    total_mass_tonnes=total_mass_tonnes,
+    enrichment=enrichment,
+)
 
-with open("data/limits_by_livetime_newoptimistic.pkl", "rb") as f:
-    limits_1p5_noptimistic = pickle.load(f)
-
-exposure_1p5_noptimistic = np.array(sorted(limits_1p5_noptimistic.keys()))   # actually tonne-years
-years_1p5_noptimistic = exposure_1p5_noptimistic / 1.64
-
-median_1p5_noptimistic = np.array([limits_1p5_noptimistic[x]["median"] for x in exposure_1p5_noptimistic])
-hl_1p5_noptimistic = half_life_from_events(median_1p5_noptimistic, enrichment=enrichment)
+band_2vol_opt = load_limit_band(
+    "data/limits_by_livetime_twovolume_2p6_opt.pkl",
+    total_mass_tonnes=total_mass_tonnes,
+    enrichment=enrichment,
+)
 
 # -----------------------------
 # Smooth on common calendar-year grid
 # -----------------------------
-xmin = max(years_1p5_noptimal.min(), years_1p5_noptimal.min())
-xmax = min(years_1p5_noptimistic.max(), years_1p5_noptimistic.max())
-
-years_smooth = np.linspace(xmin, xmax, 400)
-
-weights_noptimal = 1 / years_1p5_noptimal
-weights_noptimistic = 1 / years_1p5_noptimistic
-
-spl_1p5_noptimal = UnivariateSpline(
-    years_1p5_noptimal,
-    hl_1p5_noptimal,
-    w=weights_noptimal,
-    s=1e68
+ax0.plot(
+    years_smooth,
+    band_2vol_2p6["median_smooth"],
+    color='black',
+    linewidth=2.5,
 )
-
-spl_1p5_noptimistic = UnivariateSpline(
-    years_1p5_noptimistic,
-    hl_1p5_noptimistic,
-    w=weights_noptimistic,
-    s=1e68
-)
-
-smooth_1p5_noptimal = spl_1p5_noptimal(years_smooth)
-smooth_1p5_noptimistic = spl_1p5_noptimistic(years_smooth)
-
 
 ax0.plot(
     years_smooth,
-    smooth_1p5_noptimal,
-    color="black",
+    band_2vol_opt["median_smooth"],
     linewidth=2,
-    label="Nominal",
-)
-
-ax0.plot(
-    years_smooth,
-    smooth_1p5_noptimistic,
-    color="black",
     linestyle="--",
-    linewidth=2,
-    label="Optimistic",
+    color='black'
 )
 
 ax0.fill_between(
     years_smooth,
-    smooth_1p5_noptimal,
-    smooth_1p5_noptimistic,
-    alpha=0.25,
+    band_2vol_2p6["median_smooth"],
+    band_2vol_opt["median_smooth"],
+    alpha=0.3,
 )
 
 # -----------------------------
@@ -193,8 +200,8 @@ ax0.annotate(
     color="blue",
 )
 
-# KamLAND2-Zen target: ~2e27 yr in 10 years
-kamland2_years = 10
+# KamLAND2-Zen target: ~2e27 yr in 5 years
+kamland2_years = 5
 kamland2_sensitivity = 2.0e27
 
 ax0.scatter(
@@ -212,7 +219,7 @@ ax0.scatter(
 ax0.annotate(
     "KamLAND2-Zen",
     (kamland2_years, kamland2_sensitivity),
-    xytext=(-80, 12),
+    xytext=(-60, 12),
     textcoords="offset points",
     fontsize=15,
     fontweight="bold",
@@ -220,8 +227,8 @@ ax0.annotate(
 )
 
 # NEXT-HD: ~1.2e27 yr in <5 years
-nexthd_years = 5
-nexthd_sensitivity = 1.2e27
+nexthd_years = 10
+nexthd_sensitivity = 3.0e27
 
 ax0.scatter(
     nexthd_years,
@@ -238,7 +245,7 @@ ax0.scatter(
 ax0.annotate(
     "NEXT-HD",
     (nexthd_years, nexthd_sensitivity),
-    xytext=(12, -5),
+    xytext=(-30, -24),
     textcoords="offset points",
     fontsize=15,
     fontweight="bold",
@@ -310,7 +317,7 @@ ax0.fill_between(
 )
 
 ax0.text(
-    9, 1.65e28,
+    9, 2.65e28,
     "HERETIX (5 t)",
     ha="center",
     va="center",
@@ -343,7 +350,7 @@ ax0.tick_params(which="minor", length=2.5)
 
 ax0.set_xlabel("Exposure [years]")
 ax0.set_ylabel(r"$T^{0\nu\beta\beta}_{1/2}$ exclusion limit (90% CL) [years]")
-ax0.set_ylim(0.5e27, 3e28)
+ax0.set_ylim(0.5e27, 5e28)
 ax0.set_xlim(0.25, 12)
 
 #ax0.legend(loc="lower right")
