@@ -365,7 +365,7 @@ df_xlzd = pd.read_csv("./data/XLZD_design_book.csv",
 
 
 label_map = {
-    "nominal_max": "XLZD (20.3 years)",
+    "nominal_max": "XLZD (20.8 years)",
     "sapphire_enriched_cut_max": "HERETIX (23.2 years)",
     "sapphire_enriched_cut_10p_max": "HERETIX 10% abs."
 }
@@ -459,7 +459,7 @@ for key in keys:
 
 ax1.text(
     masses[idx],
-    1.1e-48,
+    1.0e-48,
     "XLZD (60 t)",
     color="green",
     fontsize=13,
