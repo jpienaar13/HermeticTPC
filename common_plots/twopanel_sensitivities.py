@@ -290,6 +290,15 @@ smooth_xlzd_high = UnivariateSpline(
 smooth_xlzd_low = smooth_xlzd_low(years_xlzd_smooth)
 smooth_xlzd_high = smooth_xlzd_high(years_xlzd_smooth)
 
+years_xlzd_smooth = np.append(years_xlzd_smooth, [12])
+smooth_xlzd_low = np.append(smooth_xlzd_low, hl_xlzd_low[-1])
+smooth_xlzd_high = np.append(smooth_xlzd_high, hl_xlzd_high[-1])
+
+years_xlzd_low = np.append(years_xlzd_low, [12])
+hl_xlzd_low = np.append(hl_xlzd_low, hl_xlzd_low[-1])
+years_xlzd_high = np.append(years_xlzd_high, [12])
+hl_xlzd_high = np.append(hl_xlzd_high, hl_xlzd_high[-1])
+
 ax0.plot(
     years_xlzd_low,
     hl_xlzd_low,
@@ -523,5 +532,5 @@ cbar.ax.tick_params(which='major',direction='in',width=2,length=13,right=True,to
 #ax0.text(0.03, 0.95, "(a)", transform=ax0.transAxes, fontsize=14, fontweight="bold", va="top")
 #ax1.text(0.03, 0.95, "(b)", transform=ax1.transAxes, fontsize=14, fontweight="bold", va="top")
 
-plt.savefig("combined_sensitivities.png", bbox_inches="tight", dpi=300)
+plt.savefig("combined_sensitivities.pdf", bbox_inches="tight", dpi=300)
 plt.show()

@@ -100,7 +100,7 @@ T12 = median_rate_10yr * enrichment / 0.90
 # -----------------------------
 # Plot
 # -----------------------------
-plt.figure(figsize=(7, 6))
+plt.figure(figsize=(6, 5.5))
 
 plt.plot(
     enrichment * 100,
@@ -168,4 +168,5 @@ plt.xlabel(r"$^{136}$Xe enrichment [%]")
 plt.ylabel(r"$T^{0\nu\beta\beta}_{1/2}$ exclusion limit (90% CL) [yr]")
 
 plt.tight_layout()
+plt.savefig("enrichment_plot.pdf", bbox_inches="tight", dpi=300)
 plt.show()
